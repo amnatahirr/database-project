@@ -1,22 +1,27 @@
-const User = require("../models/User");
+const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 
 
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, role } = req.body;
+    const { name, email, password, role, keywords } = req.body;
 
     // Validate role
     if (!["job_seeker", "employer", "admin"].includes(role)) {
       return res.status(400).json({ message: "Invalid role specified" });
     }
 
+    // Validate keywords for job seekers or employers
+    if ((role === "job_seeker" || role === "employer") && (!keywords || !keywords.length)) {
+      return res.status(400).json({ message: "Keywords are required for job seekers or employers" });
+    }
+
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // Create user
-    const user = new User({ name, email, password: hashedPassword, role });
+    const user = new User({ name, email, password: hashedPassword, role, keywords });
     await user.save();
 
     res.status(201).json({ message: "User registered successfully", user });
@@ -24,6 +29,7 @@ exports.registerUser = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
 
 
 exports.loginUser = async (req, res) => {
