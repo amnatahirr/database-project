@@ -1,5 +1,5 @@
 // models/Job.js
-const mongoose = require('mongoose');
+const mongoose = require("mongoose");
 
 const jobSchema = new mongoose.Schema({
   title: {
@@ -16,10 +16,25 @@ const jobSchema = new mongoose.Schema({
   },
   employer: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
+    ref: "User",
+    required: true,
   },
-  
+  salaryRange: {
+    type: String,
+    default: "Negotiable",
+  },
+  employmentType: {
+    type: String,
+    enum: ["Full-time", "Part-time", "Contract", "Temporary"],
+    default: "Full-time",
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
 });
 
-const Job = mongoose.model('Job', jobSchema);
+const Job = mongoose.model("Job", jobSchema);
 module.exports = Job;
+
+
