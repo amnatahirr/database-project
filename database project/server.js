@@ -33,6 +33,10 @@ const notificationRoutes = require('./routes/notificationRoutes'); // Adjust the
 app.use('/notification', notificationRoutes);
 
 
+const forgotPassword = require('./routes/forgot-password');
+app.use('/forgotPassword', forgotPassword); 
+
+
 // Frontend Routes
 app.get('/', (req, res) => {
   res.render('users/index', { layout: 'layouts/main' });
@@ -54,6 +58,13 @@ app.get('/admin', (req, res) => {
   res.render('users/admin', { layout: 'layouts/main' });
 });
 
+app.get('/forgotPassword', (req, res) => {
+  res.render('users/forgotPassword', { layout: 'layouts/main' }); 
+});
+
+app.get('/resetPassword',(req,res)=>{
+  res.render('users/resetPassword',{layout:"layouts/main"});
+});
 
 connectDB();
 // Start the server
