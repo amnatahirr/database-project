@@ -6,7 +6,7 @@ const nodemailer = require('nodemailer');
 
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password ,role, keywords } = req.body;
+    const { name, email, password, role, keywords } = req.body;
 
     // Validate role
     if (!["job_seeker", "employer", "admin"].includes(role)) {
@@ -19,12 +19,18 @@ exports.registerUser = async (req, res) => {
     }
 
     // Validate password strength
-    const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/; // At least 8 characters, one uppercase, one number
+    const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!passwordRequirements.test(password)) {
-      return res.status(400).json({ message: "Password must be at least 8 characters long, include at least one uppercase letter, and one number." });
+      return res.status(400).json({ 
+        message: "Password must be at least 8 characters long, include at least one uppercase letter, and one number." 
+      });
     }
 
-    
+    // Check if email is already registered
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email is already registered" });
+    }
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -33,14 +39,13 @@ exports.registerUser = async (req, res) => {
     const user = new User({ name, email, password: hashedPassword, role, keywords });
     await user.save();
 
-    res.status(201).json({ message: "User registered successfully", user });
+    // Respond with success
+    return res.redirect("/login"); // Use either res.json() or res.redirect(), not both
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    console.error("Error registering user:", err);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
-
-
-
 
 
 exports.loginUser = async (req, res) => {
@@ -60,11 +65,14 @@ exports.loginUser = async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    res.status(200).json({ message: "Login successful", token, role: user.role });
+    // Redirect to dashboard after successful login
+    return res.redirect("/dashboard");
   } catch (err) {
-    res.status(400).json({ message: err.message });
+    console.error("Error logging in user:", err);
+    return res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 exports.updateProfile = async (req, res) => {
   try {
@@ -124,6 +132,7 @@ exports.forgotPassword = async (req, res) => {
     });
 
     const resetLink = `${process.env.CLIENT_URL}/resetPassword?token=${token}`;
+
     const mailOptions = {
       from: process.env.MY_GMAIL,
       to: email,
@@ -163,6 +172,7 @@ exports.resetPassword = async (req, res) => {
     await user.save();
 
     res.status(200).json({ message: 'Password reset successful' });
+   return  res.redirect("/login");
   } catch (error) {
     console.error('Error resetting password:', error);
     res.status(500).json({ message: 'Invalid or expired token' });

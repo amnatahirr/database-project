@@ -1,10 +1,15 @@
 <h1>Login</h1>
-<form action="users/login" method="POST">
+<form action="/users/login" method="POST">
   <label for="email">Email:</label>
   <input type="email" name="email" id="email" required>
   
   <label for="password">Password:</label>
-  <input type="password" name="password" id="password" required>
+  <div style="position: relative;">
+    <input type="password" name="password" id="login-password" required>
+    <span id="login-toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+      👁️
+    </span>
+  </div>
   
   <button type="submit">Login</button>
   
@@ -13,3 +18,15 @@
     <a href="/forgotPassword">Forgot Password?</a>
   </p>
 </form>
+
+<script>
+  // Toggle password visibility for Login form
+  const loginTogglePassword = document.getElementById('login-toggle-password');
+  const loginPasswordInput = document.getElementById('login-password');
+  
+  loginTogglePassword.addEventListener('click', function() {
+    const type = loginPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    loginPasswordInput.setAttribute('type', type);
+    this.textContent = type === 'password' ? '👁️' : '🙈'; // Change icon based on visibility
+  });
+</script>

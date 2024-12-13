@@ -62,7 +62,8 @@ app.get('/admin', (req, res) => {
 });
 
 app.get('/resetPassword',(req,res)=>{
-  res.render('users/resetPassword',{layout:"layouts/main"});
+  const { token } = req.query;
+  res.render('users/resetPassword',{layout:"layouts/main",token});
 });
 
 connectDB();
