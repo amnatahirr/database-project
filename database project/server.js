@@ -34,8 +34,6 @@ app.use('/job', jobRoutes);
 app.use('/notification', notificationRoutes);
 
 
-
-
 // Frontend Routes
 app.get('/', (req, res) => {
   res.render('users/index', { layout: 'layouts/main' });
