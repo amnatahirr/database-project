@@ -1,26 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title><%= "Job Portal" %></title>
-  <link href="/css/style.css" rel="stylesheet" type="text/css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Job Portal</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-  <header>
-    <nav>
-      <a href="/">Home</a>
-      <a href="/register">Register</a>
-      <a href="/login">Login</a>
-      <a href="/dashboard">Dashboard</a>
-      <a href="/admin">Admin</a>
-    </nav>
-  </header>
-  <main>
-    <%- body %>
-  </main>
-  <footer>
-    <p>&copy; 2024 Job Portal</p>
-  </footer>
+    <header>
+        <nav>
+            <div class="container">
+                <a href="/" class="logo">JobPortal</a>
+                <ul>
+                    <li><a href="/">Home</a></li>
+                    <li><a href="/login">Login</a></li>
+                    <li><a href="/register">Register</a></li>
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <main>
+        <div class="container">
+            <%- body %>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2023 JobPortal. All rights reserved.</p>
+        </div>
+    </footer>
 </body>
 </html>

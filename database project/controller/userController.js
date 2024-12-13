@@ -89,6 +89,7 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
+
 exports.uploadResume = async (req, res) => {
   try {
     const { id } = req.params;
