@@ -5,7 +5,7 @@ const jwt = require("jsonwebtoken");
 
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, role, keywords } = req.body;
+    const { name, email, password ,role, keywords } = req.body;
 
     // Validate role
     if (!["job_seeker", "employer", "admin"].includes(role)) {
@@ -16,6 +16,14 @@ exports.registerUser = async (req, res) => {
     if ((role === "job_seeker" || role === "employer") && (!keywords || !keywords.length)) {
       return res.status(400).json({ message: "Keywords are required for job seekers or employers" });
     }
+
+    // Validate password strength
+    const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/; // At least 8 characters, one uppercase, one number
+    if (!passwordRequirements.test(password)) {
+      return res.status(400).json({ message: "Password must be at least 8 characters long, include at least one uppercase letter, and one number." });
+    }
+
+    
 
     // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -29,6 +37,8 @@ exports.registerUser = async (req, res) => {
     res.status(400).json({ message: err.message });
   }
 };
+
+
 
 
 

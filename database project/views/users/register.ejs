@@ -1,5 +1,5 @@
 <h1>Register</h1>
-<form action="/users/register" method="POST">
+<form action="/users/register" method="POST" id="register-form">
   <label for="name">Name:</label>
   <input type="text" name="name" id="name" required>
   
@@ -7,7 +7,13 @@
   <input type="email" name="email" id="email" required>
   
   <label for="password">Password:</label>
-  <input type="password" name="password" id="password" required>
+  <div style="position: relative;">
+    <input type="password" name="password" id="password" required>
+    <span id="toggle-password" style="position: absolute; right: 10px; top: 50%; transform: translateY(-50%); cursor: pointer;">
+      👁️
+    </span>
+  </div>
+  <small>Password must be at least 8 characters long, include at least one uppercase letter, and one number.</small>
   
   <label for="role">Role:</label>
   <select name="role" id="role" onchange="toggleKeywords(this.value)" required>
@@ -20,102 +26,71 @@
   <div id="keywords-container" style="display:none;">
     <label>Select Your Profession:</label>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="Web Developer"> Web Developer
-      </label>
+      <label><input type="checkbox" name="keywords" value="Web Developer"> Web Developer</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="Software Engineer"> Software Engineer
-      </label>
+      <label><input type="checkbox" name="keywords" value="Software Engineer"> Software Engineer</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="Electrical Engineer"> Electrical Engineer
-      </label>
+      <label><input type="checkbox" name="keywords" value="Web Developer"> Web Developer</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="Data Scientist"> Data Scientist
-      </label>
+      <label><input type="checkbox" name="keywords" value="Software Engineer"> Software Engineer</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="UI/UX Designer"> UI/UX Designer
-      </label>
+      <label><input type="checkbox" name="keywords" value="Electrical Engineer"> Electrical Engineer</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="Product Manager"> Product Manager
-      </label>
+      <label><input type="checkbox" name="keywords" value="Data Scientist"> Data Scientist</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="Marketing Specialist"> Marketing Specialist
-      </label>
+      <label><input type="checkbox" name="keywords" value="UI/UX Designer"> UI/UX Designer</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="Data Analyst"> Data Analyst
-      </label>
+      <label><input type="checkbox" name="keywords" value="Product Manager"> Product Manager</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="Network Administrator"> Network Administrator
-      </label>
+      <label><input type="checkbox" name="keywords" value="Marketing Specialist"> Marketing Specialist</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="System Analyst"> System Analyst
-      </label>
+      <label><input type="checkbox" name="keywords" value="Data Analyst"> Data Analyst</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="DevOps Engineer"> DevOps Engineer
-      </label>
+      <label><input type="checkbox" name="keywords" value="Network Administrator"> Network Administrator</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="Cybersecurity Analyst"> Cybersecurity Analyst
-      </label>
+      <label><input type="checkbox" name="keywords" value="System Analyst"> System Analyst</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="Database Administrator"> Database Administrator
-      </label>
+      <label><input type="checkbox" name="keywords" value="DevOps Engineer"> DevOps Engineer</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="Graphic Designer"> Graphic Designer
-      </label>
+      <label><input type="checkbox" name="keywords" value="Cybersecurity Analyst"> Cybersecurity Analyst</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="Content Writer"> Content Writer
-      </label>
+      <label><input type="checkbox" name="keywords" value="Database Administrator"> Database Administrator</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="Sales Executive"> Sales Executive
-      </label>
+      <label><input type="checkbox" name="keywords" value="Graphic Designer"> Graphic Designer</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="Web Designer"> Web Designer
-      </label>
+      <label><input type="checkbox" name="keywords" value="Content Writer"> Content Writer</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="Mobile App Developer"> Mobile App Developer
-      </label>
+      <label><input type="checkbox" name="keywords" value="Sales Executive"> Sales Executive</label>
     </div>
     <div>
-      <label>
-        <input type="checkbox" name="keywords" value="Blockchain Developer"> Blockchain Developer
-      </label>
+      <label><input type="checkbox" name="keywords" value="Web Designer"> Web Designer</label>
+    </div>
+    <div>
+      <label><input type="checkbox" name="keywords" value="Mobile App Developer"> Mobile App Developer</label>
+    </div>
+    <div>
+      <label><input type="checkbox" name="keywords" value="Blockchain Developer"> Blockchain Developer</label>
     </div>
     <small>Select multiple professions by checking the boxes.</small>
   </div>
+
 
   <button type="submit">Register</button>
 </form>
@@ -123,10 +98,28 @@
 <script>
   function toggleKeywords(role) {
     const keywordsContainer = document.getElementById('keywords-container');
-    if (role === "job_seeker" || role === "employer") {
-      keywordsContainer.style.display = "block";
-    } else {
-      keywordsContainer.style.display = "none";
-    }
+    // Show keywords only for job seekers and employers
+    keywordsContainer.style.display = (role === "job_seeker" || role === "employer") ? "block" : "none";
   }
+
+  document.getElementById('register-form').addEventListener('submit', function(event) {
+    const password = document.getElementById('password').value.trim(); // Trim whitespace
+    const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/; // At least 8 characters, one uppercase, one number
+
+    // Validate password format
+    if (!passwordRequirements.test(password)) {
+      event.preventDefault();
+      alert("Password must be at least 8 characters long, include at least one uppercase letter, and one number.");
+      return;
+    }
+  });
+
+  // Toggle password visibility
+  const togglePassword = document.getElementById('toggle-password');
+  const passwordInput = document.getElementById('password');
+  togglePassword.addEventListener('click', function() {
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+    this.textContent = type === 'password' ? '👁️' : '🙈'; // Change icon based on visibility
+  });
 </script>
