@@ -2,9 +2,11 @@ const express = require('express');
 const dotenv = require('dotenv');
 const path = require('path');
 const expressLayouts = require('express-ejs-layouts');
-const app = express();
 const connectDB = require('./db');
+
 dotenv.config();
+
+const app = express();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
@@ -17,24 +19,21 @@ app.set('views', path.join(__dirname, 'views'));
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-const userRoutes = require('./routes/userRoutes'); // Adjust the path if needed
+// Import routes
+const userRoutes = require('./routes/userRoutes');
+const adminRoutes = require('./routes/adminRoutes');
+const applicationRoutes = require('./routes/applicationRoutes');
+const jobRoutes = require('./routes/jobRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+
+// Use routes
 app.use('/users', userRoutes);
-
-const adminRoutes = require('./routes/adminRoutes'); // Adjust the path if needed
 app.use('/admin', adminRoutes);
-
-const applicationRoutes = require('./routes/applicationRoutes'); // Adjust the path if needed
 app.use('/application', applicationRoutes);
-
-const jobRoutes = require('./routes/jobRoutes'); // Adjust the path if needed
 app.use('/job', jobRoutes);
-
-const notificationRoutes = require('./routes/notificationRoutes'); // Adjust the path if needed
 app.use('/notification', notificationRoutes);
 
 
-const forgotPassword = require('./routes/forgot-password');
-app.use('/forgotPassword', forgotPassword); 
 
 
 // Frontend Routes
@@ -50,16 +49,16 @@ app.get('/register', (req, res) => {
   res.render('users/register', { layout: 'layouts/main' });
 });
 
+app.get('/forgotPassword', (req, res) => {
+  res.render('users/forgotPassword', { layout: 'layouts/main' }); 
+});
+
 app.get('/dashboard', (req, res) => {
   res.render('users/dashboard', { layout: 'layouts/main' });
 });
 
 app.get('/admin', (req, res) => {
   res.render('users/admin', { layout: 'layouts/main' });
-});
-
-app.get('/forgotPassword', (req, res) => {
-  res.render('users/forgotPassword', { layout: 'layouts/main' }); 
 });
 
 app.get('/resetPassword',(req,res)=>{
