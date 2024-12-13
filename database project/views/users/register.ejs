@@ -1,0 +1,17 @@
+
+<h1>Register</h1>
+<form action="users/register" method="POST">
+  <label for="name">Name:</label>
+  <input type="text" name="name" id="name" required>
+  <label for="email">Email:</label>
+  <input type="email" name="email" id="email" required>
+  <label for="password">Password:</label>
+  <input type="password" name="password" id="password" required>
+  <label for="role">Role:</label>
+  <select name="role" id="role">
+    <option value="job_seeker">Job Seeker</option>
+    <option value="employer">Employer</option>
+    <option value="admin">Admin</option>
+  </select>
+  <button type="submit">Register</button>
+</form>

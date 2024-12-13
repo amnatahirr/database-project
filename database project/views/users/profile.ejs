@@ -1,0 +1,11 @@
+<% layout('layouts/main') %>
+<h1>Profile</h1>
+<div>
+  <p>Name: <%= user.name %></p>
+  <p>Email: <%= user.email %></p>
+  <p>Role: <%= user.role %></p>
+</div>
+<form action="users/profile/<%= user._id %>" method="POST">
+  <textarea name="updates" placeholder="Update profile"></textarea>
+  <button type="submit">Update</button>
+</form>

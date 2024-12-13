@@ -1,55 +1,65 @@
 const express = require('express');
 const dotenv = require('dotenv');
-const connectDB = require('./db');
 const path = require('path');
-
-dotenv.config();
-
+const expressLayouts = require('express-ejs-layouts');
 const app = express();
+const connectDB = require('./db');
+dotenv.config();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Set up EJS as the view engine
+// Set up EJS
+app.use(expressLayouts);
+app.set('layout', 'layouts/main'); // Default layout
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'views'));
 
 // Serve static files
 app.use(express.static(path.join(__dirname, 'public')));
 
-connectDB();
+const userRoutes = require('./routes/userRoutes'); // Adjust the path if needed
+app.use('/users', userRoutes);
 
-const userRoutes = require('./routes/userRoutes');
-const jobRoutes = require('./routes/jobRoutes');
-const adminRoutes = require('./routes/adminRoutes');
-const applicationRoutes = require('./routes/applicationRoutes');
+const adminRoutes = require('./routes/adminRoutes'); // Adjust the path if needed
+app.use('/admin', adminRoutes);
 
-app.use('/api/users', userRoutes);
-app.use('/api/jobs', jobRoutes);
-app.use('/api/admin', adminRoutes);
-app.use('/api/application', applicationRoutes);
+const applicationRoutes = require('./routes/applicationRoutes'); // Adjust the path if needed
+app.use('/application', applicationRoutes);
 
-// Frontend routes
+const jobRoutes = require('./routes/jobRoutes'); // Adjust the path if needed
+app.use('/job', jobRoutes);
+
+const notificationRoutes = require('./routes/notificationRoutes'); // Adjust the path if needed
+app.use('/notification', notificationRoutes);
+
+
+// Frontend Routes
 app.get('/', (req, res) => {
-  res.render('index');
+  res.render('users/index', { layout: 'layouts/main' });
 });
 
 app.get('/login', (req, res) => {
-  res.render('login');
+  res.render('users/login', { layout: 'layouts/main' });
 });
 
 app.get('/register', (req, res) => {
-  res.render('register');
+  res.render('users/register', { layout: 'layouts/main' });
 });
 
 app.get('/dashboard', (req, res) => {
-  res.render('dashboard');
+  res.render('users/dashboard', { layout: 'layouts/main' });
 });
 
 app.get('/admin', (req, res) => {
-  res.render('admin');
+  res.render('users/admin', { layout: 'layouts/main' });
 });
 
-app.listen(5000, () => {
-  console.log(`Server is running on port 5000`);
-});
+
+connectDB();
+// Start the server
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+
 
