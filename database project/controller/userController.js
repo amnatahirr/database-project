@@ -190,10 +190,11 @@ exports.resetPassword = async (req, res) => {
     user.password = hashedPassword;
     await user.save();
 
-    res.status(200).json({ message: "Password reset successful" });
-    return res.redirect("/login");
+    // Send only one response
+    return res.status(200).json({ message: "Password reset successful" });
+
   } catch (error) {
     console.error("Error resetting password:", error);
-    res.status(500).json({ message: "Invalid or expired token" });
+    return res.status(500).json({ message: "Invalid or expired token" });
   }
 };
