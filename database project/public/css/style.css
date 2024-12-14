@@ -182,14 +182,14 @@ select {
 /* Footer Styles */
 footer {
   width: 100%;
-  right: 0;
   background-color: #333;
   color: #fff;
   text-align: center;
   padding: 1rem 0;
-  position: absolute;
-  bottom: 0px;
+  position: absolute; /* Default positioning */
+  bottom: 0;
 }
+
 
 /* Responsive Design */
 @media (max-width: 768px) {

@@ -55,16 +55,46 @@
             </div>
             <small>Select multiple professions by checking the boxes.</small>
         </div>
-  
+
+        <div id="resume-container" class="form-group" style="display:none;">
+          <label for="resume">Upload Resume:</label>
+          <input type="file" name="resume" id="resume" accept=".pdf,.doc,.docx">
+          <small>Accepted formats: PDF, DOC, DOCX. Max size: 5MB.</small>
+        </div>
         <button type="submit" class="btn btn-primary">Register</button>
     </form>
   </section>
+  <footer>
+    <p>© 2024 Your Job Portal. All Rights Reserved.</p>
+  </footer>
+  
 
   <script>
     function toggleKeywords(role) {
       const keywordsContainer = document.getElementById('keywords-container');
-      keywordsContainer.style.display = (role === "job_seeker" || role === "employer") ? "block" : "none";
+      const resumeContainer = document.getElementById('resume-container');
+  
+      if (role === "job_seeker") {
+        keywordsContainer.style.display = "block";
+        resumeContainer.style.display = "block";
+      } else if (role === "employer") {
+        keywordsContainer.style.display = "block";
+        resumeContainer.style.display = "none";
+      } else {
+        keywordsContainer.style.display = "none";
+        resumeContainer.style.display = "none";
+      }
+      adjustFooter();
     }
+
+    function adjustFooter() {
+    const contentHeight = document.body.scrollHeight;
+    const windowHeight = window.innerHeight;
+    const footer = document.querySelector('footer');
+    footer.style.position = contentHeight > windowHeight ? 'relative' : 'absolute';
+  }
+  window.addEventListener('resize', adjustFooter);
+  window.addEventListener('DOMContentLoaded', adjustFooter);
   
     document.getElementById('register-form').addEventListener('submit', function(event) {
       const password = document.getElementById('password').value.trim();
@@ -79,9 +109,11 @@
   
     const togglePassword = document.getElementById('toggle-password');
     const passwordInput = document.getElementById('password');
+  
     togglePassword.addEventListener('click', function() {
-      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      passwordInput.setAttribute('type', type);
-      this.textContent = type === 'password' ? '👁️' : '🙈';
+      const isPasswordHidden = passwordInput.getAttribute('type') === 'password';
+      passwordInput.setAttribute('type', isPasswordHidden ? 'text' : 'password');
+      this.textContent = isPasswordHidden ? '🙈' : '👁️';
     });
   </script>
+  

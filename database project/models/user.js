@@ -6,6 +6,7 @@ const userSchema = new mongoose.Schema({
   password: String,
   role: { type: String, enum: ["job_seeker", "employer", "admin"] },
   keywords: [String],
+  resumeUrl: { type: String }, 
 });
 
 // Use `mongoose.models` to check if the model already exists
