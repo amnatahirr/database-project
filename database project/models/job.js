@@ -1,40 +1,61 @@
-// models/Job.js
 const mongoose = require("mongoose");
 
 const jobSchema = new mongoose.Schema({
-  title: {
+  jobTitle: {
     type: String,
     required: true,
+    trim: true
   },
-  description: {
+  companyName: {
     type: String,
     required: true,
+    trim: true
+  },
+  industry: {
+    type: String,
+    enum: [
+      'technology', 'healthcare', 'finance', 'education', 'manufacturing', 'retail', 'other'
+    ],
+    required: true
+  },
+  jobType: {
+    type: String,
+    enum: [
+      'Full-time', 'Part-time', 'Contract', 'Temporary', 'Internship', 'Remote'
+    ],
+    required: true
   },
   location: {
     type: String,
     required: true,
-  },
-  employer: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
-    required: true,
+    trim: true
   },
   salaryRange: {
     type: String,
-    default: "Negotiable",
+    trim: true
   },
-  employmentType: {
+  jobDescription: {
     type: String,
-    enum: ["Full-time", "Part-time", "Contract", "Temporary"],
-    default: "Full-time",
+    required: true,
+    trim: true
   },
-  createdAt: {
-    type: Date,
-    default: Date.now,
+  responsibilities: {
+    type: String,
+    required: true,
+    trim: true
   },
-});
+  requiredSkills: {
+    type: String,
+    required: true,
+    trim: true
+  },
+  keywords: {
+    type: [String], // Array of keywords
+    required: true
+  },
+}, { timestamps: true });
 
-const Job = mongoose.model("Job", jobSchema);
+// Create the Job model
+const Job = mongoose.model('Job', jobSchema);
 module.exports = Job;
-
 

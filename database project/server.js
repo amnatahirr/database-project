@@ -34,8 +34,6 @@ app.use('/job', jobRoutes);
 app.use('/notification', notificationRoutes);
 
 
-
-
 // Frontend Routes
 app.get('/', (req, res) => {
   res.render('users/index', { layout: 'layouts/main' });
@@ -65,6 +63,12 @@ app.get('/resetPassword',(req,res)=>{
   const { token } = req.query;
   res.render('users/resetPassword',{layout:"layouts/main",token});
 });
+
+app.get('/jobPostForm',(req,res)=>{
+  const { token } = req.query;
+  res.render('job/jobPostForm',{layout:"layouts/main",});
+});
+
 
 
 connectDB();
