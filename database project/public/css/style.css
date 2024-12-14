@@ -110,7 +110,6 @@ h1, h2, h3 {
 
 /* Form Styles */
 .auth-form {
-<<<<<<< HEAD
   max-width: 400px;
   margin: 0 auto;
   background-color: #fff;
@@ -225,8 +224,6 @@ footer {
 
 
 .auth-form {
-=======
->>>>>>> 99e52a5709419788dcbb22a44aa493b89aa0e7c6
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
