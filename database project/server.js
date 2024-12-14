@@ -64,6 +64,7 @@ app.get('/resetPassword',(req,res)=>{
   res.render('users/resetPassword',{layout:"layouts/main",token});
 });
 
+
 app.get('/jobPostForm',(req,res)=>{
   const { token } = req.query;
   res.render('job/jobPostForm',{layout:"layouts/main",});
