@@ -33,13 +33,14 @@ nav {
 }
 
 .logo {
-  margin-left:250px;
+  margin-left: 250px;
   font-size: 1.5rem;
   font-weight: bold;
   color: #fff;
   text-decoration: none;
 }
-.container2{
+
+.container2 {
   margin-right: 250px;
 }
 
@@ -56,7 +57,8 @@ nav ul li a {
   color: #fff;
   text-decoration: none;
 }
-nav ul li a:hover{
+
+nav ul li a:hover {
   color: #5bb4e3;
 }
 
@@ -108,126 +110,13 @@ h1, h2, h3 {
 
 /* Form Styles */
 .auth-form {
-  max-width: 400px;
-  margin: 0 auto;
-  background-color: #fff;
-  padding: 2rem;
-  border-radius: 5px;
-  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-}
-
-.form-group {
-  margin-bottom: 1rem;
-}
-
-label {
-  display: block;
-  margin-bottom: 0.5rem;
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"],
-select {
-  width: 100%;
-  padding: 0.5rem;
-  border: 1px solid #ddd;
-  border-radius: 3px;
-}
-
-.password-input {
-  position: relative;
-}
-
-.password-toggle {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  cursor: pointer;
-}
-
-.checkbox-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 0.5rem;
-}
-
-/* Button Styles */
-.btn {
-  display: inline-block;
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 3px;
-  cursor: pointer;
-  text-decoration: none;
-  transition: background-color 0.3s ease;
-}
-
-.btn-primary {
-  background-color: #0077b5;
-  color: #fff;
-}
-
-.btn-secondary {
-  background-color: #fff;
-  color: #0077b5;
-  border: 1px solid #0077b5;
-}
-
-.btn:hover {
-  opacity: 0.4;
-}
-
-/* Footer Styles */
-footer {
-  width: 100%;
-  right: 0;
-  background-color: #333;
-  color: #fff;
-  text-align: center;
-  padding: 1rem 0;
-  position: absolute;
-  bottom: 0px;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  nav {
-      flex-direction: column;
-  }
-
-  nav ul {
-      margin-top: 1rem;
-  }
-
-  nav ul li {
-      margin-left: 0;
-      margin-right: 20px;
-  }
-
-  .hero h1 {
-      font-size: 2rem;
-  }
-}
-
-.form-links{
-  margin-top: 1rem;
-  font-size: 0.9rem;
-}
-.form-links a:hover{
-  opacity: 0.5;
-}
-
-
-
-.auth-form {
   max-width: 600px;
   margin: 0 auto;
   padding: 20px;
   background-color: #f9f9f9;
   border-radius: 8px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
 }
 
 .form-group {
@@ -243,6 +132,7 @@ label {
 input[type="text"],
 input[type="email"],
 input[type="password"],
+textarea,
 select {
   width: 100%;
   padding: 8px;
@@ -300,4 +190,56 @@ small {
   display: block;
   margin-top: 5px;
   color: #666;
+}
+
+/* Footer Styles */
+footer {
+  width: 100%;
+  right: 0;
+  background-color: #333;
+  color: #fff;
+  text-align: center;
+  padding: 1rem 0;
+  position: absolute;
+  bottom: 0px;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  nav {
+    flex-direction: column;
+  }
+
+  nav ul {
+    margin-top: 1rem;
+  }
+
+  nav ul li {
+    margin-left: 0;
+    margin-right: 20px;
+  }
+
+  .hero h1 {
+    font-size: 2rem;
+  }
+}
+
+.form-links {
+  margin-top: 1rem;
+  font-size: 0.9rem;
+}
+
+.form-links a:hover {
+  opacity: 0.5;
+}
+
+.auth-form {
+  max-width: 600px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f9f9f9;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow-y: auto;
+  max-height: 75vh;
 }
