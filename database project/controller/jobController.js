@@ -1,42 +1,90 @@
 // controller/jobController.js
+const ErrorHandler = require("../middleware/error");
+const catchAsyncErrors = require("../middleware/catchAsyncError");
 const Job = require("../models/job");
 
-// Create a new job posting
-exports.createJob = async (req, res) => {
-  try {
-    const {
-      jobTitle,
-      companyName,
-      industry,
-      jobType,
-      location,
-      salaryRange,
-      jobDescription,
-      responsibilities,
-      requiredSkills,
-      keywords
-    } = req.body;
+// Get All Jobs method??
+// check update jobs and delete jobs 
+exports.getAllJobs = catchAsyncErrors(async (req, res, next) => {
 
-    // Create a new job using the data from the form
-    const job = new Job({
-      jobTitle,
-      companyName,
-      industry,
-      jobType,
-      location,
-      salaryRange,
-      jobDescription,
-      responsibilities,
-      requiredSkills,
-      keywords: keywords.split(",").map(keyword => keyword.trim()) // Split and trim keywords
-    });
+  const jobs = await Job.find({ expired: false });
+  res.status(200).json({
+    success: true,
+    jobs,
+  });
 
-    await job.save();
-    res.status(201).json({ message: "Job posted successfully", job });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+});
+
+// post new Job 
+exports.postJob = catchAsyncErrors(async (req, res, next) => {
+
+  const { role } = req.user;
+  if (role === "Job Seeker") {
+    return next(
+      new ErrorHandler("Job Seeker not allowed to access this resource.", 400)
+    );
   }
-};
+
+  // Creating a new job post
+  const {
+    jobTitle,
+    companyName,
+    industry,
+    jobType,
+    location,
+    salaryRange,
+    jobDescription,
+    responsibilities,
+    requiredSkills,
+  } = req.body;
+
+  if (!jobTitle || !companyName || !industry || !jobType || !location || !salaryRange || !jobDescription ||
+    !responsibilities || !requiredSkills) {
+    return next(new ErrorHandler("Please provide full job details.", 400));
+  }
+
+  const postedBy = req.user.id;  // `id` from JWT which is a string
+
+  const job = await Job.create({
+    jobTitle,
+    companyName,
+    industry,
+    jobType,
+    location,
+    salaryRange,
+    jobDescription,
+    responsibilities,
+    requiredSkills,
+    postedBy,  // Mongoose will automatically handle the type conversion
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Job Posted Successfully!",
+    job,
+  });
+});
+
+
+// get my jobs
+exports.getMyJobs = catchAsyncErrors(async (req, res, next) => {
+
+  const { role } = req.user;
+  if (role === "Job Seeker") {
+    return next(
+      new ErrorHandler("Job Seeker not allowed to access this resource.", 400)
+    );
+  }
+
+  const myJobs = await Job.find({ postedBy: req.user._id });
+  res.status(200).json({
+    success: true,
+    myJobs,
+  });
+
+});
+
+
 
 // Update an existing job posting
 exports.updateJob = async (req, res) => {
@@ -66,38 +114,60 @@ exports.deleteJob = async (req, res) => {
   }
 };
 
-// Get jobs with advanced filtering
-exports.getJobs = async (req, res) => {
+
+exports.getSingleJob = catchAsyncErrors(async (req, res, next) => {
+  
+  const { id } = req.params;
   try {
-    const {
-      jobTitle,
-      companyName,
-      industry,
-      jobType,
-      location,
-      salaryRange,
-      jobDescription,
-      responsibilities,
-      requiredSkills,
-      keywords
-    } = req.query;
-
-    const filters = {};
-
-    if (jobTitle) filters.jobTitle = { $regex: jobTitle, $options: "i" };
-    if (companyName) filters.companyName = { $regex: companyName, $options: "i" };
-    if (industry) filters.industry = industry;
-    if (jobType) filters.jobType = jobType;
-    if (location) filters.location = { $regex: location, $options: "i" };
-    if (salaryRange) filters.salaryRange = { $regex: salaryRange, $options: "i" };
-    if (jobDescription) filters.jobDescription = { $regex: jobDescription, $options: "i" };
-    if (responsibilities) filters.responsibilities = { $regex: responsibilities, $options: "i" };
-    if (requiredSkills) filters.requiredSkills = { $regex: requiredSkills, $options: "i" };
-    if (keywords) filters.keywords = { $regex: keywords.split(",").map(keyword => keyword.trim()).join("|"), $options: "i" };
-
-    const jobs = await Job.find(filters);
-    res.status(200).json(jobs);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+    const job = await Job.findById(id);
+    if (!job) {
+      return next(new ErrorHandler("Job not found.", 404));
+    }
+    res.status(200).json({
+      success: true,
+      job,
+    });
+  } catch (error) {
+    return next(new ErrorHandler(`Invalid ID / CastError`, 404));
   }
-};
+});
+
+// // Get jobs with advanced filtering
+// exports.getJobs = async (req, res) => {
+//   try {
+//     const {
+//       jobTitle,
+//       companyName,
+//       industry,
+//       jobType,
+//       location,
+//       salaryRange,
+//       jobDescription,
+//       responsibilities,
+//       requiredSkills,
+//       postedBy,
+//       expired,
+//       keywords
+//     } = req.query;
+
+//     const filters = {};
+
+//     if (jobTitle) filters.jobTitle = { $regex: jobTitle, $options: "i" };
+//     if (companyName) filters.companyName = { $regex: companyName, $options: "i" };
+//     if (industry) filters.industry = industry;
+//     if (jobType) filters.jobType = jobType;
+//     if (location) filters.location = { $regex: location, $options: "i" };
+//     if (salaryRange) filters.salaryRange = { $regex: salaryRange, $options: "i" };
+//     if (jobDescription) filters.jobDescription = { $regex: jobDescription, $options: "i" };
+//     if (responsibilities) filters.responsibilities = { $regex: responsibilities, $options: "i" };
+//     if (requiredSkills) filters.requiredSkills = { $regex: requiredSkills, $options: "i" };
+//     if (postedBy) filters.postedBy = postedBy;
+//     if (expired !== undefined) filters.expired = expired === 'true';
+//     if (keywords) filters.keywords = { $regex: keywords.split(",").map(keyword => keyword.trim()).join("|"), $options: "i" };
+
+//     const jobs = await Job.find(filters);
+//     res.status(200).json(jobs);
+//   } catch (err) {
+//     res.status(500).json({ error: err.message });
+//   }
+// };

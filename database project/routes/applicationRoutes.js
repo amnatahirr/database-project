@@ -1,10 +1,21 @@
-// routes/applicationRoutes.js
 const express = require("express");
-const { applyForJob, getApplicationsByUser, getApplicationsByJob } = require("../controller/applicationController");
+const { postApplication, employerGetAllApplications, jobseekerGetAllApplications, jobseekerDeleteApplication } = require("../controller/applicationController");
+const { authenticate } = require("../middleware/auth");
+
 const router = express.Router();
 
-router.post("/", applyForJob);
-router.get("/user/:userId", getApplicationsByUser);
-router.get("/job/:jobId", getApplicationsByJob);
+router.post("/post", authenticate, postApplication);
+router.get("/employer/getall", authenticate, employerGetAllApplications);
+router.get("/jobseeker/getall", authenticate, jobseekerGetAllApplications);
+router.delete("/delete/:id", authenticate, jobseekerDeleteApplication);
 
 module.exports = router;
+
+
+
+
+// cloudinary.config({
+//   cloud_name: process.env.CLOUD_NAME,
+//   api_key: process.env.CLOUD_API_KEY,
+//   api_secret: process.env.CLOUD_API_SECRET,
+// });

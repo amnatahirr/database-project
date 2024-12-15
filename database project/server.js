@@ -2,13 +2,33 @@ const express = require('express');
 const dotenv = require('dotenv');
 const path = require('path');
 const expressLayouts = require('express-ejs-layouts');
+
+//new line
+const cookieParser = require("cookie-parser");
+const fileUpload = require("express-fileupload");
+
+
 const connectDB = require('./db');
 
 dotenv.config();
 
 const app = express();
+
+//new line
+app.use(cookieParser());
+
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
+
+// new line
+
+app.use(fileUpload({
+  useTempFiles: true,
+  tempFileDir: "/tmp"
+}))
+
+
 
 // Set up EJS
 app.use(expressLayouts);
@@ -27,6 +47,7 @@ const jobRoutes = require('./routes/jobRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
 
 // Use routes
+
 app.use('/users', userRoutes);
 app.use('/admin', adminRoutes);
 app.use('/application', applicationRoutes);

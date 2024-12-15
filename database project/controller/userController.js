@@ -47,17 +47,18 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-
 exports.loginUser = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { email, password} = req.body;
 
+  
     // Find user
     const user = await User.findOne({ email });
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
+  
     // Generate token
     const token = jwt.sign(
       { id: user._id, role: user.role },
@@ -65,13 +66,39 @@ exports.loginUser = async (req, res) => {
       { expiresIn: "1h" }
     );
 
-    // Redirect to dashboard after successful login
-    return res.redirect("/dashboard");
+    console.log(token);
+
   } catch (err) {
     console.error("Error logging in user:", err);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+// exports.loginUser = async (req, res) => {
+//   try {
+//     const { email, password } = req.body;
+
+//     // Find user
+//     const user = await User.findOne({ email });
+//     if (!user || !(await bcrypt.compare(password, user.password))) {
+//       return res.status(401).json({ message: "Invalid credentials" });
+//     }
+
+//     // Generate token
+//     const token = jwt.sign(
+//       { id: user._id, role: user.role },
+//       process.env.JWT_SECRET,
+//       { expiresIn: "1h" }
+//     );
+
+//     // Redirect to dashboard after successful login
+//     return res.redirect("/dashboard");
+//   } catch (err) {
+//     console.error("Error logging in user:", err);
+//     return res.status(500).json({ message: "Internal server error" });
+//   }
+// };
 
 
 exports.updateProfile = async (req, res) => {
