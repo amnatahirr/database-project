@@ -1,46 +1,61 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
-const nodemailer = require('nodemailer');
+const upload = require("../middleware/upload");
+const nodemailer = require("nodemailer");
 
 exports.registerUser = async (req, res) => {
   try {
-    const { name, email, password, role, keywords } = req.body;
+    upload.single("resume")(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({ message: err.message });
+      }
 
-    // Validate role
-    if (!["job_seeker", "employer", "admin"].includes(role)) {
-      return res.status(400).json({ message: "Invalid role specified" });
-    }
+      const { name, email, password, role, keywords } = req.body;
 
-    // Validate keywords for job seekers or employers
-    if ((role === "job_seeker" || role === "employer") && (!keywords || !keywords.length)) {
-      return res.status(400).json({ message: "Keywords are required for job seekers or employers" });
-    }
+      // Validate role
+      if (!["job_seeker", "employer", "admin"].includes(role)) {
+        return res.status(400).json({ message: "Invalid role specified" });
+      }
 
-    // Validate password strength
-    const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
-    if (!passwordRequirements.test(password)) {
-      return res.status(400).json({ 
-        message: "Password must be at least 8 characters long, include at least one uppercase letter, and one number." 
+      // Validate keywords for job seekers or employers
+      if ((role === "job_seeker" || role === "employer") && (!keywords || !keywords.length)) {
+        return res.status(400).json({ message: "Keywords are required for job seekers or employers" });
+      }
+
+      // Validate password strength
+      const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+      if (!passwordRequirements.test(password)) {
+        return res.status(400).json({
+          message: "Password must be at least 8 characters long, include at least one uppercase letter, and one number.",
+        });
+      }
+
+      // Check if email is already registered
+      const existingUser = await User.findOne({ email });
+      if (existingUser) {
+        return res.status(400).json({ message: "Email is already registered" });
+      }
+
+      // Hash the password
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      // Create user object
+      const user = new User({
+        name,
+        email,
+        password: hashedPassword,
+        role,
+        keywords: role === "job_seeker" || role === "employer" ? keywords : undefined,
+        resumeUrl: req.file ? `/uploads/resumes/${req.file.filename}` : undefined, // Store resume file path
       });
-    }
 
-    // Check if email is already registered
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: "Email is already registered" });
-    }
+      // Save user
+      await user.save();
 
-    // Hash the password
-    const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create user
-    const user = new User({ name, email, password: hashedPassword, role, keywords });
-    await user.save();
-
-    // Respond with success
-    return res.redirect("/login"); // Use either res.json() or res.redirect(), not both
+      // Redirect to login page
+      return res.redirect("/login");
+    });
   } catch (err) {
     console.error("Error registering user:", err);
     return res.status(500).json({ message: "Internal server error" });
@@ -74,6 +89,7 @@ exports.loginUser = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
 
 // exports.loginUser = async (req, res) => {
 //   try {
@@ -101,12 +117,16 @@ exports.loginUser = async (req, res) => {
 // };
 
 
+=======
+>>>>>>> 29174526a2a133e8e05b775c4d5f6ac2033b7b0e
 exports.updateProfile = async (req, res) => {
   try {
     const { id } = req.params;
-    const updates = req.body;
+    const { name, keywords } = req.body;
 
-    const user = await User.findByIdAndUpdate(id, { profile: updates }, { new: true });
+    const updates = { name, keywords };
+
+    const user = await User.findByIdAndUpdate(id, updates, { new: true });
     if (!user) return res.status(404).json({ message: "User not found" });
 
     res.status(200).json({ message: "Profile updated successfully", user });
@@ -116,27 +136,30 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-
 exports.uploadResume = async (req, res) => {
   try {
-    const { id } = req.params;
-    if (!req.file) return res.status(400).json({ message: "No file uploaded" });
+    upload.single("resume")(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({ message: err.message });
+      }
 
-    const user = await User.findByIdAndUpdate(
-      id,
-      { "profile.resume": req.file.path },
-      { new: true }
-    );
-    if (!user) return res.status(404).json({ message: "User not found" });
+      const { id } = req.params;
+      if (!req.file) return res.status(400).json({ message: "No file uploaded" });
 
-    res.status(200).json({ message: "Resume uploaded successfully", user });
+      const user = await User.findByIdAndUpdate(
+        id,
+        { resumeUrl: `/uploads/resumes/${req.file.filename}` },
+        { new: true }
+      );
+      if (!user) return res.status(404).json({ message: "User not found" });
+
+      res.status(200).json({ message: "Resume uploaded successfully", user });
+    });
   } catch (err) {
     console.error("Resume upload error:", err);
     res.status(500).json({ error: err.message });
   }
 };
-
-
 
 // Forgot Password
 exports.forgotPassword = async (req, res) => {
@@ -145,14 +168,14 @@ exports.forgotPassword = async (req, res) => {
 
     // Check if user exists
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     // Generate token
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
     // Send email
     const transporter = nodemailer.createTransport({
-      service: 'gmail',
+      service: "gmail",
       auth: {
         user: process.env.MY_GMAIL,
         pass: process.env.MY_PASSWORD,
@@ -164,15 +187,15 @@ exports.forgotPassword = async (req, res) => {
     const mailOptions = {
       from: process.env.MY_GMAIL,
       to: email,
-      subject: 'Password Reset Request',
+      subject: "Password Reset Request",
       text: `Click on this link to reset your password: ${resetLink}`,
     };
 
     await transporter.sendMail(mailOptions);
-    res.status(200).json({ message: 'Password reset link sent successfully' });
+    res.status(200).json({ message: "Password reset link sent successfully" });
   } catch (error) {
-    console.error('Error sending email:', error);
-    res.status(500).json({ message: 'Internal server error' });
+    console.error("Error sending email:", error);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
@@ -184,13 +207,13 @@ exports.resetPassword = async (req, res) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id);
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     // Validate and hash new password
     const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!passwordRequirements.test(newPassword)) {
       return res.status(400).json({
-        message: 'Password must be at least 8 characters long, include an uppercase letter, and a number.',
+        message: "Password must be at least 8 characters long, include an uppercase letter, and a number.",
       });
     }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
@@ -199,10 +222,11 @@ exports.resetPassword = async (req, res) => {
     user.password = hashedPassword;
     await user.save();
 
-    res.status(200).json({ message: 'Password reset successful' });
-   return  res.redirect("/login");
+    // Send only one response
+    return res.status(200).json({ message: "Password reset successful" });
+
   } catch (error) {
-    console.error('Error resetting password:', error);
-    res.status(500).json({ message: 'Invalid or expired token' });
+    console.error("Error resetting password:", error);
+    return res.status(500).json({ message: "Invalid or expired token" });
   }
 };
