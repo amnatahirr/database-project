@@ -133,6 +133,7 @@ exports.uploadResume = async (req, res) => {
   }
 };
 
+
 // Forgot Password
 exports.forgotPassword = async (req, res) => {
   try {
