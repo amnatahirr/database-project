@@ -1,119 +1,202 @@
-<section class="auth-form">
-    <h1>Register</h1>
-    <form action="/users/register" method="POST" id="register-form">
-        <div class="form-group">
-            <label for="name">Name:</label>
-            <input type="text" name="name" id="name" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="email">Email:</label>
-            <input type="email" name="email" id="email" required>
-        </div>
-        
-        <div class="form-group">
-            <label for="password">Password:</label>
-            <div class="password-input">
-                <input type="password" name="password" id="password" required>
-                <span id="toggle-password" class="password-toggle">👁️</span>
-            </div>
-            <small>Password must be at least 8 characters long, include at least one uppercase letter, and one number.</small>
-        </div>
-        
-        <div class="form-group">
-            <label for="role">Role:</label>
-            <select name="role" id="role" onchange="toggleKeywords(this.value)" required>
-                <option value="">Select Role</option>
-                <option value="job_seeker">Job Seeker</option>
-                <option value="employer">Employer</option>
-                <option value="admin">Admin</option>
-            </select>
-        </div>
-  
-        <div id="keywords-container" class="form-group" style="display:none;">
-            <label>Select Your Profession(s):</label>
-            <div class="checkbox-grid">
-                <label><input type="checkbox" name="keywords" value="Web Developer"> Web Developer</label>
-                <label><input type="checkbox" name="keywords" value="Software Engineer"> Software Engineer</label>
-                <label><input type="checkbox" name="keywords" value="Electrical Engineer"> Electrical Engineer</label>
-                <label><input type="checkbox" name="keywords" value="Data Scientist"> Data Scientist</label>
-                <label><input type="checkbox" name="keywords" value="UI/UX Designer"> UI/UX Designer</label>
-                <label><input type="checkbox" name="keywords" value="Product Manager"> Product Manager</label>
-                <label><input type="checkbox" name="keywords" value="Marketing Specialist"> Marketing Specialist</label>
-                <label><input type="checkbox" name="keywords" value="Data Analyst"> Data Analyst</label>
-                <label><input type="checkbox" name="keywords" value="Network Administrator"> Network Administrator</label>
-                <label><input type="checkbox" name="keywords" value="System Analyst"> System Analyst</label>
-                <label><input type="checkbox" name="keywords" value="DevOps Engineer"> DevOps Engineer</label>
-                <label><input type="checkbox" name="keywords" value="Cybersecurity Analyst"> Cybersecurity Analyst</label>
-                <label><input type="checkbox" name="keywords" value="Database Administrator"> Database Administrator</label>
-                <label><input type="checkbox" name="keywords" value="Graphic Designer"> Graphic Designer</label>
-                <label><input type="checkbox" name="keywords" value="Content Writer"> Content Writer</label>
-                <label><input type="checkbox" name="keywords" value="Sales Executive"> Sales Executive</label>
-                <label><input type="checkbox" name="keywords" value="Web Designer"> Web Designer</label>
-                <label><input type="checkbox" name="keywords" value="Mobile App Developer"> Mobile App Developer</label>
-                <label><input type="checkbox" name="keywords" value="Blockchain Developer"> Blockchain Developer</label>
-            </div>
-            <small>Select multiple professions by checking the boxes.</small>
-        </div>
+<style>
+  .auth-container {
+      max-width: 600px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background: white;
+      border-radius: 1rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  }
 
-        <div id="resume-container" class="form-group" style="display:none;">
-          <label for="resume">Upload Resume:</label>
-          <input type="file" name="resume" id="resume" accept=".pdf,.doc,.docx">
-          <small>Accepted formats: PDF, DOC, DOCX. Max size: 5MB.</small>
-        </div>
-        <button type="submit" class="btn btn-primary">Register</button>
-    </form>
-  </section>
-  <footer>
-    <p>© 2024 Your Job Portal. All Rights Reserved.</p>
-  </footer>
-  
+  .auth-header {
+      text-align: center;
+      margin-bottom: 2rem;
+  }
 
-  <script>
-    function toggleKeywords(role) {
+  .auth-header h1 {
+      font-size: 1.875rem;
+      font-weight: 700;
+      color: var(--primary-text);
+  }
+
+  .form-group {
+      margin-bottom: 1.5rem;
+  }
+
+  .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--primary-text);
+  }
+
+  .form-group input,
+  .form-group select {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.5rem;
+      transition: all 0.2s;
+  }
+
+  .form-group input:focus,
+  .form-group select:focus {
+      outline: none;
+      border-color: var(--accent-color);
+      box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+  }
+
+  .checkbox-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 0.75rem;
+      padding: 1rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 0.5rem;
+      max-height: 200px;
+      overflow-y: auto;
+  }
+
+  .checkbox-grid label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-weight: normal;
+      font-size: 0.875rem;
+  }
+
+  .password-input {
+      position: relative;
+  }
+
+  .password-toggle {
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: var(--secondary-text);
+  }
+
+  small {
+      display: block;
+      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      color: var(--secondary-text);
+  }
+
+  #resume {
+      border: 1px dashed #e2e8f0;
+      padding: 1rem;
+      background: #f8fafc;
+  }
+</style>
+
+<div class="auth-container">
+  <div class="auth-header">
+      <h1>Create Account</h1>
+  </div>
+
+  <form action="/users/register" method="POST" id="register-form">
+      <div class="form-group">
+          <label for="name">Full Name</label>
+          <input type="text" id="name" name="name" required>
+      </div>
+
+      <div class="form-group">
+          <label for="email">Email Address</label>
+          <input type="email" id="email" name="email" required>
+      </div>
+
+      <div class="form-group">
+          <label for="password">Password</label>
+          <div class="password-input">
+              <input type="password" id="password" name="password" required>
+              <span id="toggle-password" class="password-toggle">👁️</span>
+          </div>
+          <small>Password must be at least 8 characters long, include at least one uppercase letter, and one number.</small>
+      </div>
+
+      <div class="form-group">
+          <label for="role">Role</label>
+          <select name="role" id="role" onchange="toggleKeywords(this.value)" required>
+              <option value="">Select your role</option>
+              <option value="job_seeker">Job Seeker</option>
+              <option value="employer">Employer</option>
+              <option value="admin">Admin</option>
+          </select>
+      </div>
+
+      <div id="keywords-container" class="form-group" style="display:none;">
+          <label>Select Your Profession(s)</label>
+          <div class="checkbox-grid">
+              <label><input type="checkbox" name="keywords" value="Web Developer"> Web Developer</label>
+              <label><input type="checkbox" name="keywords" value="Software Engineer"> Software Engineer</label>
+              <label><input type="checkbox" name="keywords" value="Electrical Engineer"> Electrical Engineer</label>
+              <label><input type="checkbox" name="keywords" value="Data Scientist"> Data Scientist</label>
+              <label><input type="checkbox" name="keywords" value="UI/UX Designer"> UI/UX Designer</label>
+              <label><input type="checkbox" name="keywords" value="Product Manager"> Product Manager</label>
+              <label><input type="checkbox" name="keywords" value="Marketing Specialist"> Marketing Specialist</label>
+              <label><input type="checkbox" name="keywords" value="Data Analyst"> Data Analyst</label>
+              <label><input type="checkbox" name="keywords" value="Network Administrator"> Network Administrator</label>
+              <label><input type="checkbox" name="keywords" value="System Analyst"> System Analyst</label>
+              <label><input type="checkbox" name="keywords" value="DevOps Engineer"> DevOps Engineer</label>
+              <label><input type="checkbox" name="keywords" value="Cybersecurity Analyst"> Cybersecurity Analyst</label>
+              <label><input type="checkbox" name="keywords" value="Database Administrator"> Database Administrator</label>
+              <label><input type="checkbox" name="keywords" value="Graphic Designer"> Graphic Designer</label>
+              <label><input type="checkbox" name="keywords" value="Content Writer"> Content Writer</label>
+              <label><input type="checkbox" name="keywords" value="Sales Executive"> Sales Executive</label>
+              <label><input type="checkbox" name="keywords" value="Web Designer"> Web Designer</label>
+              <label><input type="checkbox" name="keywords" value="Mobile App Developer"> Mobile App Developer</label>
+              <label><input type="checkbox" name="keywords" value="Blockchain Developer"> Blockchain Developer</label>
+          </div>
+          <small>Select multiple professions by checking the boxes.</small>
+      </div>
+
+      <div id="resume-container" class="form-group" style="display:none;">
+          <label for="resume">Upload Resume</label>
+          <input type="file" id="resume" name="resume" accept=".pdf,.doc,.docx">
+          <small>Accepted formats: PDF, DOC, DOCX. Max size: 5MB</small>
+      </div>
+
+      <button type="submit" class="btn btn-primary" style="width: 100%">Create Account</button>
+  </form>
+</div>
+
+<script>
+  function toggleKeywords(role) {
       const keywordsContainer = document.getElementById('keywords-container');
       const resumeContainer = document.getElementById('resume-container');
-  
+      
       if (role === "job_seeker") {
-        keywordsContainer.style.display = "block";
-        resumeContainer.style.display = "block";
+          keywordsContainer.style.display = "block";
+          resumeContainer.style.display = "block";
       } else if (role === "employer") {
-        keywordsContainer.style.display = "block";
-        resumeContainer.style.display = "none";
+          keywordsContainer.style.display = "block";
+          resumeContainer.style.display = "none";
       } else {
-        keywordsContainer.style.display = "none";
-        resumeContainer.style.display = "none";
+          keywordsContainer.style.display = "none";
+          resumeContainer.style.display = "none";
       }
-      adjustFooter();
-    }
-
-    function adjustFooter() {
-    const contentHeight = document.body.scrollHeight;
-    const windowHeight = window.innerHeight;
-    const footer = document.querySelector('footer');
-    footer.style.position = contentHeight > windowHeight ? 'relative' : 'absolute';
   }
-window.addEventListener('resize', adjustFooter);
-  window.addEventListener('DOMContentLoaded', adjustFooter);
-  
-    document.getElementById('register-form').addEventListener('submit', function(event) {
+
+  document.getElementById('register-form').addEventListener('submit', function(event) {
       const password = document.getElementById('password').value.trim();
       const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
-  
+      
       if (!passwordRequirements.test(password)) {
-        event.preventDefault();
-        alert("Password must be at least 8 characters long, include at least one uppercase letter, and one number.");
-        return;
+          event.preventDefault();
+          alert("Password must be at least 8 characters long, include at least one uppercase letter, and one number.");
+          return;
       }
-    });
+  });
+
+  const togglePassword = document.getElementById('toggle-password');
+  const passwordInput = document.getElementById('password');
   
-    const togglePassword = document.getElementById('toggle-password');
-    const passwordInput = document.getElementById('password');
-  
-    togglePassword.addEventListener('click', function() {
-      const isPasswordHidden = passwordInput.getAttribute('type') === 'password';
-      passwordInput.setAttribute('type', isPasswordHidden ? 'text' : 'password');
-      this.textContent = isPasswordHidden ? '🙈' : '👁️';
-    });
-  </script>
-  
+  togglePassword.addEventListener('click', function() {
+      const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+      passwordInput.setAttribute('type', type);
+      this.textContent = type === 'password' ? '👁️' : '🙈';
+  });
+</script>

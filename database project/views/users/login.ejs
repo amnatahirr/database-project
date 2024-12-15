@@ -1,36 +1,115 @@
-<section class="auth-form">
-  <h1>Login</h1>
-  <form action="/users/login" method="POST">
-      <div class="form-group">
-          <label for="email">Email:</label>
-          <input type="email" name="email" id="email" required>
-      </div>
-      
-      <div class="form-group">
-          <label for="login-password">Password:</label>
-          <div class="password-input">
-              <input type="password" name="password" id="login-password" required>
-              <span id="login-toggle-password" class="password-toggle">👁️</span>
-          </div>
-      </div>
-      
-      <button type="submit" class="btn btn-primary">Login</button>
-      
-      <p class="form-links">
-          <a href="/forgotPassword">Forgot Password?</a>
-          <span>|</span>
-          <a href="/register">New user? Register here</a>
-      </p>
-  </form>
-</section>
+<style>
+    .auth-container {
+        max-width: 400px;
+        margin: 2rem auto;
+        padding: 2rem;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .auth-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .auth-header h1 {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: var(--primary-text);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: var(--primary-text);
+    }
+
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        transition: all 0.2s;
+    }
+
+    .form-group input:focus {
+        outline: none;
+        border-color: var(--accent-color);
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+    }
+
+    .password-input {
+        position: relative;
+    }
+
+    .password-toggle {
+        position: absolute;
+        right: 1rem;
+        top: 50%;
+        transform: translateY(-50%);
+        cursor: pointer;
+        color: var(--secondary-text);
+    }
+
+    .auth-footer {
+        margin-top: 1.5rem;
+        text-align: center;
+        font-size: 0.875rem;
+        color: var(--secondary-text);
+    }
+
+    .auth-footer a {
+        color: var(--accent-color);
+        text-decoration: none;
+    }
+
+    .auth-footer a:hover {
+        text-decoration: underline;
+    }
+</style>
+
+<div class="auth-container">
+    <div class="auth-header">
+        <h1>Welcome Back</h1>
+    </div>
+
+    <form action="/users/login" method="POST">
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" required>
+        </div>
+
+        <div class="form-group">
+            <label for="login-password">Password</label>
+            <div class="password-input">
+                <input type="password" id="login-password" name="password" required>
+                <span id="login-toggle-password" class="password-toggle">👁️</span>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" style="width: 100%">Sign In</button>
+
+        <div class="auth-footer">
+            <a href="/forgotPassword">Forgot Password?</a>
+            <span class="mx-2">•</span>
+            <a href="/register">New user? Register here</a>
+        </div>
+    </form>
+</div>
 
 <script>
-  const loginTogglePassword = document.getElementById('login-toggle-password');
-  const loginPasswordInput = document.getElementById('login-password');
-  
-  loginTogglePassword.addEventListener('click', function() {
-      const type = loginPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-      loginPasswordInput.setAttribute('type', type);
-      this.textContent = type === 'password' ? '👁️' : '🙈';
-  });
+    const loginTogglePassword = document.getElementById('login-toggle-password');
+    const loginPasswordInput = document.getElementById('login-password');
+    
+    loginTogglePassword.addEventListener('click', function() {
+        const type = loginPasswordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+        loginPasswordInput.setAttribute('type', type);
+        this.textContent = type === 'password' ? '👁️' : '🙈';
+    });
 </script>

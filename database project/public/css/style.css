@@ -1,4 +1,4 @@
-/* General Styles */
+/*
 * {
   margin: 0;
   padding: 0;
@@ -19,7 +19,7 @@ body {
   padding: 0 20px;
 }
 
-/* Header Styles */
+
 header {
   background-color: #0077b5;
   color: #fff;
@@ -62,7 +62,7 @@ nav ul li a:hover {
   color: #5bb4e3;
 }
 
-/* Main Content Styles */
+
 main {
   padding: 2rem 0;
 }
@@ -71,7 +71,7 @@ h1, h2, h3 {
   margin-bottom: 1rem;
 }
 
-/* Hero Section */
+
 .hero {
   text-align: center;
   padding: 3rem 0;
@@ -89,7 +89,7 @@ h1, h2, h3 {
   margin-top: 2rem;
 }
 
-/* Features Section */
+
 .features {
   text-align: center;
 }
@@ -108,7 +108,7 @@ h1, h2, h3 {
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
 }
 
-/* Form Styles */
+
 .auth-form {
   max-width: 400px;
   margin: 0 auto;
@@ -155,7 +155,7 @@ select {
   gap: 0.5rem;
 }
 
-/* Button Styles */
+
 .btn {
   display: inline-block;
   padding: 0.5rem 1rem;
@@ -181,19 +181,19 @@ select {
   opacity: 0.4;
 }
 
-/* Footer Styles */
+
 footer {
   width: 100%;
   background-color: #333;
   color: #fff;
   text-align: center;
   padding: 1rem 0;
-  position: absolute; /* Default positioning */
+  position: absolute;
   bottom: 0;
 }
 
 
-/* Responsive Design */
+
 @media (max-width: 768px) {
   nav {
       flex-direction: column;
@@ -306,7 +306,7 @@ small {
   color: #666;
 }
 
-/* Footer Styles */
+
 footer {
   width: 100%;
   right: 0;
@@ -318,7 +318,7 @@ footer {
   bottom: 0px;
 }
 
-/* Responsive Design */
+
 @media (max-width: 768px) {
   nav {
     flex-direction: column;
@@ -357,3 +357,4 @@ footer {
   overflow-y: auto;
   max-height: 75vh;
 }
+*/
