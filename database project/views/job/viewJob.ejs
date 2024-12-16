@@ -1,0 +1,152 @@
+@ -0,0 +1,151 @@
+<style>
+    :root {
+        --primary-text: #ffffff;
+        --secondary-text: #94a3b8;
+        --accent-color: #818cf8;
+        --card-bg: #ffffff;
+        --page-bg: #020817;
+    }
+
+    body {
+        margin: 0;
+        padding: 0;
+        font-family: system-ui, -apple-system, sans-serif;
+        background-color: var(--page-bg);
+        color: var(--primary-text);
+    }
+
+    .navbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem 2rem;
+        background-color: rgba(2, 8, 23, 0.95);
+    }
+
+    .logo {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--primary-text);
+    }
+
+    .nav-links {
+        display: flex;
+        gap: 2rem;
+    }
+
+    .nav-links a {
+        color: var(--primary-text);
+        text-decoration: none;
+        font-weight: 500;
+    }
+
+    .container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 2rem;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 800;
+        margin-bottom: 2rem;
+    }
+
+    .jobs-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 1.5rem;
+        margin-top: 2rem;
+    }
+
+    .job-card {
+        background-color: var(--card-bg);
+        border-radius: 1rem;
+        padding: 1.5rem;
+        transition: transform 0.2s;
+    }
+
+    .job-card:hover {
+        transform: translateY(-4px);
+    }
+
+    .company-logo {
+        width: 48px;
+        height: 48px;
+        margin-bottom: 1rem;
+    }
+
+    .job-title {
+        color: #1a1a1a;
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .company-name {
+        color: #666;
+        font-size: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .view-details {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        background-color: #ffd700;
+        color: #1a1a1a;
+        text-decoration: none;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        transition: background-color 0.2s;
+    }
+
+    .view-details:hover {
+        background-color: #ffc700;
+    }
+
+    @media (max-width: 768px) {
+        .container {
+            padding: 1rem;
+        }
+        
+        .page-title {
+            font-size: 2rem;
+        }
+        
+        .jobs-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+
+<nav class="navbar">
+    <div class="logo">JOBSCO</div>
+    <div class="nav-links">
+        <a href="/">Home</a>
+        <a href="/feed">Feed</a>
+        <a href="/activity">Activity</a>
+        <a href="/companies">Companies</a>
+        <a href="/jobs">Jobs</a>
+        <a href="/membership">Membership</a>
+    </div>
+</nav>
+
+<div class="container">
+    <h1 class="page-title">Explore All Jobs</h1>
+
+    <div class="jobs-grid">
+        <% jobs.forEach(job => { %>
+            <div class="job-card">
+                <img src="/images/rocket-icon.svg" alt="Company Logo" class="company-logo">
+                <h2 class="job-title"><%= job.jobTitle %></h2>
+                <p class="company-name"><%= job.companyName %></p>
+                <div class="job-meta">
+                    <p><%= job.location %></p>
+                    <p><%= job.jobType %></p>
+                </div>
+                <a href="/jobs/<%= job._id %>" class="view-details">View Details</a>
+            </div>
+        <% }); %>
+    </div>
+</div>
