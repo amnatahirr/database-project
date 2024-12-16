@@ -12,61 +12,55 @@ const { generateTokens } = require("../middleware/auth");
 
 exports.registerUser = async (req, res) => {
   try {
+    const { name, email, password, role, keywords } = req.body;
 
-      if (err) {
-        return res.status(400).json({ message: err.message });
-      }
+    // Validate role
+    if (!["job_seeker", "employer", "admin"].includes(role)) {
+      return res.status(400).json({ message: "Invalid role specified" });
+    }
 
-      const { name, email, password, role, keywords } = req.body;
+    // Validate keywords for job seekers or employers
+    if ((role === "job_seeker" || role === "employer") && (!keywords || !keywords.length)) {
+      return res.status(400).json({ message: "Keywords are required for job seekers or employers" });
+    }
 
-      // Validate role
-      if (!["job_seeker", "employer", "admin"].includes(role)) {
-        return res.status(400).json({ message: "Invalid role specified" });
-      }
-
-      // Validate keywords for job seekers or employers
-      if ((role === "job_seeker" || role === "employer") && (!keywords || !keywords.length)) {
-        return res.status(400).json({ message: "Keywords are required for job seekers or employers" });
-      }
-
-      // Validate password strength
-      const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
-      if (!passwordRequirements.test(password)) {
-        return res.status(400).json({
-          message: "Password must be at least 8 characters long, include at least one uppercase letter, and one number.",
-        });
-      }
-
-      // Check if email is already registered
-      const existingUser = await User.findOne({ email });
-      if (existingUser) {
-        return res.status(400).json({ message: "Email is already registered" });
-      }
-
-      // Hash the password
-      const hashedPassword = await bcrypt.hash(password, 10);
-
-      // Create user object
-      const user = new User({
-        name,
-        email,
-        password: hashedPassword,
-        role,
-        keywords: role === "job_seeker" || role === "employer" ? keywords : undefined,
-        
+    // Validate password strength
+    const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
+    if (!passwordRequirements.test(password)) {
+      return res.status(400).json({
+        message: "Password must be at least 8 characters long, include at least one uppercase letter, and one number.",
       });
+    }
 
-      // Save user
-      await user.save();
+    // Check if email is already registered
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email is already registered" });
+    }
 
-      // Redirect to login page
-      return res.redirect("/login");
-  
+    // Hash the password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create user object
+    const user = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role,
+      keywords: role === "job_seeker" || role === "employer" ? keywords : undefined,
+    });
+
+    // Save user
+    await user.save();
+
+    // Redirect to login page
+    return res.redirect("/login");
   } catch (err) {
     console.error("Error registering user:", err);
     return res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 exports.loginUser = async (req, res) => {
   try {
