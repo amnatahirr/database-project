@@ -1,4 +1,3 @@
-@ -0,0 +1,151 @@
 <style>
     :root {
         --primary-text: #ffffff;
@@ -120,18 +119,6 @@
     }
 </style>
 
-<nav class="navbar">
-    <div class="logo">JOBSCO</div>
-    <div class="nav-links">
-        <a href="/">Home</a>
-        <a href="/feed">Feed</a>
-        <a href="/activity">Activity</a>
-        <a href="/companies">Companies</a>
-        <a href="/jobs">Jobs</a>
-        <a href="/membership">Membership</a>
-    </div>
-</nav>
-
 <div class="container">
     <h1 class="page-title">Explore All Jobs</h1>
 
@@ -146,7 +133,7 @@
                     <p><%= job.jobType %></p>
                 </div>
                 <a href="/jobs/<%= job._id %>" class="view-details">View Details</a>
-            </div>
+\            </div>
         <% }); %>
     </div>
 </div>
