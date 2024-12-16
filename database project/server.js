@@ -41,21 +41,21 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Import routes
 const userRoutes = require('./routes/userRoutes');
-/*
-const adminRoutes = require('./routes/adminRoutes');
+
+//const adminRoutes = require('./routes/adminRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
 const jobRoutes = require('./routes/jobRoutes');
-const notificationRoutes = require('./routes/notificationRoutes');
-*/
+//const notificationRoutes = require('./routes/notificationRoutes');
+
 // Use routes
 
 app.use('/users', userRoutes);
-/*
-app.use('/admin', adminRoutes);
+
+//app.use('/admin', adminRoutes);
 app.use('/application', applicationRoutes);
 app.use('/job', jobRoutes);
-app.use('/notification', notificationRoutes);
-*/
+//app.use('/notification', notificationRoutes);
+
 
 // Frontend Routes
 app.get('/', (req, res) => {

@@ -11,16 +11,16 @@ const {
   // getJobs,
 } = require("../controller/jobController");
 
-const { authenticate } = require("../middleware/auth");
+const {authenticateAccessToken} = require("../middleware/auth");
 
 const router = express.Router();
 ///
 router.get("/getall", getAllJobs);
-router.post("/post",authenticate, postJob);
-router.get("/getmyjobs",authenticate, getMyJobs);
-router.put("/update/:id",authenticate, updateJob);
-router.delete("/delete/:id",authenticate, deleteJob);
-router.get("/:id", authenticate, getSingleJob);
+router.post("/post",authenticateAccessToken, postJob);
+router.get("/getmyjobs",authenticateAccessToken, getMyJobs);
+router.put("/update/:id",authenticateAccessToken, updateJob);
+router.delete("/delete/:id",authenticateAccessToken, deleteJob);
+router.get("/:id", authenticateAccessToken, getSingleJob);
 
 
 module.exports = router;
