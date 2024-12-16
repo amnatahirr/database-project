@@ -1,6 +1,8 @@
 <section class="auth-form">
     <h1>Post a Job</h1>
-    <form action="/jobs/post" method="POST">
+app.use('/job', jobRoutes);
+app.use('/job', jobRoutes);
+<form action="/job/jobPostForm" method="POST">
         <div class="form-group">
             <label for="jobTitle">Job Title*</label>
             <input type="text" id="jobTitle" name="jobTitle" required>
@@ -27,7 +29,7 @@
             </select>
             <span class="error-message" id="industry-error"></span>
         </div>
-
+       
         <div class="form-group">
             <label for="jobType">Job Type*</label>
             <select id="jobType" name="jobType" required>
@@ -74,89 +76,13 @@
             <span class="error-message" id="requiredSkills-error"></span>
         </div>
 
-        <div class="form-group">
+        <!-- <div class="form-group">
             <label for="keywords">Keywords (comma-separated)*</label>
             <input type="text" id="keywords" name="keywords" placeholder="e.g., JavaScript, Remote, SQL" required>
             <span class="error-message" id="keywords-error"></span>
-        </div>
+        </div> -->
 
         <button type="submit" class="btn btn-primary">Post Job</button>
     </form>
 </section>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        const form = document.getElementById('jobPostingForm');
-        const salaryToggle = document.getElementById('salary-toggle-visibility');
-        const salaryInput = document.getElementById('salaryRange');
-
-        // Toggle salary visibility
-        salaryToggle.addEventListener('click', function () {
-            const isVisible = salaryInput.getAttribute('type') === 'text';
-            salaryInput.setAttribute('type', isVisible ? 'password' : 'text');
-            this.textContent = isVisible ? '👁️' : '🙈';
-        });
-
-        // Form submit handler
-        form.addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            if (validateForm()) {
-                const formData = new FormData(form);
-                const jobData = Object.fromEntries(formData.entries());
-
-                try {
-                    const response = await fetch(form.action, {
-                        method: form.method,
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(jobData),
-                    });
-
-                    const result = await response.json();
-                    if (response.ok) {
-                        alert("Job posted successfully!");
-                        form.reset();
-                    } else {
-                        alert(result.message || "An error occurred while posting the job.");
-                    }
-                } catch (error) {
-                    console.error("Error submitting form:", error);
-                    alert("Failed to post the job. Please try again.");
-                }
-            }
-        });
-
-        // Field validation
-        function validateForm() {
-            let isValid = true;
-
-            const requiredFields = [
-                "jobTitle",
-                "companyName",
-                "industry",
-                "jobType",
-                "location",
-                "jobDescription",
-                "responsibilities",
-                "requiredSkills",
-                "keywords",
-            ];
-
-            requiredFields.forEach((field) => {
-                const input = document.getElementById(field);
-                const errorMessage = document.getElementById(`${field}-error`);
-
-                if (input.value.trim() === "") {
-                    errorMessage.textContent = "This field is required.";
-                    input.classList.add("error-input");
-                    isValid = false;
-                } else {
-                    errorMessage.textContent = "";
-                    input.classList.remove("error-input");
-                }
-            });
-
-            return isValid;
-        }
-    });
-</script>

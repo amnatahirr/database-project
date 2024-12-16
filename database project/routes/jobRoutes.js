@@ -16,7 +16,7 @@ const {authenticateAccessToken} = require("../middleware/auth");
 const router = express.Router();
 ///
 router.get("/getall", getAllJobs);
-router.post("/post",authenticateAccessToken, postJob);
+router.post("/jobPostForm",authenticateAccessToken, postJob);
 router.get("/getmyjobs",authenticateAccessToken, getMyJobs);
 router.put("/update/:id",authenticateAccessToken, updateJob);
 router.delete("/delete/:id",authenticateAccessToken, deleteJob);
