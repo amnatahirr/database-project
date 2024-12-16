@@ -31,3 +31,23 @@ exports.verifyRefreshToken = (req, res, next) => {
     next();
   });
 };
+
+// Function to generate tokens
+const generateTokens = (user) => {
+  const accessToken = jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: '15m' } // 15 minutes
+  );
+
+  const refreshToken = jwt.sign(
+    { id: user._id, role: user.role },
+    process.env.REFRESH_TOKEN_SECRET, // Use the correct secret for refresh tokens
+    { expiresIn: '7d' } // 7 days
+  );
+
+  return { accessToken, refreshToken };
+};
+
+// Export the generateTokens function
+exports.generateTokens = generateTokens;

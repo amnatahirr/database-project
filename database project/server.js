@@ -6,6 +6,8 @@ const expressLayouts = require('express-ejs-layouts');
 //new line
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
+
+
 const connectDB = require('./db');
 
 dotenv.config();
@@ -17,6 +19,7 @@ app.use(cookieParser());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+
 
 // new line
 
@@ -38,19 +41,21 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Import routes
 const userRoutes = require('./routes/userRoutes');
+/*
 const adminRoutes = require('./routes/adminRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 const notificationRoutes = require('./routes/notificationRoutes');
-
+*/
 // Use routes
 
 app.use('/users', userRoutes);
+/*
 app.use('/admin', adminRoutes);
 app.use('/application', applicationRoutes);
 app.use('/job', jobRoutes);
 app.use('/notification', notificationRoutes);
-
+*/
 
 // Frontend Routes
 app.get('/', (req, res) => {

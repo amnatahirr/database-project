@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const upload = require("../middleware/upload");
 const nodemailer = require("nodemailer");
-
+const { generateTokens } = require("../middleware/auth");
 exports.registerUser = async (req, res) => {
   try {
     upload.single("resume")(req, res, async (err) => {
@@ -62,8 +62,6 @@ exports.registerUser = async (req, res) => {
   }
 };
 
-
-// Login User
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -75,21 +73,23 @@ exports.loginUser = async (req, res) => {
     }
 
     // Generate tokens
-    const { accessToken, refreshToken } = generateTokens(user);
+    const { accessToken, refreshToken } = generateTokens(user); // Use the imported function
 
-    // Send tokens to the frontend
+    // Set tokens in cookies
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production", // Use secure cookies in production
       sameSite: "strict",
     });
 
-    return res.status(200).json({ accessToken });
+    // Redirect to dashboard
+    return res.redirect("/dashboard");
   } catch (err) {
     console.error("Login error:", err);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
 
 // Refresh Token
