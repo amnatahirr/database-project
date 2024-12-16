@@ -6,8 +6,6 @@ const expressLayouts = require('express-ejs-layouts');
 //new line
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
-
-
 const connectDB = require('./db');
 
 dotenv.config();
@@ -19,7 +17,6 @@ app.use(cookieParser());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 
 // new line
 

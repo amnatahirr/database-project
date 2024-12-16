@@ -62,6 +62,8 @@ exports.registerUser = async (req, res) => {
   }
 };
 
+
+// Login User
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -72,20 +74,44 @@ exports.loginUser = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Generate token
-    const token = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "1h" }
-    );
+    // Generate tokens
+    const { accessToken, refreshToken } = generateTokens(user);
 
-    // Redirect to dashboard after successful login
-    return res.redirect("/dashboard");
+    // Send tokens to the frontend
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
+      sameSite: "strict",
+    });
+
+    return res.status(200).json({ accessToken });
   } catch (err) {
-    console.error("Error logging in user:", err);
-    return res.status(500).json({ message: "Internal server error" });
+    console.error("Login error:", err);
+    res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
+// Refresh Token
+exports.refreshToken = (req, res) => {
+  const user = req.user; // Retrieved from verifyRefreshToken middleware
+
+  // Generate a new access token
+  const accessToken = jwt.sign(
+    { id: user.id, role: user.role },
+    process.env.JWT_SECRET,
+    { expiresIn: "15m" }
+  );
+
+  res.status(200).json({ accessToken });
+};
+
+// Logout User
+exports.logoutUser = (req, res) => {
+  res.clearCookie("refreshToken");
+  res.status(200).json({ message: "Logout successful" });
+};
+
 
 
 

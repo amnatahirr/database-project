@@ -1,37 +1,33 @@
 const jwt = require("jsonwebtoken");
 
-exports.authenticate = (req, res, next) => {
-  try {
-    let token;
+// Middleware to authenticate access tokens
+exports.authenticateAccessToken = (req, res, next) => {
+  const authHeader = req.headers.authorization;
 
-    // Retrieve the token from the Authorization header
-    const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith("Bearer ")) {
+    const token = authHeader.split(" ")[1];
 
-    // Check if the authorization header exists and starts with "Bearer"
-    if (authHeader && authHeader.startsWith("Bearer ")) {
-      token = authHeader.split(" ")[1]; // Extract the token part from "Bearer <token>"
-    }
+    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
+      if (err) return res.status(401).json({ message: "Access token expired or invalid" });
 
-    // If no token is found, deny access
-    if (!token) {
-      return res.status(401).json({ message: "Access denied. No token provided." });
-    }
-
-    // Verify the token
-    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
-      if (err) {
-        return res.status(401).json({ message: "Invalid or expired token." });
-      }
-
-      // Log the decoded user to check the structure
-      console.log("Decoded user:", decoded);
-
-      // Attach the verified user information to req.user
-      req.user = decoded;
-      next(); // Pass control to the next middleware
+      req.user = user; // Attach user data to request
+      next();
     });
-  } catch (error) {
-    console.error("Authentication error:", error);
-    res.status(500).json({ message: "Internal server error." });
+  } else {
+    res.status(401).json({ message: "Access token required" });
   }
+};
+
+// Middleware to verify refresh tokens
+exports.verifyRefreshToken = (req, res, next) => {
+  const refreshToken = req.cookies.refreshToken;
+
+  if (!refreshToken) return res.status(403).json({ message: "Refresh token required" });
+
+  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, user) => {
+    if (err) return res.status(403).json({ message: "Invalid or expired refresh token" });
+
+    req.user = user; // Attach user data to request
+    next();
+  });
 };
