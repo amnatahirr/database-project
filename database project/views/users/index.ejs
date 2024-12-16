@@ -62,12 +62,15 @@
         height: 600px;
     }
 
+    
     .hero-image {
-        border-radius: 2rem;
-        overflow: hidden;
-        background-size: cover;
-        background-position: center;
-    }
+        
+    border-radius: 4rem;
+    overflow: hidden;
+    background-size: cover;
+    background-position: center;
+    background-blend-mode: normal; /* Allows images to overlay colors */
+}
 
     .hero-image:nth-child(1) {
         grid-row: span 2;
@@ -117,13 +120,16 @@
         <p class="hero-subtitle">One Stop Solution to Find Jobs</p>
         <h1>Build your best job community starting from here.</h1>
         <div class="hero-buttons">
-            <a href="/jobs" class="btn btn-primary">Find Jobs</a>
-            <a href="/post-job" class="btn btn-secondary">Post New Job</a>
+            <a href="/jobs" class="btn Find">Find Jobs</a>
         </div>
     </div>
     <div class="hero-images">
-        <div class="hero-image" style="background-image: url('/placeholder.svg?height=600&width=400')"></div>
-        <div class="hero-image" style="background-image: url('/placeholder.svg?height=300&width=400')"></div>
-        <div class="hero-image" style="background-image: url('/placeholder.svg?height=300&width=400')"></div>
+        <div class="hero-image" style="background-image: url('/images/pic1.jpeg'), linear-gradient(#818cf8, #818cf8);"></div>
+      
+        <div class="hero-image" style=" background-image: url('/images/pic2.jpeg'), linear-gradient(#67e8f9, #67e8f9);"></div>
+        <div class="hero-image"  style="margin-top:50px; background-image:  url('images/pic3.jpeg'), linear-gradient(#fcd34d, #fcd34d);"></div>
+    
+
     </div>
+    
 </div>

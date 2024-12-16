@@ -1,12 +1,18 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const upload = require("../middleware/upload");
+
+
 const nodemailer = require("nodemailer");
 const { generateTokens } = require("../middleware/auth");
+
+
+
+
+
 exports.registerUser = async (req, res) => {
   try {
-    upload.single("resume")(req, res, async (err) => {
+
       if (err) {
         return res.status(400).json({ message: err.message });
       }
@@ -47,7 +53,7 @@ exports.registerUser = async (req, res) => {
         password: hashedPassword,
         role,
         keywords: role === "job_seeker" || role === "employer" ? keywords : undefined,
-        resumeUrl: req.file ? `/uploads/resumes/${req.file.filename}` : undefined, // Store resume file path
+        
       });
 
       // Save user
@@ -55,7 +61,7 @@ exports.registerUser = async (req, res) => {
 
       // Redirect to login page
       return res.redirect("/login");
-    });
+  
   } catch (err) {
     console.error("Error registering user:", err);
     return res.status(500).json({ message: "Internal server error" });
@@ -134,30 +140,6 @@ exports.updateProfile = async (req, res) => {
   }
 };
 
-exports.uploadResume = async (req, res) => {
-  try {
-    upload.single("resume")(req, res, async (err) => {
-      if (err) {
-        return res.status(400).json({ message: err.message });
-      }
-
-      const { id } = req.params;
-      if (!req.file) return res.status(400).json({ message: "No file uploaded" });
-
-      const user = await User.findByIdAndUpdate(
-        id,
-        { resumeUrl: `/uploads/resumes/${req.file.filename}` },
-        { new: true }
-      );
-      if (!user) return res.status(404).json({ message: "User not found" });
-
-      res.status(200).json({ message: "Resume uploaded successfully", user });
-    });
-  } catch (err) {
-    console.error("Resume upload error:", err);
-    res.status(500).json({ error: err.message });
-  }
-};
 
 
 // Forgot Password
