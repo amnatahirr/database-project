@@ -7,7 +7,7 @@ const catchAsyncErrors = require("../middleware/catchAsyncError");
 
 //apply authorization that only job seeker will be able to apply for job  and job seeker is log in
 // we will fetcht the role of req.user from the database  
-
+//
 exports.postApplication = catchAsyncErrors(async (req, res, next) => {
   const { role } = req.user;
 

@@ -41,21 +41,21 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Import routes
 const userRoutes = require('./routes/userRoutes');
-/*
-const adminRoutes = require('./routes/adminRoutes');
+
+//const adminRoutes = require('./routes/adminRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
 const jobRoutes = require('./routes/jobRoutes');
-const notificationRoutes = require('./routes/notificationRoutes');
-*/
+//const notificationRoutes = require('./routes/notificationRoutes');
+
 // Use routes
 
 app.use('/users', userRoutes);
-/*
-app.use('/admin', adminRoutes);
+
+//app.use('/admin', adminRoutes);
 app.use('/application', applicationRoutes);
 app.use('/job', jobRoutes);
-app.use('/notification', notificationRoutes);
-*/
+//app.use('/notification', notificationRoutes);
+
 
 // Frontend Routes
 app.get('/', (req, res) => {
@@ -90,14 +90,24 @@ app.get('/resetPassword',(req,res)=>{
 
 app.get('/jobPostForm',(req,res)=>{
   const { token } = req.query;
-  res.render('job/jobPostForm',{layout:"layouts/main",});
+  res.render('job/jobPostForm',{layout:"layouts/main"},token);
+});
+
+app.get('/viewJob',(req,res)=>{
+  //const { token } = req.query;
+  res.render('job/viewJob',{layout:"layouts/main"});
+});
+
+app.get('/JobApplicationForm',(req,res)=>{
+  const { token } = req.query;
+  res.render('jobApplication/applicationForm',{layout:"layouts/main"},token);
 });
 
 
 
 connectDB();
 // Start the server
-const PORT = 5000;
+const PORT = 5002;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 

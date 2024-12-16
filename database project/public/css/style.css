@@ -6,13 +6,16 @@
   --accent-color: #1e40af; /* Accent color */
 }
 
-.auth-container {
+.auth-container,section {
   max-width: 400px; /* Adjust as needed */
   margin: 2rem auto;
   padding: 2rem;
   background: var(--secondary-bg);
   border-radius: 1rem;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5);
+}
+section{
+  max-width: 900px; /* for both Jobpost and application forms  */
 }
 
 .auth-header h1 {
@@ -29,7 +32,8 @@
 }
 
 .form-group input,
-.form-group select {
+.form-group select,
+.form-group textarea {
   width: 100%;
   padding: 0.75rem;
   border: 1px solid #555; /* Dark border */
