@@ -34,9 +34,7 @@ exports.getAllJobs = catchAsyncErrors(async (req, res, next) => {
     // Fetch jobs based on the search options
     const jobs = await Job.find({ ...SearchOptions, expired: false }); // Include expired: false filter
 
-    // Log fetched jobs for debugging
-    console.log(jobs);
-
+   
     // Render the page with jobs data and search query options
     res.status(200).render('job/viewJob', {
       jobs: jobs,
