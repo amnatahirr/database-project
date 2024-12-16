@@ -6,16 +6,20 @@ const Job = require("../models/job");
 // Get All Jobs method??
 // check update jobs and delete jobs 
 exports.getAllJobs = catchAsyncErrors(async (req, res, next) => {
-
-  const jobs = await Job.find({ expired: false });
-  res.status(200).json({
-    success: true,
-    jobs,
-  });
-  console.log(jobs); // Debugging: Log fetched jobs
-  res.render('job/viewJob', { jobs }); // Pass 'jobs' to the EJS template
-
-
+  try {
+      const jobs = await Job.find({ expired: false });
+      console.log(jobs); // Debugging: Log fetched jobs
+      res.status(200).json({
+          success: true,
+          jobs, // Send jobs data as JSON
+      });
+  } catch (error) {
+      console.error(error); // Log the error
+      res.status(500).json({
+          success: false,
+          message: 'Unable to fetch jobs at the moment.',
+      });
+  }
 });
 
 // post new Job 
