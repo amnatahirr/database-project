@@ -7,20 +7,50 @@ const Job = require("../models/job");
 // check update jobs and delete jobs 
 exports.getAllJobs = catchAsyncErrors(async (req, res, next) => {
   try {
-      const jobs = await Job.find({ expired: false });
-      console.log(jobs); // Debugging: Log fetched jobs
-      res.status(200).json({
-          success: true,
-          jobs, // Send jobs data as JSON
-      });
+    let SearchOptions = {}; // Initialize search options object
+
+    // Check if query parameters for search are provided
+    if (req.query.jobTitle != null && req.query.jobTitle != '') {
+      SearchOptions.jobTitle = new RegExp(req.query.jobTitle, 'i'); // Case-insensitive search for jobTitle
+    }
+
+    if (req.query.companyName != null && req.query.companyName != '') {
+      SearchOptions.companyName = new RegExp(req.query.companyName, 'i'); // Case-insensitive search for companyName
+    }
+
+    if (req.query.location != null && req.query.location != '') {
+      SearchOptions.location = new RegExp(req.query.location, 'i'); // Case-insensitive search for location
+    }
+
+    // Add other search fields as needed (jobType, industry, etc.)
+    if (req.query.jobType != null && req.query.jobType != '') {
+      SearchOptions.jobType = req.query.jobType; // Exact match for jobType
+    }
+
+    if (req.query.industry != null && req.query.industry != '') {
+      SearchOptions.industry = req.query.industry; // Exact match for industry
+    }
+
+    // Fetch jobs based on the search options
+    const jobs = await Job.find({ ...SearchOptions, expired: false }); // Include expired: false filter
+
+    // Log fetched jobs for debugging
+    console.log(jobs);
+
+    // Render the page with jobs data and search query options
+    res.status(200).render('job/viewJob', {
+      jobs: jobs,
+      searchOptions: req.query, // Pass search options to the template for persistence
+    });
   } catch (error) {
-      console.error(error); // Log the error
-      res.status(500).json({
-          success: false,
-          message: 'Unable to fetch jobs at the moment.',
-      });
+    console.error(error); // Log the error
+    res.status(500).json({
+      success: false,
+      message: 'Unable to fetch jobs at the moment.',
+    });
   }
 });
+
 
 // post new Job 
 exports.postJob = catchAsyncErrors(async (req, res, next) => {
@@ -175,6 +205,7 @@ exports.getSingleJob = catchAsyncErrors(async (req, res, next) => {
     return next(new ErrorHandler(`Invalid ID / CastError`, 404));
   }
 });
+
 
 // // Get jobs with advanced filtering
 // exports.getJobs = async (req, res) => {
