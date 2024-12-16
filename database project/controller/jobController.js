@@ -12,6 +12,9 @@ exports.getAllJobs = catchAsyncErrors(async (req, res, next) => {
     success: true,
     jobs,
   });
+  console.log(jobs); // Debugging: Log fetched jobs
+  res.render('job/viewJob', { jobs }); // Pass 'jobs' to the EJS template
+
 
 });
 
