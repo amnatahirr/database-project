@@ -92,6 +92,10 @@ app.get('/jobPostForm',(req,res)=>{
   const { token } = req.query;
   res.render('job/jobPostForm',{layout:"layouts/main",});
 });
+app.get('/JobApplicationForm',(req,res)=>{
+  const { token } = req.query;
+  res.render('jobApplication/applicationForm',{layout:"layouts/main",});
+});
 
 
 
