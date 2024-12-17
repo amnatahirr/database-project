@@ -5,12 +5,18 @@ const expressLayouts = require('express-ejs-layouts');
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
+const session = require("express-session");
+const flash = require("express-flash");
+
 const app = express();
 
 app.use(cors({
   origin: "http://localhost:5000", 
   credentials: true,             
 }));
+
+app.use(session({ secret: "secret", resave: false, saveUninitialized: false }));
+app.use(flash());
 
 const connectDB = require('./db');
 
@@ -30,8 +36,6 @@ app.use(fileUpload({
   useTempFiles: true,
   tempFileDir: "/tmp"
 }))
-
-
 
 // Set up EJS
 app.use(expressLayouts);
@@ -65,6 +69,10 @@ app.get('/dashboard', (req, res) => {
   res.render('dashboard/user_dashboard', { title: 'Dashboard' });
 });
 
+app.get('/users', (req, res) => {
+  res.render('dashboard/user_management', { title: 'Dashboard' });
+}); 
+
 app.get('/', (req, res) => {
   res.render('users/index', { layout: 'layouts/main' });
 });
@@ -86,7 +94,7 @@ app.get('/admin', (req, res) => {
 });
 
 app.get('/admin_dashboard', (req, res) => {
-  res.render('users/admin_dashboard', { layout: 'layouts/main' });
+  res.render('users/a_dashboard', { layout: 'layouts/main' });
 });
 
 app.get('/employer_dashboard', (req, res) => {
@@ -102,24 +110,15 @@ app.get('/resetPassword',(req,res)=>{
   res.render('users/resetPassword',{layout:"layouts/main",token});
 });
 
-////job
+
 app.get('/jobPostForm',(req,res)=>{
   const { token } = req.query;
   res.render('job/jobPostForm',{layout:"layouts/main"},token);
-});
-app.get('/MyJobs',(req,res)=>{
-  const { token } = req.query;
-  res.render('job/MyJobs',{layout:"layouts/main"},token);
 });
 
 app.get('/viewJob',(req,res)=>{
   res.render('job/viewJob',{layout:"layouts/main"});
 });
-app.get('/JobDetails',(req,res)=>{
-  res.render('job/jobDetails',{layout:"layouts/main"});
-});
-
-
 
 
 app.get('/JobApplicationForm',(req,res)=>{

@@ -2,16 +2,8 @@
 const User = require('../models/user');
 const Job = require('../models/job');
 const Application = require('../models/Application');
+const UserStatus = require("../models/UserStatus");
 const nodemailer = require('nodemailer'); // For sending emails
-
-exports.getUsers = async (req, res) => {
-  try {
-    const users = await User.find({}, "name email role");
-    res.status(200).json(users);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-};
 
 exports.getJobs = async (req, res) => {
   try {
@@ -72,30 +64,6 @@ exports.updateUserRole = async (req, res) => {
   }
 };
 
-// Deactivate or Suspend User Account
-exports.updateUserStatus = async (req, res) => {
-  try {
-    const { userId, isActive } = req.body;
-
-    const user = await User.findByIdAndUpdate(
-      userId,
-      { isActive },
-      { new: true }
-    );
-
-    if (!user) {
-      return res.status(404).json({ error: "User not found" });
-    }
-
-    const statusMessage = isActive
-      ? "User account reactivated successfully"
-      : "User account deactivated successfully";
-
-    res.status(200).json({ message: statusMessage, user });
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
 // filter user on behalf of role
 exports.filterRole = async (req, res) => {
   try {
@@ -116,33 +84,85 @@ exports.filterRole = async (req, res) => {
   }
 };
 
-// filter user on behalf of role and status
-exports.filterUsers = async (req, res) => {
+const getUsersWithStatus = async (req, res) => {
   try {
-    const { role, isActive } = req.query;
-
-    const query = {};
-    if (role) query.role = new RegExp(`^${role}$`, "i");
-    if (isActive !== undefined) query.isActive = isActive === "true";
-
-    console.log("Generated Query:", query);
-
-    // Fetch all users and log them
-    const allUsers = await User.find({}, "name email role isActive createdAt");
-    console.log("All Users in Database:", allUsers);
-
-    // Apply the filter and log the matched users
-    const users = await User.find(query, "name email role isActive createdAt");
-    console.log("Matched Users:", users);
+    const users = await User.aggregate([
+      {
+        $lookup: {
+          from: "userstatuses", // Collection name (lowercase + pluralized)
+          localField: "_id",
+          foreignField: "userId",
+          as: "status"
+        }
+      },
+      {
+        $addFields: {
+          isActive: { $ifNull: [{ $arrayElemAt: ["$status.isActive", 0] }, true] }
+        }
+      },
+      {
+        $project: { status: 0 } // Remove status field after merging
+      }
+    ]);
 
     res.status(200).json(users);
   } catch (error) {
-    console.error("Error:", error.message);
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ message: "Error fetching users", error });
   }
 };
 
+// Fetch all users and their statuses
+exports.getUsers = async (req, res) => {
+  try {
+    const users = await User.find();
+    const statuses = await UserStatus.find();
 
+    // Map userId to isActive
+    const userStatusMap = {};
+    statuses.forEach(status => {
+      userStatusMap[status.userId] = status.isActive;
+    });
+
+    const usersWithStatus = users.map(user => ({
+      ...user._doc,
+      isActive: userStatusMap[user._id] ?? true, // Default to true if no status exists
+    }));
+
+    res.render("dashboard/user_management", { users: usersWithStatus });
+  } catch (error) {
+    res.status(500).send("Error fetching users");
+  }
+};
+
+// Deactivate a user by modifying the UserStatus
+exports.deactivateUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    await UserStatus.findOneAndUpdate(
+      { userId },
+      { isActive: false },
+      { upsert: true }
+    );
+    res.redirect("/admin/users");
+  } catch (error) {
+    res.status(500).send("Error deactivating user");
+  }
+};
+
+// Activate a user by modifying the UserStatus
+exports.activateUser = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    await UserStatus.findOneAndUpdate(
+      { userId },
+      { isActive: true },
+      { upsert: true }
+    );
+    res.redirect("/admin/users");
+  } catch (error) {
+    res.status(500).send("Error activating user");
+  }
+};
 // Helper function for sending emails
 const sendEmail = async (toEmail, subject, text) => {
     try {
@@ -206,14 +226,14 @@ exports.deactivateInactiveUsers = async () => {
   console.log('Deactivated users:', result);
 };
 
-// Activate a user by ID
-exports.activateUser = async (userId) => {
-  const result = await User.updateOne(
-    { _id: userId },
-    { $set: { isActive: true } }
-  );
-  console.log('Activated user:', result);
-};
+// // Activate a user by ID
+// exports.activateUser = async (userId) => {
+//   const result = await User.updateOne(
+//     { _id: userId },
+//     { $set: { isActive: true } }
+//   );
+//   console.log('Activated user:', result);
+// };
 
 // Reactivate a user
 exports.requestUserReactivation = async () => {

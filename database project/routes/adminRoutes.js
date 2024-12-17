@@ -4,9 +4,9 @@ const {
   getJobs,
   generateReports,
   updateUserRole,
-  updateUserStatus,
   filterRole,
-  filterUsers,
+  deactivateUser,
+  activateUser,
 } = require("../controller/adminController");
 const router = express.Router();
 
@@ -17,8 +17,8 @@ router.get("/reports", generateReports);
 
 // User Management APIs
 router.put("/update-role", updateUserRole);
-router.put("/update-status", updateUserStatus);
 router.get("/filter-role", filterRole);
-router.get("/filter-users", filterUsers);
+router.post("/deactivate/:userId", deactivateUser);
+router.post("/activate/:userId", activateUser);
 
 module.exports = router;
