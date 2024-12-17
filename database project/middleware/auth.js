@@ -2,21 +2,30 @@ const jwt = require("jsonwebtoken");
 
 // Middleware to authenticate access tokens
 exports.authenticateAccessToken = (req, res, next) => {
-  const authHeader = req.headers.authorization;
+  try {
+    // Retrieve token from cookies
+    const token = req.cookies.accessToken;
 
-  if (authHeader && authHeader.startsWith("Bearer ")) {
-    const token = authHeader.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized - No token provided" });
+    }
 
-    jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-      if (err) return res.status(401).json({ message: "Access token expired or invalid" });
+    // Verify the token
+    jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
+      if (err) {
+        return res.status(403).json({ message: "Forbidden - Invalid token" });
+      }
 
-      req.user = user; // Attach user data to request
+      // Attach user data to request
+      req.user = decoded;
       next();
     });
-  } else {
-    res.status(401).json({ message: "Access token required" });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
+
 
 // Middleware to verify refresh tokens
 exports.verifyRefreshToken = (req, res, next) => {

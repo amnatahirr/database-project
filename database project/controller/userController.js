@@ -1,15 +1,10 @@
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-
-
 const nodemailer = require("nodemailer");
-const { generateTokens } = require("../middleware/auth");
+const { generateTokens, verifyRefreshToken } = require("../middleware/auth");
 
-
-
-
-
+// REGISTER USER
 exports.registerUser = async (req, res) => {
   try {
     const { name, email, password, role, keywords } = req.body;
@@ -19,8 +14,8 @@ exports.registerUser = async (req, res) => {
       return res.status(400).json({ message: "Invalid role specified" });
     }
 
-    // Validate keywords for job seekers or employers
-    if ((role === "job_seeker" || role === "employer") && (!keywords || !keywords.length)) {
+    // Validate keywords for job seekers/employers
+    if (["job_seeker", "employer"].includes(role) && (!keywords || !keywords.length)) {
       return res.status(400).json({ message: "Keywords are required for job seekers or employers" });
     }
 
@@ -28,91 +23,94 @@ exports.registerUser = async (req, res) => {
     const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!passwordRequirements.test(password)) {
       return res.status(400).json({
-        message: "Password must be at least 8 characters long, include at least one uppercase letter, and one number.",
+        message: "Password must be at least 8 characters long, include one uppercase letter, and one number.",
       });
     }
 
-    // Check if email is already registered
+    // Check if email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "Email is already registered" });
+      return res.status(400).json({ message: "Email is already registered." });
     }
 
-    // Hash the password
+    // Hash password and save user
     const hashedPassword = await bcrypt.hash(password, 10);
-
-    // Create user object
-    const user = new User({
+    const user = await User.create({
       name,
       email,
       password: hashedPassword,
       role,
-      keywords: role === "job_seeker" || role === "employer" ? keywords : undefined,
+      keywords,
     });
 
-    // Save user
-    await user.save();
-
-    // Redirect to login page
-    return res.redirect("/login");
-  } catch (err) {
-    console.error("Error registering user:", err);
-    return res.status(500).json({ message: "Internal server error" });
+    res.status(201).json({ message: "User registered successfully", user });
+  } catch (error) {
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
 
-exports.loginUser = async (req, res) => {
-  try {
-    const { email, password } = req.body;
 
-    // Find user
+// LOGIN USER
+exports.loginUser = async (req, res) => {
+  const { email, password } = req.body;
+
+  try {
+    // Validate email and password (fetch user from DB and compare)
     const user = await User.findOne({ email });
-    if (!user || !(await bcrypt.compare(password, user.password))) {
+    if (!user || !(await user.comparePassword(password))) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    // Generate tokens
-    const { accessToken, refreshToken } = generateTokens(user); // Use the imported function
+    // Generate Access Token
+    const accessToken = jwt.sign(
+      { id: user._id, role: user.role },
+      process.env.JWT_SECRET,
+      { expiresIn: "15m" }
+    );
 
-    // Set tokens in cookies
-    res.cookie("refreshToken", refreshToken, {
-      httpOnly: true,
+    // Set the token in an HTTP-only cookie
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
       secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-      sameSite: "strict",
+      sameSite: "strict", // Protect against CSRF attacks
+      maxAge: 15 * 60 * 1000, // Token expires in 15 minutes
     });
 
-    // Redirect to dashboard
-    return res.redirect("/dashboard");
-  } catch (err) {
-    console.error("Login error:", err);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(200).json({
+      message: "Login successful",
+      accessToken, // Optional: Return the token if needed for debugging or frontend storage
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server error" });
   }
 };
 
+// REFRESH TOKEN
+exports.refreshToken = async (req, res) => {
+  try {
+    const { refreshToken } = req.cookies;
+    if (!refreshToken) return res.status(401).json({ message: "No refresh token provided" });
 
+    const { user } = verifyRefreshToken(refreshToken);
+    const newAccessToken = jwt.sign({ id: user.id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "15m" });
 
-// Refresh Token
-exports.refreshToken = (req, res) => {
-  const user = req.user; // Retrieved from verifyRefreshToken middleware
-
-  // Generate a new access token
-  const accessToken = jwt.sign(
-    { id: user.id, role: user.role },
-    process.env.JWT_SECRET,
-    { expiresIn: "15m" }
-  );
-
-  res.status(200).json({ accessToken });
+    res.status(200).json({ accessToken: newAccessToken });
+  } catch (error) {
+    res.status(403).json({ message: "Invalid refresh token", error });
+  }
 };
 
-// Logout User
+// LOGOUT USER
 exports.logoutUser = (req, res) => {
-  res.clearCookie("refreshToken");
-  res.status(200).json({ message: "Logout successful" });
+  res.clearCookie("accessToken", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+  });
+  res.status(200).json({ message: "Logged out successfully" });
 };
-
-
 
 
 
@@ -173,6 +171,8 @@ exports.forgotPassword = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
+
 
 // Reset Password
 exports.resetPassword = async (req, res) => {

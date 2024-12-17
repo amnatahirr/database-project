@@ -4,87 +4,55 @@ const cloudinary = require("cloudinary");
 const ErrorHandler = require("../middleware/error");
 const catchAsyncErrors = require("../middleware/catchAsyncError");
 
-
 //apply authorization that only job seeker will be able to apply for job  and job seeker is log in
 // we will fetcht the role of req.user from the database  
 //
+
+
+// POST APPLICATION (Job Seeker Only)
 exports.postApplication = catchAsyncErrors(async (req, res, next) => {
   const { role } = req.user;
 
-  // Only Job Seekers are allowed to apply
-  if (role === "Employer") {
-    return next(
-      new ErrorHandler("Employers are not allowed to apply for jobs.", 400)
-    );
+  if (role !== "job_seeker") {
+    return next(new ErrorHandler("Only job seekers can apply for jobs.", 403));
   }
 
-  // Extract application details from the request body
   const { name, email, coverLetter, phone, address, jobId } = req.body;
 
-  // Ensure all required fields are provided
   if (!name || !email || !coverLetter || !phone || !address || !jobId) {
-    return next(new ErrorHandler("Please fill in all required fields.", 400));
+    return next(new ErrorHandler("All fields are required.", 400));
   }
 
-  // Find the job by ID and check its status
   const job = await Job.findById(jobId);
-
-  if (!job) {
-    return next(new ErrorHandler("Job not found.", 404));
+  if (!job || job.isExpired) {
+    return next(new ErrorHandler("Invalid or expired job.", 404));
   }
 
-  if (job.isExpired) {
-    return next(new ErrorHandler("This job has expired.", 400));
-  }
-
-  // Construct applicantID
-  const applicantID = {
-    user: req.user.id, // Ensure `req.user` contains the authenticated user's ID
-    role: "Job Seeker",
-  };
-
-  // Construct employerID
-  const employerID = {
-    user: job.postedBy, // Assumes `job.postedBy` contains the employer's user ID
-    role: "Employer",
-  };
-
-  // Create a new application
   const application = await Application.create({
     name,
     email,
     coverLetter,
     phone,
     address,
-    applicantID,
-    employerID,
+    applicantID: req.user.id,
+    employerID: job.postedBy,
   });
 
-  // Respond with success message
-  res.status(200).json({
-    success: true,
-    message: "Application submitted successfully!",
-    application,
-  });
+  res.status(201).json({ message: "Application submitted successfully", application });
 });
 
-exports.employerGetAllApplications = catchAsyncErrors(
-
-  async (req, res, next) => {
-    const { role } = req.user;
-    if (role === "Job Seeker") {
-      return next(
-        new ErrorHandler("Job Seeker not allowed to access this resource.", 400)
-      );
-    }
-    const { _id } = req.user;
-    const applications = await Application.find({ "employerID.user": _id });
-    res.status(200).json({
-      success: true,
-      applications,
-    });
+// GET ALL APPLICATIONS (Employer Only)
+exports.employerGetAllApplications = catchAsyncErrors(async (req, res, next) => {
+  if (req.user.role !== "employer") {
+    return next(new ErrorHandler("Access denied.", 403));
   }
-);
+
+  const applications = await Application.find({ employerID: req.user.id });
+  res.status(200).json({ applications });
+});
+
+
+
 
 exports.jobseekerGetAllApplications = catchAsyncErrors(async (req, res, next) => {
 
