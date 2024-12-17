@@ -86,7 +86,7 @@ app.get('/admin', (req, res) => {
 });
 
 app.get('/admin_dashboard', (req, res) => {
-  res.render('users/admin_dashboard', { layout: 'layouts/main' });
+  res.render('users/a_dashboard', { layout: 'layouts/main' });
 });
 
 app.get('/employer_dashboard', (req, res) => {
