@@ -53,37 +53,28 @@ exports.registerUser = async (req, res) => {
 
 // LOGIN USER
 exports.loginUser = async (req, res) => {
-  const { email, password } = req.body;
-
   try {
-    // Validate email and password (fetch user from DB and compare)
+    const { email, password } = req.body;
+
+    // Check user credentials
     const user = await User.findOne({ email });
-    if (!user || !(await user.comparePassword(password))) {
-      return res.status(401).json({ message: "Invalid credentials" });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    // Generate Access Token
-    const accessToken = jwt.sign(
-      { id: user._id, role: user.role },
-      process.env.JWT_SECRET,
-      { expiresIn: "15m" }
-    );
+    // Generate tokens
+    const { accessToken, refreshToken } = generateTokens(user);
 
-    // Set the token in an HTTP-only cookie
-    res.cookie("accessToken", accessToken, {
-      httpOnly: true, // Prevents client-side JavaScript from accessing the cookie
-      secure: process.env.NODE_ENV === "production", // Use secure cookies in production
-      sameSite: "strict", // Protect against CSRF attacks
-      maxAge: 15 * 60 * 1000, // Token expires in 15 minutes
+    // Set refresh token in cookie
+    res.cookie("refreshToken", refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "strict",
     });
 
-    res.status(200).json({
-      message: "Login successful",
-      accessToken, // Optional: Return the token if needed for debugging or frontend storage
-    });
+    res.status(200).json({ message: "Login successful", accessToken });
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    res.status(500).json({ message: "Internal Server Error", error });
   }
 };
 
