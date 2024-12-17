@@ -22,20 +22,17 @@ const connectDB = require('./db');
 
 dotenv.config();
 
-
 //new line
 app.use(cookieParser());
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-
 // new line
-
 app.use(fileUpload({
   useTempFiles: true,
   tempFileDir: "/tmp"
-}))
+}));
 
 // Set up EJS
 app.use(expressLayouts);
@@ -52,17 +49,13 @@ const dashboardRoutes = require('./routes/dashboardRoutes');
 const adminRoutes = require('./routes/adminRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
 const jobRoutes = require('./routes/jobRoutes');
-//const notificationRoutes = require('./routes/notificationRoutes');
 
 // Use routes
-
 app.use('/users', userRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/admin', adminRoutes);
 app.use('/application', applicationRoutes);
 app.use('/job', jobRoutes);
-//app.use('/notification', notificationRoutes);
-
 
 // Frontend Routes
 app.get('/dashboard', (req, res) => {
@@ -110,7 +103,6 @@ app.get('/resetPassword',(req,res)=>{
   res.render('users/resetPassword',{layout:"layouts/main",token});
 });
 
-
 app.get('/jobPostForm',(req,res)=>{
   const { token } = req.query;
   res.render('job/jobPostForm',{layout:"layouts/main"},token);
@@ -120,7 +112,7 @@ app.get('/viewJob',(req,res)=>{
   res.render('job/viewJob',{layout:"layouts/main"});
 });
 
-
+//JobApplications
 app.get('/JobApplicationForm',(req,res)=>{
   const { token } = req.query;
   res.render('JobApplication/applicationForm',{layout:"layouts/main",});
@@ -145,7 +137,3 @@ connectDB();
 // Start the server
 const PORT = 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-
-
-
-
