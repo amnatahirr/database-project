@@ -135,23 +135,14 @@ exports.updateJob = async (req, res) => {
 
 // get my jobs
 exports.getMyJobs = catchAsyncErrors(async (req, res, next) => {
-
-  const { role } = req.user;
-  if (role === "Job Seeker") {
-    return next(
-      new ErrorHandler("Job Seeker not allowed to access this resource.", 400)
-    );
-  }
-
-  const myJobs = await Job.find({ postedBy: req.user._id });
-  res.status(200).json({
-    success: true,
-    myJobs,
+  const { id } = req.user; // Fetch the logged-in user's ID from the token
+  
+  const myJobs = await Job.find({ postedBy: id }); // Fetch jobs where postedBy matches the user's ID
+  
+  res.status(200).render('job/myJobs', {
+    jobs: myJobs,
   });
-
 });
-
-
 
 // Update an existing job posting
 exports.deleteJob = async (req, res) => {

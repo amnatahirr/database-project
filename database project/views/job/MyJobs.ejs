@@ -120,36 +120,27 @@
 </style>
 
 <div class="container">
-    <h1 class="page-title">Explore All Jobs</h1>
-    <form action="/job/viewJob" method="GET">
-        <label for="searchQuery">Search</label>
-        <input type="text" name="searchQuery" id="searchQuery" value="<%= searchOptions.searchQuery %>">
-        <button type="submit">Search</button>
-    </form>
-    
-    
+    <h1 class="page-title">My Posted Jobs</h1>
     <div class="jobs-grid">
         <% if (jobs.length > 0) { %>
             <% jobs.forEach(job => { %>
               <div class="job-card">
-                <img src="/images/rocket-icon.svg" alt="Company Logo" class="company-logo">
                 <h2 class="job-title"><%= job.jobTitle %></h2>
                 <p class="company-name"><%= job.companyName %></p>
                 <div class="job-meta">
                   <p>Location: <%= job.location %></p>
                   <p>Type: <%= job.jobType %></p>
                   <p>Industry: <%= job.industry %></p>
-                  <p>Salary: <%= job.salary || 'Negotiable' %></p>
+                  <p>Salary: <%= job.salaryRange || 'Negotiable' %></p>
                 </div>
                 <a href="/job/jobDetails" class="view-details">View Details</a>
-                <a href="/job/updateJob" class="view-details">Update Job</a>
-
+                <a href="/job/update/<%= job._id %>" class="view-details">Update</a>
+                <br><br>
+                <a href="/job/delete/<%= job._id %>" class="view-details" style="background-color: red; color: white;">Delete</a>
               </div>
             <% }) %>
-          <% } else { %>
-            <p>No jobs available at the moment. Please check back later!</p>
-          <% } %>
-          
+        <% } else { %>
+            <p>You haven't posted any jobs yet. Post a job now!</p>
+        <% } %>
     </div>
 </div>
-
