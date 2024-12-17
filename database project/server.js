@@ -86,7 +86,7 @@ app.get('/admin', (req, res) => {
 });
 
 app.get('/admin_dashboard', (req, res) => {
-  res.render('users/a_dashboard', { layout: 'layouts/main' });
+  res.render('users/admin_dashboard', { layout: 'layouts/main' });
 });
 
 app.get('/employer_dashboard', (req, res) => {
@@ -102,7 +102,7 @@ app.get('/resetPassword',(req,res)=>{
   res.render('users/resetPassword',{layout:"layouts/main",token});
 });
 
-
+////job
 app.get('/jobPostForm',(req,res)=>{
   const { token } = req.query;
   res.render('job/jobPostForm',{layout:"layouts/main"},token);
@@ -115,6 +115,11 @@ app.get('/MyJobs',(req,res)=>{
 app.get('/viewJob',(req,res)=>{
   res.render('job/viewJob',{layout:"layouts/main"});
 });
+app.get('/JobDetails',(req,res)=>{
+  res.render('job/jobDetails',{layout:"layouts/main"});
+});
+
+
 
 
 app.get('/JobApplicationForm',(req,res)=>{
