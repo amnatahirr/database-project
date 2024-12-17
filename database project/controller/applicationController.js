@@ -15,27 +15,32 @@ const { authenticateAccessToken } = require("../middleware/auth");
 
 // POST APPLICATION (Job Seeker Only)
 exports.postApplication = [
-  authenticateAccessToken,
+  authenticateAccessToken, // Middleware to authenticate user
   catchAsyncErrors(async (req, res, next) => {
-    console.log("Request Body:", req.body); // Debug request body
+    console.log("Request Body:", req.body); // Debug to ensure jobId and other fields are received
 
     const { role } = req.user;
 
+    // Step 1: Check user role
     if (role !== "job_seeker") {
       return next(new ErrorHandler("Only job seekers can apply for jobs.", 403));
     }
 
-    const { name, email, coverLetter, phone, address, jobId } = req.body;
+    // Step 2: Extract and validate fields from request body
+    const { name, email, coverLetter, phone, address,jobId} = req.body;
 
+    // Ensure all required fields are present
     if (!name || !email || !coverLetter || !phone || !address || !jobId) {
       return next(new ErrorHandler("All fields are required.", 400));
     }
 
-    const job = await Job.findById(jobId);
-    if (!job || job.isExpired) {
+    // Step 3: Validate the job
+    const job = await Job.findById(jobId); // Find job by jobId
+    if (!job || job.isExpired) { // Ensure job exists and is not expired
       return next(new ErrorHandler("Invalid or expired job.", 404));
     }
 
+    // Step 4: Create the application
     const application = await Application.create({
       name,
       email,
@@ -43,12 +48,17 @@ exports.postApplication = [
       phone,
       address,
       applicantID: { user: req.user.id, role: "Job Seeker" },
-      employerID: job.postedBy,
+      employerID: job.postedBy, // Link application to job's employer
     });
 
-    res.status(201).json({ message: "Application submitted successfully", application });
+    // Step 5: Send success response
+    res.status(201).json({
+      message: "Application submitted successfully",
+      application, // Include the created application in the response
+    });
   }),
 ];
+
 
 // GET ALL APPLICATIONS (Employer Only)
 exports.employerGetAllApplications = catchAsyncErrors(async (req, res, next) => {
