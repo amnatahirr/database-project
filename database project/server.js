@@ -94,16 +94,29 @@ app.get('/jobPostForm',(req,res)=>{
 });
 
 app.get('/viewJob',(req,res)=>{
-  //const { token } = req.query;
   res.render('job/viewJob',{layout:"layouts/main"});
 });
 
+
 app.get('/JobApplicationForm',(req,res)=>{
   const { token } = req.query;
-  res.render('jobApplication/applicationForm',{layout:"layouts/main"},token);
+  res.render('JobApplication/applicationForm',{layout:"layouts/main",});
 });
 
+app.get('/viewAllApplications',(req,res)=>{
+  const { token } = req.query;
+  res.render('JobApplication/viewApplications',{layout:"layouts/main",});
+});
 
+app.get('/deleteApplication',(req,res)=>{
+  const { token } = req.query;
+  res.render('JobApplication/deleteApplication',{layout:"layouts/main",});
+});
+
+app.get('/GetApplications',(req,res)=>{
+  const { token } = req.query;
+  res.render('JobApplication/employerView',{layout:"layouts/main",});
+});
 
 connectDB();
 // Start the server

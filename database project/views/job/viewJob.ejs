@@ -121,6 +121,12 @@
 
 <div class="container">
     <h1 class="page-title">Explore All Jobs</h1>
+    <form action="/job/viewJob" method="GET">
+        <label for="searchQuery">Search</label>
+        <input type="text" name="searchQuery" id="searchQuery" value="<%= searchOptions.searchQuery %>">
+        <button type="submit">Search</button>
+    </form>
+    
     
     <div class="jobs-grid">
         <% if (jobs.length > 0) { %>
