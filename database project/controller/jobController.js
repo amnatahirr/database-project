@@ -7,38 +7,34 @@ const Job = require("../models/job");
 // check update jobs and delete jobs 
 exports.getAllJobs = catchAsyncErrors(async (req, res, next) => {
   try {
-    let SearchOptions = {}; // Initialize search options object
+    const { searchQuery } = req.query; // Extract the search query from the request
 
-    // Check if query parameters for search are provided
-    if (req.query.jobTitle != null && req.query.jobTitle != '') {
-      SearchOptions.jobTitle = new RegExp(req.query.jobTitle, 'i'); // Case-insensitive search for jobTitle
+    let searchOptions = {};
+
+    // Only proceed if the search query is not empty
+    if (searchQuery && searchQuery.trim() !== '') {
+      // Create a regular expression for case-insensitive search across multiple fields
+      const regex = new RegExp(searchQuery, 'i'); // 'i' for case-insensitive search
+
+      // Apply the search query to multiple fields (jobTitle, companyName, location)
+      searchOptions = {
+        $or: [
+          { jobTitle: regex },
+          { companyName: regex },
+          { location: regex },
+          { jobType: regex },
+          { industry: regex }
+        ]
+      };
     }
 
-    if (req.query.companyName != null && req.query.companyName != '') {
-      SearchOptions.companyName = new RegExp(req.query.companyName, 'i'); // Case-insensitive search for companyName
-    }
+    // Fetch jobs based on the search options and ensure expired: false
+    const jobs = await Job.find({ ...searchOptions, expired: false });
 
-    if (req.query.location != null && req.query.location != '') {
-      SearchOptions.location = new RegExp(req.query.location, 'i'); // Case-insensitive search for location
-    }
-
-    // Add other search fields as needed (jobType, industry, etc.)
-    if (req.query.jobType != null && req.query.jobType != '') {
-      SearchOptions.jobType = req.query.jobType; // Exact match for jobType
-    }
-
-    if (req.query.industry != null && req.query.industry != '') {
-      SearchOptions.industry = req.query.industry; // Exact match for industry
-    }
-
-    // Fetch jobs based on the search options
-    const jobs = await Job.find({ ...SearchOptions, expired: false }); // Include expired: false filter
-
-   
-    // Render the page with jobs data and search query options
+    // Render the page with jobs data and the search query
     res.status(200).render('job/viewJob', {
       jobs: jobs,
-      searchOptions: req.query, // Pass search options to the template for persistence
+      searchOptions: req.query, // Pass the search query to the template for persistence
     });
   } catch (error) {
     console.error(error); // Log the error
@@ -48,6 +44,7 @@ exports.getAllJobs = catchAsyncErrors(async (req, res, next) => {
     });
   }
 });
+
 
 
 // post new Job 

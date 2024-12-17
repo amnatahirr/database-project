@@ -98,11 +98,6 @@ app.get('/viewJob',(req,res)=>{
   res.render('job/viewJob',{layout:"layouts/main"});
 });
 
-app.get('/JobApplicationForm',(req,res)=>{
-  const { token } = req.query;
-  res.render('jobApplication/applicationForm',{layout:"layouts/main"},token);
-});
-
 
 app.get('/JobApplicationForm',(req,res)=>{
   const { token } = req.query;
@@ -124,11 +119,9 @@ app.get('/GetApplications',(req,res)=>{
   res.render('JobApplication/employerView',{layout:"layouts/main",});
 });
 
-
-
 connectDB();
 // Start the server
-const PORT = 5005;
+const PORT = 5050;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 
