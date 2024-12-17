@@ -142,8 +142,8 @@
                   <p>Salary: <%= job.salary || 'Negotiable' %></p>
                 </div>
                 <a href="/job/jobDetails" class="view-details">View Details</a>
-                <a href="/job/updateJob" class="view-details">Update Job</a>
-
+                <br><br>
+                <a href="/JobApplicationForm/<%= job._id %>" class="btn btn-primary">Apply</a>
               </div>
             <% }) %>
           <% } else { %>
