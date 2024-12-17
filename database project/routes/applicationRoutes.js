@@ -11,7 +11,7 @@ const { authenticateAccessToken } = require("../middleware/auth");
 const router = express.Router();
 
 // Routes for job applications
-router.post("/post/:jobId", authenticateAccessToken, postApplication);
+router.post("/post", authenticateAccessToken, postApplication);
 router.get("/employer/getall", authenticateAccessToken, employerGetAllApplications);
 router.get("/jobseeker/getall", authenticateAccessToken, jobseekerGetAllApplications);
 router.delete("/delete/:id", authenticateAccessToken, jobseekerDeleteApplication);

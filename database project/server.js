@@ -44,8 +44,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // Import routes
 const userRoutes = require('./routes/userRoutes');
-
-//const adminRoutes = require('./routes/adminRoutes');
+const dashboardRoutes = require('./routes/dashboardRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 const applicationRoutes = require('./routes/applicationRoutes');
 const jobRoutes = require('./routes/jobRoutes');
 //const notificationRoutes = require('./routes/notificationRoutes');
@@ -53,14 +53,18 @@ const jobRoutes = require('./routes/jobRoutes');
 // Use routes
 
 app.use('/users', userRoutes);
-
-//app.use('/admin', adminRoutes);
+app.use('/dashboard', dashboardRoutes);
+app.use('/admin', adminRoutes);
 app.use('/application', applicationRoutes);
 app.use('/job', jobRoutes);
 //app.use('/notification', notificationRoutes);
 
 
 // Frontend Routes
+app.get('/dashboard', (req, res) => {
+  res.render('dashboard/user_dashboard', { title: 'Dashboard' });
+});
+
 app.get('/', (req, res) => {
   res.render('users/index', { layout: 'layouts/main' });
 });
@@ -77,12 +81,20 @@ app.get('/forgotPassword', (req, res) => {
   res.render('users/forgotPassword', { layout: 'layouts/main' }); 
 });
 
-app.get('/dashboard', (req, res) => {
-  res.render('users/dashboard', { layout: 'layouts/main' });
-});
-
 app.get('/admin', (req, res) => {
   res.render('users/admin', { layout: 'layouts/main' });
+});
+
+app.get('/admin_dashboard', (req, res) => {
+  res.render('users/a_dashboard', { layout: 'layouts/main' });
+});
+
+app.get('/employer_dashboard', (req, res) => {
+  res.render('users/employer_dashboard', { layout: 'layouts/main' });
+});
+
+app.get('/jobSeeker_dashboard', (req, res) => {
+  res.render('users/jobSeeker_dashboard', { layout: 'layouts/main' });
 });
 
 app.get('/resetPassword',(req,res)=>{
