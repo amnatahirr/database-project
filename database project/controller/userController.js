@@ -65,14 +65,20 @@ exports.loginUser = async (req, res) => {
     // Generate tokens
     const { accessToken, refreshToken } = generateTokens(user);
 
-    // Set refresh token in cookie
+    // Set tokens in cookies
+    res.cookie("accessToken", accessToken, {
+      httpOnly: true, // Protect the cookie from JavaScript access
+      secure: process.env.NODE_ENV === "production", // HTTPS only in production
+      sameSite: "lax", // Allows cookies to be sent with cross-origin requests
+    });
+    
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
+      sameSite: "lax",
     });
 
-    res.status(200).json({ message: "Login successful", accessToken });
+    res.status(200).json({ message: "Login successful" });
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error", error });
   }

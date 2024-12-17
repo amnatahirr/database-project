@@ -3,21 +3,18 @@ const jwt = require("jsonwebtoken");
 // Middleware to authenticate access tokens
 exports.authenticateAccessToken = (req, res, next) => {
   try {
-    // Retrieve token from cookies
     const token = req.cookies.accessToken;
 
     if (!token) {
       return res.status(401).json({ message: "Unauthorized - No token provided" });
     }
 
-    // Verify the token
     jwt.verify(token, process.env.JWT_SECRET, (err, decoded) => {
       if (err) {
         return res.status(403).json({ message: "Forbidden - Invalid token" });
       }
 
-      // Attach user data to request
-      req.user = decoded;
+      req.user = decoded; // Attach user data to request
       next();
     });
   } catch (error) {

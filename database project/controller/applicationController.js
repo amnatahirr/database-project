@@ -1,6 +1,7 @@
 const Application = require("../models/application");
 const Job  = require("../models/job");
-const cloudinary = require("cloudinary");
+const axios = require("../axiosConfig"); // Use CommonJS require syntax
+
 const ErrorHandler = require("../middleware/error");
 const catchAsyncErrors = require("../middleware/catchAsyncError");
 
@@ -10,36 +11,44 @@ const catchAsyncErrors = require("../middleware/catchAsyncError");
 
 
 // POST APPLICATION (Job Seeker Only)
-exports.postApplication = catchAsyncErrors(async (req, res, next) => {
-  const { role } = req.user;
+const { authenticateAccessToken } = require("../middleware/auth");
 
-  if (role !== "job_seeker") {
-    return next(new ErrorHandler("Only job seekers can apply for jobs.", 403));
-  }
+// POST APPLICATION (Job Seeker Only)
+exports.postApplication = [
+  authenticateAccessToken,
+  catchAsyncErrors(async (req, res, next) => {
+    console.log("Request Body:", req.body); // Debug request body
 
-  const { name, email, coverLetter, phone, address, jobId } = req.body;
+    const { role } = req.user;
 
-  if (!name || !email || !coverLetter || !phone || !address || !jobId) {
-    return next(new ErrorHandler("All fields are required.", 400));
-  }
+    if (role !== "job_seeker") {
+      return next(new ErrorHandler("Only job seekers can apply for jobs.", 403));
+    }
 
-  const job = await Job.findById(jobId);
-  if (!job || job.isExpired) {
-    return next(new ErrorHandler("Invalid or expired job.", 404));
-  }
+    const { name, email, coverLetter, phone, address, jobId } = req.body;
 
-  const application = await Application.create({
-    name,
-    email,
-    coverLetter,
-    phone,
-    address,
-    applicantID: req.user.id,
-    employerID: job.postedBy,
-  });
+    if (!name || !email || !coverLetter || !phone || !address || !jobId) {
+      return next(new ErrorHandler("All fields are required.", 400));
+    }
 
-  res.status(201).json({ message: "Application submitted successfully", application });
-});
+    const job = await Job.findById(jobId);
+    if (!job || job.isExpired) {
+      return next(new ErrorHandler("Invalid or expired job.", 404));
+    }
+
+    const application = await Application.create({
+      name,
+      email,
+      coverLetter,
+      phone,
+      address,
+      applicantID: { user: req.user.id, role: "Job Seeker" },
+      employerID: job.postedBy,
+    });
+
+    res.status(201).json({ message: "Application submitted successfully", application });
+  }),
+];
 
 // GET ALL APPLICATIONS (Employer Only)
 exports.employerGetAllApplications = catchAsyncErrors(async (req, res, next) => {

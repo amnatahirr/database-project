@@ -2,17 +2,20 @@ const express = require('express');
 const dotenv = require('dotenv');
 const path = require('path');
 const expressLayouts = require('express-ejs-layouts');
-
-//new line
+const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
+const app = express();
 
+app.use(cors({
+  origin: "http://localhost:5000", 
+  credentials: true,             
+}));
 
 const connectDB = require('./db');
 
 dotenv.config();
 
-const app = express();
 
 //new line
 app.use(cookieParser());
