@@ -43,7 +43,7 @@ exports.registerUser = async (req, res) => {
       keywords,
     });
 
-    res.status(201).json({ message: "User registered successfully", user });
+    return res.redirect('/login');
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error", error });
   }
@@ -78,7 +78,16 @@ exports.loginUser = async (req, res) => {
       sameSite: "lax",
     });
 
-    return res.redirect('/');
+    if (user.role === "admin") {
+      return res.render("users/admin_dashboard", { user });
+    } else if (user.role === "job_seeker") {
+      return res.render("users/jobSeeker_dashboard", { user });
+    } else if (user.role === "employer") {
+      return res.render("users/employer_dashboard", { user });
+    } else {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error", error });
   }
