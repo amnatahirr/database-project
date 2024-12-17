@@ -115,12 +115,10 @@ app.get('/MyJobs',(req,res)=>{
 app.get('/viewJob',(req,res)=>{
   res.render('job/viewJob',{layout:"layouts/main"});
 });
-app.get('/JobDetails',(req,res)=>{
-  res.render('job/jobDetails',{layout:"layouts/main"});
-});
 
 
 
+//JobApplications
 
 app.get('/JobApplicationForm',(req,res)=>{
   const { token } = req.query;
