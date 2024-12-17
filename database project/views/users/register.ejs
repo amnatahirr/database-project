@@ -69,7 +69,7 @@
         <h1>Create Account</h1>
     </div>
 
-    <form action="/users/register" method="POST" id="register-form">
+    <form action="/users/register" method="POST" id="register-form" enctype="multipart/form-data">
         <div class="form-group">
             <label for="name">Full Name</label>
             <input type="text" id="name" name="name" required>
@@ -155,7 +155,7 @@
 
   document.getElementById('register-form').addEventListener('submit', function(event) {
       const password = document.getElementById('password').value.trim();
-      const passwordRequirements = /^(?=.[A-Z])(?=.\d)[A-Za-z\d]{8,}$/;
+      const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
       
       if (!passwordRequirements.test(password)) {
           event.preventDefault();
