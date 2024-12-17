@@ -1,13 +1,24 @@
-// routes/adminRoutes.js
 const express = require("express");
-const { getUsers, getJobs, generateReports } = require("../controller/adminController");
-const { authenticate } = require("../middleware/auth");
-const { authorizeRoles } = require("../middleware/roleMiddleware");
-
+const {
+  getUsers,
+  getJobs,
+  generateReports,
+  updateUserRole,
+  updateUserStatus,
+  filterRole,
+  filterUsers,
+} = require("../controller/adminController");
 const router = express.Router();
 
-router.get("/users", authenticate, authorizeRoles("admin"), getUsers);
-router.get("/jobs", authenticate, authorizeRoles("admin"), getJobs);
-router.get("/reports", authenticate, authorizeRoles("admin"), generateReports);
+// Routes
+router.get("/users", getUsers);
+router.get("/jobs", getJobs);
+router.get("/reports", generateReports);
+
+// User Management APIs
+router.put("/update-role", updateUserRole);
+router.put("/update-status", updateUserStatus);
+router.get("/filter-role", filterRole);
+router.get("/filter-users", filterUsers);
 
 module.exports = router;

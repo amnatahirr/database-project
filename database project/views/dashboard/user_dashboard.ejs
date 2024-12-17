@@ -1,0 +1,40 @@
+<style>
+  .container {
+padding: 10px;
+  }
+</style>
+<div class="container mt-6">
+  <h1 class="text-center mb-4">Admin Dashboard Stats</h1>
+
+  <div class="row">
+    <!-- Total Users -->
+    <div class="col-md-4 mb-3">
+      <div class="card text-white bg-primary">
+        <div class="card-body text-center">
+          <h5 class="card-title">Total Users</h5>
+          <h2><%= totalUsers %></h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Jobs -->
+    <div class="col-md-4 mb-3">
+      <div class="card text-white bg-success">
+        <div class="card-body text-center">
+          <h5 class="card-title">Total Jobs</h5>
+          <h2><%= totalJobs %></h2>
+        </div>
+      </div>
+    </div>
+
+    <!-- Total Applications -->
+    <div class="col-md-4 mb-3">
+      <div class="card text-white bg-warning">
+        <div class="card-body text-center">
+          <h5 class="card-title">Total Applications</h5>
+          <h2><%= totalApplications %></h2>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
