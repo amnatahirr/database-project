@@ -94,7 +94,6 @@ app.get('/jobPostForm',(req,res)=>{
 });
 
 app.get('/viewJob',(req,res)=>{
-  //const { token } = req.query;
   res.render('job/viewJob',{layout:"layouts/main"});
 });
 
@@ -121,7 +120,7 @@ app.get('/GetApplications',(req,res)=>{
 
 connectDB();
 // Start the server
-const PORT = 5050;
+const PORT = 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 
