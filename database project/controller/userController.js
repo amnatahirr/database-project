@@ -145,12 +145,17 @@ exports.updateProfile = async (req, res) => {
     const { id } = req.params;
     const { name, keywords } = req.body;
 
-    const updates = { name, keywords };
+    // Construct updates object
+    const updates = {};
+    if (name) updates.name = name;  // Update name if provided
+    if (keywords) updates.keywords = keywords; // Update keywords if provided
 
+    // Update user in the database
     const user = await User.findByIdAndUpdate(id, updates, { new: true });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    res.status(200).json({ message: "Profile updated successfully", user });
+    // Redirect or render the profile page with a success message
+    res.redirect('/users/profile/' + user._id + '?message=Profile updated successfully');
   } catch (err) {
     console.error("Profile update error:", err);
     res.status(500).json({ error: err.message });
