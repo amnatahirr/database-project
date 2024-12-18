@@ -1,6 +1,6 @@
 <section>
     <h1>Update Job</h1> <br><br>
-    <form action="/job/update/<%= job.id %>" method="post"> 
+    <form action="/job/update/<%= job.id %>" method="PUT"> 
         <div class="form-group">
             <label for="jobTitle">Job Title*</label>
             <input type="text" id="jobTitle" name="jobTitle" value="<%= job.jobTitle %>" required>
