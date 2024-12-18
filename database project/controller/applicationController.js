@@ -78,21 +78,25 @@ exports.jobseekerGetAllApplications = catchAsyncErrors(async (req, res, next) =>
     return next(new ErrorHandler("Only Job Seekers can access this resource.", 403));
   }
 
-  // Fetching applications for Job Seeker ID and populating job details
-  console.log("Fetching applications for Job Seeker ID:", id);
+  try {
+    // Fetch applications for the Job Seeker and populate job details
+    const applications = await Application.find({ "applicantID.user": id })
+      .populate({
+        path: "jobID", // Reference to Job
+        select: "jobTitle companyName", // Fetch these fields
+      });
 
-  const applications = await Application.find({ "applicantID.user": id })
-    .populate({
-      path: "jobID", // Assuming the job reference in Application schema is named "jobID"
-      select: "jobTitle companyName" // Fetch only these fields
+    if (!applications || applications.length === 0) {
+      return res.status(200).json({ success: true, applications: [] });
+    }
+
+    res.status(200).json({
+      success: true,
+      applications,
     });
-
-  console.log("Found applications:", applications);
-
-  res.status(200).json({
-    success: true,
-    applications,
-  });
+  } catch (error) {
+    next(error);
+  }
 });
 
 
