@@ -56,7 +56,7 @@ h1 {
 }
 
 .btn-primary {
-    background-color: #3c3c3c;
+    background-color: #222121;
     border-color: #3c3c3c;
 }
 
@@ -83,7 +83,7 @@ h1 {
         <div class="card mb-4 bg-dark text-light">
             <div class="card-body">
                 <h4 class="card-title mb-3">Search / Filter Options</h4>
-                <form method="GET" action="/admin/job_management" class="row g-3">
+                <form method="GET" action="/admin/job_management/all" class="row g-3">
                     <div class="col-md-6">
                         <input type="text" name="search" placeholder="Search by title, company..." class="form-control bg-secondary text-light">
                     </div>
@@ -114,6 +114,7 @@ h1 {
                         <th>Company Name</th>
                         <th>Industry</th>
                         <th>Location</th>
+                        <th>Application Count</th>
                         <th>Expired</th>
                         <th>Actions</th>
                     </tr>
@@ -126,10 +127,10 @@ h1 {
                                 <td><%= job.companyName %></td>
                                 <td><%= job.industry %></td>
                                 <td><%= job.location %></td>
+                                <td><%= job.applicationCount %></td>
                                 <td><span class="badge <%= job.expired ? 'bg-danger' : 'bg-success' %>"><%= job.expired ? 'Yes' : 'No' %></span></td>
                                 <td>
-                                    <a href="/admin/job_management/<%= job._id %>/applications" class="btn btn-info btn-sm">View Applications</a>
-                                    <a href="/admin/job_management/<%= job._id %>/delete" class="btn btn-danger btn-sm mt-1 mt-md-0">Delete Job</a>                
+                                    <a href="/admin/job_management/all/<%= job._id %>/delete" class="btn btn-danger btn-sm mt-1 mt-md-0">Delete Job</a>                
                                 </td>
                             </tr>
                         <% }); %>

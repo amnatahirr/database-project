@@ -36,5 +36,35 @@ padding: 10px;
         </div>
       </div>
     </div>
+
+    <!-- Trending job -->
+    <div class="col-md-4 mb-3">
+      <div class="card text-white bg-danger">
+        <div class="card-body text-center">
+          <h5 class="card-title">Most Applied Job</h5>
+          <% if (mostAppliedJob) { %>
+            <h3>(<%= mostAppliedJob.jobId %>)</h3>
+            
+          <% } else { %>
+            <p>No applications yet.</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- its application count -->
+    <div class="col-md-4 mb-3">
+      <div class="card text-white bg-info">
+        <div class="card-body text-center">
+          <h5 class="card-title">Applications Count of Most Applied Job</h5>
+          <% if (mostAppliedJob) { %>
+            <h2><p><%= mostAppliedJob.count %></p></h2>
+          <% } else { %>
+            <p>No applications yet.</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
   </div>
 </div>

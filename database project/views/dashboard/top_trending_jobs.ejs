@@ -1,0 +1,31 @@
+<style>
+    h1{
+        text-align: center;
+        margin: 20px;
+    }
+</style>
+<h1>Top 10 Trending Jobs</h1>
+<table class="table table-striped">
+  <thead class="bg-dark">
+    <tr>
+      <th>Job Title</th>
+      <th>Company Name</th>
+      <th>Number of Applications</th>
+    </tr>
+  </thead>
+  <tbody class="bg-dark">
+    <% if (trendingJobs.length > 0) { %>
+      <% trendingJobs.forEach(function(job) { %>
+        <tr>
+          <td><%= job.title %></td>
+          <td><%= job.company %></td>
+          <td><%= job.count %></td>
+        </tr>
+      <% }); %>
+    <% } else { %>
+      <tr>
+        <td colspan="3" class="text-center">No trending jobs found.</td>
+      </tr>
+    <% } %>
+  </tbody>
+</table>

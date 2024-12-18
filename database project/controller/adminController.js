@@ -3,6 +3,8 @@ const User = require('../models/user');
 const Job = require('../models/job');
 const Application = require('../models/Application');
 const UserStatus = require("../models/UserStatus");
+const catchAsyncErrors = require('../middleware/catchAsyncError');
+const { ErrorHandler } = require('../middleware/error');
 const nodemailer = require('nodemailer'); // For sending emails
 
 exports.getJobs = async (req, res) => {
@@ -14,12 +16,13 @@ exports.getJobs = async (req, res) => {
   }
 };
 
-// Fetch all jobs
+// Fetch all jobs with their respective application counts
 exports.getAllJobs = async (req, res) => {
   try {
     const { search, industry } = req.query;
     let query = {};
 
+    // Handle search filtering
     if (search) {
       query = {
         $or: [
@@ -29,53 +32,89 @@ exports.getAllJobs = async (req, res) => {
       };
     }
 
+    // Handle industry filtering
     if (industry) {
       query.industry = industry;
     }
 
+    // Fetch all jobs matching the query
     const jobs = await Job.find(query);
-    res.render('dashboard/job_management', { jobs });
+
+    // Aggregate application counts by jobId
+    const applicationCounts = await Application.aggregate([
+      { $group: { _id: "$jobId", count: { $sum: 1 } } }, // Group by jobId and count
+      {
+        $lookup: {
+          from: "jobs", // Join with the jobs collection
+          localField: "_id", 
+          foreignField: "_id",
+          as: "jobDetails",
+        },
+      },
+      { $unwind: "$jobDetails" },
+      { $project: { jobId: "$_id", count: 1 } }, // Select only required fields
+    ]);
+
+    // Map application counts to jobs
+    const jobWithApplicationCounts = jobs.map(job => {
+      const applicationData = applicationCounts.find(app => app.jobId.toString() === job._id.toString());
+      return {
+        ...job.toObject(),
+        applicationCount: applicationData ? applicationData.count : 0, // Show 0 if no applications exist
+      };
+    });
+
+    // Render the data
+    res.render('dashboard/job_management', { jobs: jobWithApplicationCounts });
   } catch (error) {
     console.error('Error fetching jobs:', error);
     res.status(500).send('Server Error');
   }
 };
 
+
 // Delete a specific job by ID
 exports.deleteJob = async (req, res) => {
   try {
     const { id } = req.params;
     await Job.findByIdAndDelete(id);
-    res.redirect('/admin/job_management'); // Redirect back after deletion
+    res.redirect('/admin/job_management/all'); // Redirect back after deletion
   } catch (error) {
     console.error('Error deleting job:', error);
     res.status(500).send('Server Error');
   }
 };
 
-// View all applications for a given job
-exports.viewApplications = async (req, res) => {
+// Fetch top 10 trending jobs based on the number of applications
+exports.getTopTrendingJobs = async (req, res) => {
   try {
-    const { id } = req.params;
+    // Aggregate the top 10 jobs by number of applications
+    const trendingJobs = await Application.aggregate([
+      { $group: { _id: "$jobId", count: { $sum: 1 } } }, // Group by jobId and count applications
+      {
+        $lookup: {
+          from: "jobs", // Join with the jobs collection
+          localField: "_id", // Match the jobId
+          foreignField: "_id",
+          as: "jobDetails",
+        },
+      },
+      { $unwind: "$jobDetails" }, // Flatten the jobDetails array
+      { $project: { jobId: "$_id", title: "$jobDetails.jobTitle", company: "$jobDetails.companyName", count: 1 } }, // Select relevant fields
+      { $sort: { count: -1 } }, // Sort by number of applications
+      { $limit: 10 } // Get only the top 10 results
+    ]);
 
-    // Fetch job details (optional, for context)
-    const job = await Job.findById(id);
-    if (!job) {
-      return res.status(404).send('Job not found');
-    }
-
-    // Fetch applications for this job ID
-    const applications = await Application.find({ jobId: id });
-
-    res.render('dashboard/view_applications', { applications, job });
+    res.render('dashboard/top_trending_jobs', { trendingJobs });
   } catch (error) {
-    console.error('Error fetching applications:', error);
+    console.error('Error fetching top 10 trending jobs:', error);
     res.status(500).send('Server Error');
   }
 };
 
 
-exports.generateReports = async (req, res) => {
+// Dashboard Stats
+exports.getDashboardStats = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalJobs = await Job.countDocuments();
@@ -85,19 +124,33 @@ exports.generateReports = async (req, res) => {
       { $group: { _id: "$jobId", count: { $sum: 1 } } },
       { $sort: { count: -1 } },
       { $limit: 1 },
+      {
+        $lookup: {
+          from: "jobs", // Name of the Job collection
+          localField: "_id", // `_id` from the Application aggregation
+          foreignField: "_id", // `_id` in the Job collection
+          as: "jobDetails", // Alias for the joined data
+        },
+      },
+      { $unwind: "$jobDetails" }, // Unwind the jobDetails array to get a single document
+      { $project: { jobId: "$_id", title: "$jobDetails.jobTitle", count: 1 } },
     ]);
 
-    res.status(200).json({
+    const mostAppliedJobDetails = mostAppliedJob.length
+      ? { jobId: mostAppliedJob[0].jobId, title: mostAppliedJob[0].title, count: mostAppliedJob[0].count }
+      : null;
+
+    res.render('dashboard/user_dashboard', {
       totalUsers,
       totalJobs,
       totalApplications,
-      mostAppliedJob,
+      mostAppliedJob: mostAppliedJobDetails,
     });
-  } catch (err) {
-    res.status(500).json({ error: err.message });
+  } catch (error) {
+    console.error('Error fetching dashboard stats:', error);
+    res.status(500).send('Error');
   }
 };
-
 
 // filter user on behalf of role
 exports.filterRole = async (req, res) => {
@@ -212,24 +265,6 @@ exports.activateUser = async (req, res) => {
   }
 };
 
-
-// Dashboard Stats
-exports.getDashboardStats = async (req, res) => {
-  try {
-    const totalUsers = await User.countDocuments();
-    const totalJobs = await Job.countDocuments();
-    const totalApplications = await Application.countDocuments();
-
-    res.render('dashboard/user_dashboard', {
-      totalUsers,
-      totalJobs,
-      totalApplications,
-    });
-  } catch (error) {
-    console.error('Error fetching dashboard stats:', error);
-    res.status(500).send('Error');
-  }
-};
 
 // Delete expired jobs
 exports.deleteExpiredJobs = async () => {
