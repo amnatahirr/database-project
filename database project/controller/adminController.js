@@ -14,6 +14,67 @@ exports.getJobs = async (req, res) => {
   }
 };
 
+// Fetch all jobs
+exports.getAllJobs = async (req, res) => {
+  try {
+    const { search, industry } = req.query;
+    let query = {};
+
+    if (search) {
+      query = {
+        $or: [
+          { jobTitle: { $regex: search, $options: 'i' } },
+          { companyName: { $regex: search, $options: 'i' } }
+        ]
+      };
+    }
+
+    if (industry) {
+      query.industry = industry;
+    }
+
+    const jobs = await Job.find(query);
+    res.render('dashboard/job_management', { jobs });
+  } catch (error) {
+    console.error('Error fetching jobs:', error);
+    res.status(500).send('Server Error');
+  }
+};
+
+// Delete a specific job by ID
+exports.deleteJob = async (req, res) => {
+  try {
+    const { id } = req.params;
+    await Job.findByIdAndDelete(id);
+    res.redirect('/admin/job_management'); // Redirect back after deletion
+  } catch (error) {
+    console.error('Error deleting job:', error);
+    res.status(500).send('Server Error');
+  }
+};
+
+// View all applications for a given job
+exports.viewApplications = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    // Fetch job details (optional, for context)
+    const job = await Job.findById(id);
+    if (!job) {
+      return res.status(404).send('Job not found');
+    }
+
+    // Fetch applications for this job ID
+    const applications = await Application.find({ jobId: id });
+
+    res.render('dashboard/view_applications', { applications, job });
+  } catch (error) {
+    console.error('Error fetching applications:', error);
+    res.status(500).send('Server Error');
+  }
+};
+
+
 exports.generateReports = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
@@ -190,12 +251,3 @@ exports.deactivateInactiveUsers = async () => {
   );
   console.log('Deactivated users:', result);
 };
-
-// // Activate a user by ID
-// exports.activateUser = async (userId) => {
-//   const result = await User.updateOne(
-//     { _id: userId },
-//     { $set: { isActive: true } }
-//   );
-//   console.log('Activated user:', result);
-// };

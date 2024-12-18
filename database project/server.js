@@ -73,6 +73,10 @@ app.get('/users', (req, res) => {
   res.render('dashboard/user_management', { title: 'Dashboard' });
 }); 
 
+app.get('/jobs', (req, res) => {
+  res.render('dashboard/job_management', { title: 'Dashboard' });
+});
+
 app.get('/', (req, res) => {
   res.render('users/index', { layout: 'layouts/main' });
 });

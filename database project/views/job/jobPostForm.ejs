@@ -1,6 +1,6 @@
-<section >
+<section>
     <h1>Post a Job</h1> <br><br>
-    <form action="/job/jobPostForm" method="POST">
+    <form action="/job/jobPostForm" method="POST" id="jobPostingForm">
         <div class="form-group">
             <label for="jobTitle">Job Title*</label>
             <input type="text" id="jobTitle" name="jobTitle" required>
@@ -80,6 +80,12 @@
             <span class="error-message" id="keywords-error"></span>
         </div>
 
+        <div class="form-group">
+            <label for="expiryDate">Expiry Date*</label>
+            <input type="date" id="expiryDate" name="expiryDate" required>
+            <span class="error-message" id="expiryDate-error"></span>
+        </div>
+
         <button type="submit" class="btn btn-primary">Post Job</button>
     </form>
 </section>
@@ -140,6 +146,7 @@
                 "responsibilities",
                 "requiredSkills",
                 "keywords",
+                "expiryDate", // Added expiryDate for validation
             ];
 
             requiredFields.forEach((field) => {
