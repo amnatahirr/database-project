@@ -3,8 +3,8 @@ const User = require('../models/user');
 const Job = require('../models/job');
 const Application = require('../models/Application');
 const UserStatus = require("../models/UserStatus");
-const catchAsyncErrors = require('../middleware/catchAsyncError');
-const { ErrorHandler } = require('../middleware/error');
+const ErrorHandler = require("../middleware/error");
+const catchAsyncErrors = require("../middleware/catchAsyncError");
 const nodemailer = require('nodemailer'); // For sending emails
 
 exports.getJobs = async (req, res) => {

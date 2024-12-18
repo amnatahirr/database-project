@@ -69,14 +69,17 @@ app.use('/job', jobRoutes);
 
 // Frontend Routes
 app.get('/dashboard', (req, res) => {
+  const { token } = req.query;
   res.render('dashboard/user_dashboard', { title: 'Dashboard' });
 });
 
 app.get('/users', (req, res) => {
+  const { token } = req.query;
   res.render('dashboard/user_management', { title: 'Dashboard' });
 }); 
 
 app.get('/jobs', (req, res) => {
+  const { token } = req.query;
   res.render('dashboard/job_management', { title: 'Dashboard' });
 });
 
@@ -107,10 +110,12 @@ app.get('/logout', (req, res) => {
 });
 
 app.get('/admin', (req, res) => {
+  const { token } = req.query;
   res.render('users/admin', { layout: 'layouts/main' });
 });
 
 app.get('/admin_dashboard', (req, res) => {
+  const { token } = req.query;
   res.render('users/a_dashboard', { layout: 'layouts/main' });
 });
 

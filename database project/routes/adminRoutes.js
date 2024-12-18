@@ -1,4 +1,5 @@
 const express = require("express");
+const {authenticateAccessToken} = require("../middleware/auth");
 const {
   getUsers,
   getJobs,
@@ -10,23 +11,20 @@ const {
   getTopTrendingJobs,
 } = require("../controller/adminController");
 
-// const { authenticateAccessToken } = require('../middleware/auth');
 const router = express.Router();
-
-// router.use(authenticateAccessToken);
 // Routes
-router.get("/users", getUsers);
-router.get('/job_management/all', getAllJobs);
-router.get("/jobs", getJobs);
+router.get("/users",authenticateAccessToken, getUsers);
+router.get('/job_management/all',authenticateAccessToken, getAllJobs);
+router.get("/jobs",authenticateAccessToken, getJobs);
 
 // User Management APIs
-router.get("/filter-role", filterRole);
-router.post("/deactivate/:userId", deactivateUser);
-router.post("/activate/:userId", activateUser);
+router.get("/filter-role",authenticateAccessToken, filterRole);
+router.post("/deactivate/:userId",authenticateAccessToken, deactivateUser);
+router.post("/activate/:userId",authenticateAccessToken, activateUser);
 
 // Job Management APIs
-router.get('/job_management/all/:id/delete', deleteJob);
-router.get('/top_trending_jobs', getTopTrendingJobs);
+router.get('/job_management/all/:id/delete',authenticateAccessToken, deleteJob);
+router.get('/top_trending_jobs',authenticateAccessToken, getTopTrendingJobs);
 
 
 module.exports = router;
