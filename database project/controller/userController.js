@@ -126,13 +126,16 @@ exports.refreshToken = async (req, res) => {
 
 // LOGOUT USER
 exports.logoutUser = (req, res) => {
+  console.log("Logout request received");
   res.clearCookie("accessToken", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
   });
-  res.status(200).json({ message: "Logged out successfully" });
+  req.session.user = null; // Clear the user session
+  res.redirect('/login?message=Successfully logged out'); // Redirect with a message
 };
+
 
 
 
