@@ -142,7 +142,7 @@
                     <p>Industry: <%= job.industry %></p>
                     <p>Salary: <%= job.salaryRange || 'Negotiable' %></p>
                   </div>
-                  <a href="/job/jobDetails" class="view-details">View Details</a>
+                  <a href="/job/<%= job._id %>" class="view-details">View Details</a>
                   <a href="/job/update/<%= job._id %>" class="view-details">Update</a>
                   <br><br>
                   <button class="delete-btn" data-id="<%= job._id %>">Delete</button>
