@@ -51,7 +51,8 @@ exports.getMyJobs = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-// Update an existing job posting
+
+//delete an existing job posting
 exports.deleteJob = async (req, res) => {
   try {
     const { id } = req.params; // Extract job ID from request parameters
@@ -67,6 +68,7 @@ exports.deleteJob = async (req, res) => {
   }
 };
 
+<<<<<<< HEAD
 
 
 
@@ -94,6 +96,23 @@ exports.getAllJobs = catchAsyncErrors(async (req, res, next) => {
     jobs,
     searchQuery,
   });
+=======
+exports.getSingleJob = catchAsyncErrors(async (req, res, next) => {
+  
+  const { id } = req.params;
+  try {
+    const job = await Job.findById(id);
+    if (!job) {
+      return next(new ErrorHandler("Job not found.", 404));
+    }
+    res.status(200).json({
+      success: true,
+      job,
+    });
+  } catch (error) {
+    return next(new ErrorHandler(`Invalid ID / CastError`, 404));
+  }
+>>>>>>> 7c87920259dc4ce479bae1f12c71e672ac628f51
 });
 
 

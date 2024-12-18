@@ -3,6 +3,12 @@ const validator = require('validator');
 
 const applicationSchema = new mongoose.Schema({
 
+  jobID: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "Job", // Reference to the Job model
+    required: true,
+  },
+
   name: {
     type: String,
     required: [true, "Please enter your Name!"],

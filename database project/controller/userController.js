@@ -3,6 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const { generateTokens, verifyRefreshToken } = require("../middleware/auth");
+const { sendActivationEmail } = require('../utils/sendEmail');
 
 // REGISTER USER
 exports.registerUser = async (req, res) => {
@@ -58,8 +59,18 @@ exports.loginUser = async (req, res) => {
 
     // Check user credentials
     const user = await User.findOne({ email });
+    
+    // If the user doesn't exist or invalid password
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      return res.status(403).json({
+        message: "User account is deactivated. An email has been sent with details to reactivate your account.",
+      });
+    }
+
+    // Check if the user is deactivated
+    if (!user.isActive) {
+      await sendActivationEmail(email);
+      return res.status(403).json({ message: "User account is deactivated" });
     }
 
     // Generate tokens
@@ -71,6 +82,8 @@ exports.loginUser = async (req, res) => {
       secure: process.env.NODE_ENV === "production", // HTTPS only in production
       sameSite: "lax", // Allows cookies to be sent with cross-origin requests
     });
+
+    console.log(accessToken);
     
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
@@ -78,16 +91,7 @@ exports.loginUser = async (req, res) => {
       sameSite: "lax",
     });
 
-    if (user.role === "admin") {
-      return res.render("users/admin_dashboard", { user });
-    } else if (user.role === "job_seeker") {
-      return res.render("users/jobSeeker_dashboard", { user });
-    } else if (user.role === "employer") {
-      return res.render("users/employer_dashboard", { user });
-    } else {
-      return res.status(400).json({ message: "Invalid role" });
-    }
-
+    res.status(200).json({ message: "Login successful" });
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error", error });
   }

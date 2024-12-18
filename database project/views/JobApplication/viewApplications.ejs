@@ -5,7 +5,10 @@
       font-family: Arial, sans-serif;
       margin: 0;
       padding: 0;
-      background-color: #f9f9f9;
+     
+      
+        background-color:black;
+    
     }
 
     .container {
@@ -19,7 +22,7 @@
 
     h1 {
       text-align: center;
-      color: #333;
+      /* color: #333; */
     }
 
     .table-container {
@@ -84,6 +87,7 @@
             <th>Company Name</th>
             <th>Status</th>
             <th>Date Applied</th>
+            <th>Action</th>
           </tr>
         </thead>
         <tbody id="applicationsBody"></tbody>
@@ -116,10 +120,12 @@
           tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center;">No applications found.</td></tr>`;
         } else {
           data.applications.forEach(application => {
+            const job = application.jobID; // Populated job details
+  
             const row = document.createElement('tr');
             row.innerHTML = `
-              <td>${application.jobTitle || 'N/A'}</td>
-              <td>${application.companyName || 'N/A'}</td>
+              <td>${job?.jobTitle || 'N/A'}</td>
+              <td>${job?.companyName || 'N/A'}</td>
               <td>${application.status || 'Pending'}</td>
               <td>${new Date(application.createdAt).toLocaleDateString()}</td>
               <td><button class="delete-btn" data-id="${application._id}">Delete</button></td>
@@ -166,6 +172,7 @@
       }
     }
   </script>
+  
   
 
 
