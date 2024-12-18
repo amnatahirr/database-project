@@ -62,10 +62,10 @@ const jobSchema = new mongoose.Schema({
     default: false,
   },
  
-  // keywords: {
-  //   type: [String], // Array of keywords
-  //   required: true
-  // },
+  keywords: {
+     type: [String], // Array of keywords
+     required: true
+   },
 }, { timestamps: true });
 
 // Create the Job model

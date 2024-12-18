@@ -144,7 +144,7 @@ exports.getMyJobs = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-// Update an existing job posting
+// delete an existing job posting
 exports.deleteJob = async (req, res) => {
   try {
     const { id } = req.params; // Extract job ID from request parameters
