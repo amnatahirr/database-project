@@ -71,6 +71,8 @@ exports.loginUser = async (req, res) => {
       secure: process.env.NODE_ENV === "production", // HTTPS only in production
       sameSite: "lax", // Allows cookies to be sent with cross-origin requests
     });
+
+    console.log(accessToken);
     
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
