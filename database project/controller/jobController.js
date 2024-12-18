@@ -164,7 +164,28 @@ exports.getSingleJob = async (req, res, next) => {
   }
 }
 
+// Get All Jobs
+exports.getAllJobs = catchAsyncErrors(async (req, res, next) => {
+  const { searchQuery } = req.query;
+  const searchOptions = searchQuery
+    ? {
+        $or: [
+          { jobTitle: new RegExp(searchQuery, "i") },
+          { companyName: new RegExp(searchQuery, "i") },
+          { location: new RegExp(searchQuery, "i") },
+          { jobType: new RegExp(searchQuery, "i") },
+          { industry: new RegExp(searchQuery, "i") },
+        ],
+      }
+    : {};
 
+  const jobs = await Job.find({ ...searchOptions, expired: false });
+
+  res.status(200).render("job/viewJob", {
+    jobs,
+    searchQuery,
+  });
+});
 
 
 
