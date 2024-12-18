@@ -68,35 +68,6 @@ exports.deleteJob = async (req, res) => {
   }
 };
 
-<<<<<<< HEAD
-
-
-
-
-
-
-// Get All Jobs
-exports.getAllJobs = catchAsyncErrors(async (req, res, next) => {
-  const { searchQuery } = req.query;
-  const searchOptions = searchQuery
-    ? {
-        $or: [
-          { jobTitle: new RegExp(searchQuery, "i") },
-          { companyName: new RegExp(searchQuery, "i") },
-          { location: new RegExp(searchQuery, "i") },
-          { jobType: new RegExp(searchQuery, "i") },
-          { industry: new RegExp(searchQuery, "i") },
-        ],
-      }
-    : {};
-
-  const jobs = await Job.find({ ...searchOptions, expired: false });
-
-  res.status(200).render("job/viewJob", {
-    jobs,
-    searchQuery,
-  });
-=======
 exports.getSingleJob = catchAsyncErrors(async (req, res, next) => {
   
   const { id } = req.params;
@@ -112,7 +83,6 @@ exports.getSingleJob = catchAsyncErrors(async (req, res, next) => {
   } catch (error) {
     return next(new ErrorHandler(`Invalid ID / CastError`, 404));
   }
->>>>>>> 7c87920259dc4ce479bae1f12c71e672ac628f51
 });
 
 
