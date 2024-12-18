@@ -144,7 +144,8 @@ exports.getMyJobs = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-// delete an existing job posting
+
+//delete an existing job posting
 exports.deleteJob = async (req, res) => {
   try {
     const { id } = req.params; // Extract job ID from request parameters
@@ -159,21 +160,6 @@ exports.deleteJob = async (req, res) => {
     res.status(500).json({ error: err.message }); // Handle any server errors
   }
 };
-
-// Delete a job posting
-// exports.deleteJob = async (req, res) => {
-//   try {
-//     const { id } = req.params;
-//     const deletedJob = await Job.findByIdAndDelete(id);
-//     if (!deletedJob) {
-//       return res.status(404).json({ message: "Job not found" });
-//     }
-//     res.status(200).json({ message: "Job deleted successfully" });
-//   } catch (err) {
-//     res.status(500).json({ error: err.message });
-//   }
-// };
-
 
 exports.getSingleJob = catchAsyncErrors(async (req, res, next) => {
   
