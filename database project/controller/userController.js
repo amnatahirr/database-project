@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 const { generateTokens, verifyRefreshToken } = require("../middleware/auth");
 const { sendActivationEmail } = require('../utils/sendEmail');
+const UserStatus = require("../models/UserStatus");
 
 // REGISTER USER
 exports.registerUser = async (req, res) => {
@@ -52,36 +53,28 @@ exports.registerUser = async (req, res) => {
 
 
 
-// LOGIN USER
 exports.loginUser = async (req, res) => {
   try {
     const { email, password } = req.body;
 
     // Check user credentials
     const user = await User.findOne({ email });
-    
-    if (user.role === "admin") {
-      return res.render("users/admin_dashboard", { user });
-    } else if (user.role === "job_seeker") {
-      return res.render("users/jobSeeker_dashboard", { user });
-    } else if (user.role === "employer") {
-      return res.render("users/employer_dashboard", { user });
-    } else {
-      return res.status(400).json({ message: "Invalid role" });
+
+    // If the user doesn't exist or the password is invalid
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ message: "Invalid email or password" });
     }
 
-    // If the user doesn't exist or invalid password
-    // if (!user || !(await bcrypt.compare(password, user.password))) {
-    //   return res.status(403).json({
-    //     message: "User account is deactivated. An email has been sent with details to reactivate your account.",
-    //   });
-    // }
+     // Fetch user's active status from the UserStatus collection
+     const userStatus = await UserStatus.findOne({ userId: user._id });
 
-    // // Check if the user is deactivated
-    // if (!user.isActive) {
-    //   await sendActivationEmail(email);
-    //   return res.status(403).json({ message: "User account is deactivated" });
-    // }
+     // Handle inactive users
+     if (userStatus?.isActive === false) {
+       await sendActivationEmail(email);
+       return res.status(403).json({
+         message: "User account is deactivated. An email has been sent with details to reactivate your account.",
+       });
+     }
 
     // Generate tokens
     const { accessToken, refreshToken } = generateTokens(user);
@@ -93,16 +86,25 @@ exports.loginUser = async (req, res) => {
       sameSite: "lax", // Allows cookies to be sent with cross-origin requests
     });
 
-    console.log(accessToken);
-    
     res.cookie("refreshToken", refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
     });
 
-    res.status(200).redirect('/')
+    // Redirect based on user role
+    if (user.role === "admin") {
+      return res.render("users/admin_dashboard", { user });
+    } else if (user.role === "job_seeker") {
+      return res.render("users/jobSeeker_dashboard", { user });
+    } else if (user.role === "employer") {
+      return res.render("users/employer_dashboard", { user });
+    } else {
+      return res.status(400).json({ message: "Invalid role" });
+    }
+
   } catch (error) {
+    console.error("Error during login:", error); // Debugging log
     res.status(500).json({ message: "Internal Server Error", error });
   }
 };
