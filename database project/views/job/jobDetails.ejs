@@ -66,24 +66,21 @@
 
 </style>
 <nav class="navbar">
-    <div class="logo">JobBoard</div>
+
     <div class="nav-links">
-        <a href="/">Home</a>
-        <a href="/job">All Jobs</a>
+       
+        <a href="/job/viewJob" style="font-size: large;">All Jobs</a>
     </div>
 </nav>
-
 <div class="container">
     <h1 class="page-title"><%= job.jobTitle %></h1>
-    
-    <div class="job-details">
+    <div class="job-details" style="background-color: white; color: black;">
         <img src="/images/rocket-icon.svg" alt="<%= job.companyName %> Logo" class="company-logo">
-        <h2 class="company-name"><%= job.companyName %></h2>
+        <p><strong>Company:</strong> <%= job.companyName %></p>
         <div class="job-meta">
             <p><strong>Location:</strong> <%= job.location %></p>
             <p><strong>Type:</strong> <%= job.jobType %></p>
             <p><strong>Industry:</strong> <%= job.industry %></p>
-            <p><strong>Salary Range:</strong> <%= job.salaryRange || 'Negotiable' %></p>
         </div>
         <div class="job-description">
             <h3>Job Description</h3>
@@ -92,18 +89,32 @@
         <div class="job-responsibilities">
             <h3>Responsibilities</h3>
             <ul>
-                <% job.responsibilities.forEach(responsibility => { %>
-                    <li><%= responsibility %></li>
-                <% }) %>
+                <% if (Array.isArray(job.responsibilities)) { %>
+                    <% job.responsibilities.forEach(responsibility => { %>
+                        <li><%= responsibility %></li>
+                    <% }) %>
+                <% } else { %>
+                    <li>No responsibilities specified.</li>
+                <% } %>
             </ul>
         </div>
         <div class="required-skills">
             <h3>Required Skills</h3>
             <ul>
-                <% job.requiredSkills.forEach(skill => { %>
-                    <li><%= skill %></li>
-                <% }) %>
+                <% if (Array.isArray(job.requiredSkills)) { %>
+                    <% job.requiredSkills.forEach(skill => { %>
+                        <li><%= skill %></li>
+                    <% }) %>
+                <% } else { %>
+                    <li>No required skills specified.</li>
+                <% } %>
             </ul>
         </div>
-    </div>
+        
+      </div>
 </div>
+
+
+
+
+

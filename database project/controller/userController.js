@@ -204,7 +204,7 @@ exports.resetPassword = async (req, res) => {
     await user.save();
 
     // Send only one response
-    return es.redirect("/login");
+    return res.redirect("/login");
 
   } catch (error) {
     console.error("Error resetting password:", error);
