@@ -3,7 +3,6 @@ const {
   getUsers,
   getJobs,
   generateReports,
-  updateUserRole,
   filterRole,
   deactivateUser,
   activateUser,
@@ -16,7 +15,6 @@ router.get("/jobs", getJobs);
 router.get("/reports", generateReports);
 
 // User Management APIs
-router.put("/update-role", updateUserRole);
 router.get("/filter-role", filterRole);
 router.post("/deactivate/:userId", deactivateUser);
 router.post("/activate/:userId", activateUser);
