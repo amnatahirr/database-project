@@ -6,7 +6,7 @@
         --card-bg: #ffffff;
         --page-bg: #020817;
     }
-
+  
     body {
         margin: 0;
         padding: 0;
@@ -14,7 +14,7 @@
         background-color: var(--page-bg);
         color: var(--primary-text);
     }
-
+  
     .navbar {
         display: flex;
         justify-content: space-between;
@@ -22,73 +22,67 @@
         padding: 1rem 2rem;
         background-color: rgba(2, 8, 23, 0.95);
     }
-
+  
     .logo {
         font-size: 1.5rem;
         font-weight: 700;
         color: var(--primary-text);
     }
-
+  
     .nav-links {
         display: flex;
         gap: 2rem;
     }
-
+  
     .nav-links a {
         color: var(--primary-text);
         text-decoration: none;
         font-weight: 500;
     }
-
+  
     .container {
         max-width: 1200px;
         margin: 0 auto;
         padding: 2rem;
     }
-
+  
     .page-title {
         font-size: 2.5rem;
         font-weight: 800;
         margin-bottom: 2rem;
     }
-
+  
     .jobs-grid {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
         gap: 1.5rem;
         margin-top: 2rem;
     }
-
+  
     .job-card {
         background-color: var(--card-bg);
         border-radius: 1rem;
         padding: 1.5rem;
         transition: transform 0.2s;
     }
-
+  
     .job-card:hover {
         transform: translateY(-4px);
     }
-
-    .company-logo {
-        width: 48px;
-        height: 48px;
-        margin-bottom: 1rem;
-    }
-
+  
     .job-title {
         color: #1a1a1a;
         font-size: 1.25rem;
         font-weight: 600;
         margin-bottom: 0.5rem;
     }
-
+  
     .company-name {
         color: #666;
         font-size: 1rem;
         margin-bottom: 1rem;
     }
-
+  
     .view-details {
         display: inline-block;
         padding: 0.5rem 1rem;
@@ -99,48 +93,95 @@
         font-weight: 500;
         transition: background-color 0.2s;
     }
-
+  
     .view-details:hover {
         background-color: #ffc700;
     }
-
+  
+    .delete-btn {
+        background-color: red;
+        color: white;
+        padding: 0.5rem 1rem;
+        border: none;
+        border-radius: 0.5rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: background-color 0.2s;
+    }
+  
+    .delete-btn:hover {
+        background-color: darkred;
+    }
+  
     @media (max-width: 768px) {
         .container {
             padding: 1rem;
         }
-        
+  
         .page-title {
             font-size: 2rem;
         }
-        
+  
         .jobs-grid {
             grid-template-columns: 1fr;
         }
     }
-</style>
-
-<div class="container">
-    <h1 class="page-title">My Posted Jobs</h1>
-    <div class="jobs-grid">
-        <% if (jobs.length > 0) { %>
-            <% jobs.forEach(job => { %>
-              <div class="job-card">
-                <h2 class="job-title"><%= job.jobTitle %></h2>
-                <p class="company-name"><%= job.companyName %></p>
-                <div class="job-meta">
-                  <p>Location: <%= job.location %></p>
-                  <p>Type: <%= job.jobType %></p>
-                  <p>Industry: <%= job.industry %></p>
-                  <p>Salary: <%= job.salaryRange || 'Negotiable' %></p>
+  </style>
+  
+  <div class="container">
+      <h1 class="page-title">My Posted Jobs</h1>
+      <div class="jobs-grid">
+          <% if (jobs.length > 0) { %>
+              <% jobs.forEach(job => { %>
+                <div class="job-card">
+                  <h2 class="job-title"><%= job.jobTitle %></h2>
+                  <p class="company-name"><%= job.companyName %></p>
+                  <div class="job-meta">
+                    <p>Location: <%= job.location %></p>
+                    <p>Type: <%= job.jobType %></p>
+                    <p>Industry: <%= job.industry %></p>
+                    <p>Salary: <%= job.salaryRange || 'Negotiable' %></p>
+                  </div>
+                  <a href="/job/jobDetails" class="view-details">View Details</a>
+                  <a href="/job/update/<%= job._id %>" class="view-details">Update</a>
+                  <br><br>
+                  <button class="delete-btn" data-id="<%= job._id %>">Delete</button>
                 </div>
-                <a href="/job/jobDetails" class="view-details">View Details</a>
-                <a href="/job/update/<%= job._id %>" class="view-details">Update</a>
-                <br><br>
-                <a href="/job/delete/<%= job._id %>" class="view-details" style="background-color: red; color: white;">Delete</a>
-              </div>
-            <% }) %>
-        <% } else { %>
-            <p>You haven't posted any jobs yet. Post a job now!</p>
-        <% } %>
-    </div>
-</div>
+              <% }) %>
+          <% } else { %>
+              <p>You haven't posted any jobs yet. Post a job now!</p>
+          <% } %>
+      </div>
+  </div>
+  
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      // Add event listeners to all delete buttons
+      document.querySelectorAll('.delete-btn').forEach(button => {
+        button.addEventListener('click', async (event) => {
+          const jobId = event.target.getAttribute('data-id'); // Extract job ID from data attribute
+  
+          if (confirm("Are you sure you want to delete this job posting?")) {
+            try {
+              const token = localStorage.getItem('token'); // Assume JWT is stored here
+              const response = await fetch(`/job/delete/${jobId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+              });
+  
+              const data = await response.json();
+  
+              if (!response.ok) throw new Error(data.message || "Unable to delete job.");
+  
+              alert(data.message);
+              location.reload(); // Reload the page to update the job list
+            } catch (error) {
+              console.error("Error deleting job:", error);
+              alert("Failed to delete job. Please try again.");
+            }
+          }
+        });
+      });
+    });
+  </script>
+  
