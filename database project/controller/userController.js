@@ -60,18 +60,28 @@ exports.loginUser = async (req, res) => {
     // Check user credentials
     const user = await User.findOne({ email });
     
-    // If the user doesn't exist or invalid password
-    if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(403).json({
-        message: "User account is deactivated. An email has been sent with details to reactivate your account.",
-      });
+    if (user.role === "admin") {
+      return res.render("users/admin_dashboard", { user });
+    } else if (user.role === "job_seeker") {
+      return res.render("users/jobSeeker_dashboard", { user });
+    } else if (user.role === "employer") {
+      return res.render("users/employer_dashboard", { user });
+    } else {
+      return res.status(400).json({ message: "Invalid role" });
     }
 
-    // Check if the user is deactivated
-    if (!user.isActive) {
-      await sendActivationEmail(email);
-      return res.status(403).json({ message: "User account is deactivated" });
-    }
+    // If the user doesn't exist or invalid password
+    // if (!user || !(await bcrypt.compare(password, user.password))) {
+    //   return res.status(403).json({
+    //     message: "User account is deactivated. An email has been sent with details to reactivate your account.",
+    //   });
+    // }
+
+    // // Check if the user is deactivated
+    // if (!user.isActive) {
+    //   await sendActivationEmail(email);
+    //   return res.status(403).json({ message: "User account is deactivated" });
+    // }
 
     // Generate tokens
     const { accessToken, refreshToken } = generateTokens(user);
