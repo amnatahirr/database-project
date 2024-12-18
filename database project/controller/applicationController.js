@@ -202,10 +202,6 @@ exports.postApplication = catchAsyncErrors(async (req, res, next) => {
 exports.jobseekerGetAllApplications = catchAsyncErrors(async (req, res, next) => {
   const { role, id } = req.user;
 
-  // if (role !== "Job Seeker") {
-  //   return next(new ErrorHandler("Only Job Seekers can access this resource.", 403));
-  // }
-
   const applications = await Application.find({ "applicantID.user": id })
     .populate("jobId", "jobTitle companyName");
 
