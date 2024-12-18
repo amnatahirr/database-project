@@ -22,7 +22,7 @@ exports.registerUser = async (req, res) => {
     }
 
     // Validate password strength
-    const passwordRequirements = /^(?=.[A-Z])(?=.\d)[A-Za-z\d]{8,}$/;
+    const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!passwordRequirements.test(password)) {
       return res.status(400).json({
         message: "Password must be at least 8 characters long, include one uppercase letter, and one number.",
