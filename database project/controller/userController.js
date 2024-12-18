@@ -91,7 +91,7 @@ exports.loginUser = async (req, res) => {
       sameSite: "lax",
     });
 
-    res.status(200).json({ message: "Login successful" });
+    res.status(200).redirect('/')
   } catch (error) {
     res.status(500).json({ message: "Internal Server Error", error });
   }
@@ -175,7 +175,8 @@ exports.forgotPassword = async (req, res) => {
     };
 
     await transporter.sendMail(mailOptions);
-    res.status(200).json({ message: "Password reset link sent successfully" });
+    res.render('users/passwordResetSent')
+    //return res.redirect('passwordResetSent')
   } catch (error) {
     console.error("Error sending email:", error);
     res.status(500).json({ message: "Internal server error" });
@@ -208,7 +209,7 @@ exports.resetPassword = async (req, res) => {
     await user.save();
 
     // Send only one response
-    return res.redirect("/login");
+    res.status(200).redirect("/login");
 
   } catch (error) {
     console.error("Error resetting password:", error);

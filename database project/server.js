@@ -89,6 +89,8 @@ app.get('/forgotPassword', (req, res) => {
   res.render('users/forgotPassword', { layout: 'layouts/main' }); 
 });
 
+
+
 app.get('/admin', (req, res) => {
   res.render('users/admin', { layout: 'layouts/main' });
 });
