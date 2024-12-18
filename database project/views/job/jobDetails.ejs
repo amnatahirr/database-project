@@ -68,10 +68,10 @@
 <nav class="navbar">
 
     <div class="nav-links">
-       
         <a href="/job/viewJob" style="font-size: large;">All Jobs</a>
     </div>
 </nav>
+<br>
 <div class="container">
     <h1 class="page-title"><%= job.jobTitle %></h1>
     <div class="job-details" style="background-color: white; color: black;">
@@ -88,29 +88,13 @@
         </div>
         <div class="job-responsibilities">
             <h3>Responsibilities</h3>
-            <ul>
-                <% if (Array.isArray(job.responsibilities)) { %>
-                    <% job.responsibilities.forEach(responsibility => { %>
-                        <li><%= responsibility %></li>
-                    <% }) %>
-                <% } else { %>
-                    <li>No responsibilities specified.</li>
-                <% } %>
-            </ul>
+            <p><%=job.responsibilities %></p>
         </div>
         <div class="required-skills">
             <h3>Required Skills</h3>
-            <ul>
-                <% if (Array.isArray(job.requiredSkills)) { %>
-                    <% job.requiredSkills.forEach(skill => { %>
-                        <li><%= skill %></li>
-                    <% }) %>
-                <% } else { %>
-                    <li>No required skills specified.</li>
-                <% } %>
+            <p><%=job.requiredSkills%></p>
             </ul>
         </div>
-        
       </div>
 </div>
 
