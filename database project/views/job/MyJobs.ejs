@@ -155,33 +155,84 @@
   </div>
   
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // Add event listeners to all delete buttons
-      document.querySelectorAll('.delete-btn').forEach(button => {
-        button.addEventListener('click', async (event) => {
-          const jobId = event.target.getAttribute('data-id'); // Extract job ID from data attribute
-  
-          if (confirm("Are you sure you want to delete this job posting?")) {
-            try {
-              const token = localStorage.getItem('token'); // Assume JWT is stored here
-              const response = await fetch(`/job/delete/${jobId}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-              });
-  
-              const data = await response.json();
-  
-              if (!response.ok) throw new Error(data.message || "Unable to delete job.");
-  
-              alert(data.message);
-              location.reload(); // Reload the page to update the job list
-            } catch (error) {
-              console.error("Error deleting job:", error);
-              alert("Failed to delete job. Please try again.");
-            }
-          }
+    document.addEventListener('DOMContentLoaded', async () => {
+      const table = document.getElementById('applicationsTable');
+      const tableBody = document.getElementById('applicationsBody');
+      const loadingIndicator = document.getElementById('loading');
+      const errorIndicator = document.getElementById('error');
+    
+      try {
+        const token = localStorage.getItem('token'); // Retrieve the token
+    
+        if (!token) {
+          alert("You are not authenticated. Please log in.");
+          throw new Error("Authentication token is missing.");
+        }
+    
+        const response = await fetch('/application/jobseeker/getall', {
+          method: 'GET',
+          headers: { 'Authorization': `Bearer ${token}` },
         });
-      });
+    
+        const data = await response.json();
+    
+        if (!response.ok) throw new Error(data.message || "Unable to fetch applications.");
+    
+        loadingIndicator.style.display = 'none';
+    
+        if (!data.applications || data.applications.length === 0) {
+          tableBody.innerHTML = `<tr><td colspan="5" style="text-align: center;">No applications found.</td></tr>`;
+        } else {
+          data.applications.forEach(application => {
+            const job = application.jobId;
+    
+            const row = document.createElement('tr');
+            row.innerHTML = `
+              <td>${job?.jobTitle || 'N/A'}</td>
+              <td>${job?.companyName || 'N/A'}</td>
+              <td>${application.status || 'Pending'}</td>
+              <td>${new Date(application.createdAt).toLocaleDateString()}</td>
+              <td><button class="delete-btn" data-id="${application._id}">Delete</button></td>
+            `;
+            tableBody.appendChild(row);
+          });
+        }
+    
+        table.style.display = 'table';
+    
+        // Add delete event listeners
+        document.querySelectorAll('.delete-btn').forEach(button => {
+          button.addEventListener('click', async (event) => {
+            const applicationId = event.target.getAttribute('data-id');
+            if (confirm("Are you sure you want to delete this application?")) {
+              await deleteApplication(applicationId);
+            }
+          });
+        });
+      } catch (error) {
+        console.error("Error fetching applications:", error);
+        loadingIndicator.style.display = 'none';
+        errorIndicator.style.display = 'block';
+      }
     });
-  </script>
-  
+    
+    async function deleteApplication(applicationId) {
+      try {
+        const token = localStorage.getItem('token'); // Retrieve the token
+        const response = await fetch(`/application/delete/${applicationId}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` },
+        });
+    
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Unable to delete application.");
+    
+        alert(data.message);
+        location.reload();
+      } catch (error) {
+        console.error("Error deleting application:", error);
+        alert("Failed to delete application. Please try again.");
+      }
+    }
+    </script>
+    
