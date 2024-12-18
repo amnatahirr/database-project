@@ -1,51 +1,108 @@
 <style>
-    .bg-dark{
-      background-color: #090a0a !important;
-    }
-  </style>
-  <body class="bg-dark text-light">
+  .bg-dark{
+    background-color: #090a0a !important;
+  }
+
+  /* Style for the entire form row */
+  .filter-form-container {
+    padding: 0px 15px 15px 15px;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Style the button to stand out */
+  .btn-filter {
+    background-color: #5a6268;
+    
+    border: none;
+    color: white;
+    margin: 30px;
+    padding: 8px 40px;
+    cursor: pointer;
+    border-radius: 5px;
+    margin-left: 42.25%;
+  }
+
+  .btn-filter:hover {
+    background-color: #6c757d;
+  }
+
+</style>
+
+
+<div class="container mt-5">
+  <h2 class="text-center">User Management</h2>
   
-      <div class="container mt-5">
-        <h2 class="text-center mb-4">User Management</h2>
-  
-        <div class="table-responsive">
-          <table class="table table-bordered bg-dark text-light">
-            <thead class="table-dark">
-              <tr>
-                <th>#</th>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Status</th>
-                <th>Action</th>
-              </tr>
-            </thead>
-            <tbody>
-              <% users.forEach((user, index) => { %>
-                <tr>
-                  <td><%= index + 1 %></td>
-                  <td><%= user.name %></td>
-                  <td><%= user.email %></td>
-                  <td>
-                    <% if (user.isActive === false) { %>
-                      <span >Inactive</span>
-                    <% } else { %>
-                      <span >Active</span>
-                    <% } %>
-                  </td>
-                  <td>
-                    <% if (user.isActive === true) { %>
-                      <form action="/admin/deactivate/<%= user._id %>" method="POST" style="display:inline;">
-                        <button class="btn btn-danger btn-sm" type="submit">Deactivate</button>
-                      </form>
-                    <% } else { %>
-                      <form action="/admin/activate/<%= user._id %>" method="POST" style="display:inline;">
-                        <button class="btn btn-success btn-sm" type="submit">Activate</button>
-                      </form>
-                    <% } %>
-                  </td>
-                </tr>
-              <% }); %>
-            </tbody>
-          </table>
+<div class="container mt-5">
+  <div class="filter-form-container">
+    <form method="GET" action="/admin/users">
+      <!-- Row combining all inputs -->
+      <div class="filter-row">
+        <div>
+          <label for="role" class="form-label">Filter by Role:</label>
+          <select name="role" id="role" class="form-select">
+            <option value="">All Roles</option>
+            <option value="admin">Admin</option>
+            <option value="employer">Employer</option>
+            <option value="job_seeker">Job Seeker</option>
+          </select>
+        </div>
+
+        <div>
+          <label for="name" class="form-label">Search by Name:</label>
+          <input type="text" name="name" id="name" class="form-control" placeholder="Search Name">
+        </div>
+
+        <div class="filter">
+          <button type="submit" class="btn-filter btn-lg">Search</button>
         </div>
       </div>
+    </form>
+  </div>
+</div>
+
+<body class="bg-dark text-light"></body>
+<h2 class="text-center mb-4">List of Users</h2>
+      <div class="table-responsive">
+        <table class="table table-bordered bg-dark text-light">
+          <thead class="table-dark bg">
+            <tr>
+              <th>#</th>
+              <th>Name</th>
+              <th>Email</th>
+              <th>role</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% users.forEach((user, index) => { %>
+              <tr>
+                <td><%= index + 1 %></td>
+                <td><%= user.name %></td>
+                <td><%= user.email %></td>
+                <td><%= user.role %></td>
+                <td>
+                  <% if (user.isActive === false) { %>
+                    <span >Inactive</span>
+                  <% } else { %>
+                    <span >Active</span>
+                  <% } %>
+                </td>
+                <td>
+                  <% if (user.isActive === true) { %>
+                    <form action="/admin/deactivate/<%= user._id %>" method="POST" style="display:inline;">
+                      <button class="btn btn-danger btn-sm" type="submit">Deactivate</button>
+                    </form>
+                  <% } else { %>
+                    <form action="/admin/activate/<%= user._id %>" method="POST" style="display:inline;">
+                      <button class="btn btn-success btn-sm" type="submit">Activate</button>
+                    </form>
+                  <% } %>
+                </td>
+              </tr>
+            <% }); %>
+          </tbody>
+        </table>
+      </div>
+    </div>
