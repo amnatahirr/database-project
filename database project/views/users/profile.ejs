@@ -1,11 +1,16 @@
 <% layout('layouts/main') %>
 <h1>Profile</h1>
+
+<% if (req.query.message) { %>
+  <div class="alert alert-success"><%= req.query.message %></div>
+<% } %>
+
 <div>
   <p>Name: <%= user.name %></p>
   <p>Email: <%= user.email %></p>
   <p>Role: <%= user.role %></p>
 </div>
-<form action="users/profile/<%= user._id %>" method="POST">
-  <textarea name="updates" placeholder="Update profile"></textarea>
+<form action="/users/profile/<%= user._id %>" method="POST">
+  <textarea name="updates" placeholder="Update your profile here..."></textarea>
   <button type="submit">Update</button>
 </form>

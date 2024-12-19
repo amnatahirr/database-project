@@ -126,13 +126,16 @@ exports.refreshToken = async (req, res) => {
 
 // LOGOUT USER
 exports.logoutUser = (req, res) => {
+  console.log("Logout request received");
   res.clearCookie("accessToken", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
   });
-  res.status(200).json({ message: "Logged out successfully" });
+  req.session.user = null; // Clear the user session
+  res.redirect('/login?message=Successfully logged out'); // Redirect with a message
 };
+
 
 
 
@@ -142,12 +145,17 @@ exports.updateProfile = async (req, res) => {
     const { id } = req.params;
     const { name, keywords } = req.body;
 
-    const updates = { name, keywords };
+    // Construct updates object
+    const updates = {};
+    if (name) updates.name = name;  // Update name if provided
+    if (keywords) updates.keywords = keywords; // Update keywords if provided
 
+    // Update user in the database
     const user = await User.findByIdAndUpdate(id, updates, { new: true });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    res.status(200).json({ message: "Profile updated successfully", user });
+    // Redirect or render the profile page with a success message
+    res.redirect('/users/profile/' + user._id + '?message=Profile updated successfully');
   } catch (err) {
     console.error("Profile update error:", err);
     res.status(500).json({ error: err.message });
@@ -177,13 +185,13 @@ exports.forgotPassword = async (req, res) => {
       },
     });
 
-    const resetLink = "${process.env.CLIENT_URL}/resetPassword?token=${token}";
+    const resetLink = `${process.env.CLIENT_URL}/resetPassword?token=${token}`;
 
     const mailOptions = {
       from: process.env.MY_GMAIL,
       to: email,
       subject: "Password Reset Request",
-      text: "Click on this link to reset your password: ${resetLink}"
+      text: `Click on this link to reset your password: ${resetLink}`
     };
 
     await transporter.sendMail(mailOptions);
@@ -208,7 +216,7 @@ exports.resetPassword = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     // Validate and hash new password
-    const passwordRequirements = /^(?=.[A-Z])(?=.\d)[A-Za-z\d]{8,}$/;
+    const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!passwordRequirements.test(newPassword)) {
       return res.status(400).json({
         message: "Password must be at least 8 characters long, include an uppercase letter, and a number.",

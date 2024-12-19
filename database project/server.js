@@ -23,7 +23,10 @@ app.use(express.static('public'));
 
 app.use(session({ secret: "secret", resave: false, saveUninitialized: false }));
 app.use(flash());
-
+app.use((req, res, next) => {
+  res.locals.user = req.session.user || null; // Store user info in res.locals
+  next();
+});
 const connectDB = require('./db');
 
 dotenv.config();
@@ -73,14 +76,17 @@ app.use('/job', jobRoutes);
 
 // Frontend Routes
 app.get('/dashboard', (req, res) => {
+  const { token } = req.query;
   res.render('dashboard/user_dashboard', { title: 'Dashboard' });
 });
 
 app.get('/users', (req, res) => {
+  const { token } = req.query;
   res.render('dashboard/user_management', { title: 'Dashboard' });
 });
 
 app.get('/jobs', (req, res) => {
+  const { token } = req.query;
   res.render('dashboard/job_management', { title: 'Dashboard' });
 });
 
@@ -89,7 +95,8 @@ app.get('/', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  res.render('users/login', { layout: 'layouts/main' });
+  const message = req.query.message || null; 
+  res.render('users/login', { layout: 'layouts/main' ,message});
 });
 
 app.get('/register', (req, res) => {
@@ -100,13 +107,25 @@ app.get('/forgotPassword', (req, res) => {
   res.render('users/forgotPassword', { layout: 'layouts/main' });
 });
 
-
+app.get('/logout', (req, res) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Error destroying session:', err);
+    }
+    res.redirect('/login');
+  });
+});
 
 app.get('/admin', (req, res) => {
+  const { token } = req.query;
   res.render('users/admin', { layout: 'layouts/main' });
 });
 
+app.get('/updateProfile',(req,res)=>{
+  res.render('users/updateProfile',{layout:'layout/mains'});
+})
 app.get('/admin_dashboard', (req, res) => {
+  const { token } = req.query;
   res.render('users/a_dashboard', { layout: 'layouts/main' });
 });
 

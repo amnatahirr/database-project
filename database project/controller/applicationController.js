@@ -161,9 +161,7 @@ exports.employerGetAllApplications = catchAsyncErrors(async (req, res, next) => 
 
 // POST: Apply for a Job
 exports.postApplication = catchAsyncErrors(async (req, res, next) => {
-  const { role } = req.user;
-
-  if (role === "Employer") {
+  if (req.user.role === "Employer") {
     return next(new ErrorHandler("Employers are not allowed to apply for jobs.", 400));
   }
 
@@ -177,9 +175,6 @@ exports.postApplication = catchAsyncErrors(async (req, res, next) => {
   if (!job) return next(new ErrorHandler("Job not found.", 404));
   if (job.expired) return next(new ErrorHandler("This job has expired.", 400));
 
-  const applicantID = { user: req.user.id, role: "Job Seeker" };
-  const employerID = { user: job.postedBy, role: "Employer" };
-
   const application = await Application.create({
     jobId,
     name,
@@ -187,8 +182,8 @@ exports.postApplication = catchAsyncErrors(async (req, res, next) => {
     coverLetter,
     phone,
     address,
-    applicantID,
-    employerID,
+    applicantID: req.user.id,
+    employerID: job.postedBy,
   });
 
   res.status(200).json({
@@ -198,11 +193,24 @@ exports.postApplication = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-// GET: Fetch All Applications for Job Seeker
-exports.jobseekerGetAllApplications = catchAsyncErrors(async (req, res, next) => {
-  const { role, id } = req.user;
 
-  const applications = await Application.find({ "applicantID.user": id })
+
+
+exports.employerGetAllApplications = catchAsyncErrors(async (req, res, next) => {
+
+  const applications = await Application.find({ employerID: req.user.id })
+    .populate("jobId", "jobTitle") // Populate job title
+    .populate("applicantID", "name email"); // Populate applicant name and email
+
+  if (!applications || applications.length === 0) {
+    return next(new ErrorHandler("No applications found.", 404));
+  }
+
+  res.status(200).json({ applications });
+});
+
+exports.jobseekerGetAllApplications = catchAsyncErrors(async (req, res, next) => {
+  const applications = await Application.find({ applicantID: req.user.id })
     .populate("jobId", "jobTitle companyName");
 
   res.status(200).json({
@@ -211,18 +219,25 @@ exports.jobseekerGetAllApplications = catchAsyncErrors(async (req, res, next) =>
   });
 });
 
-// DELETE: Delete a Job Application
-exports.jobseekerDeleteApplication = catchAsyncErrors(async (req, res, next) => {
-  const { role } = req.user;
 
-  if (role === "Employer") {
+
+
+
+exports.jobseekerDeleteApplication = catchAsyncErrors(async (req, res, next) => {
+  if (req.user.role === "Employer") {
     return next(new ErrorHandler("Employers are not allowed to access this resource.", 400));
   }
 
   const { id } = req.params;
   const application = await Application.findById(id);
 
-  if (!application) return next(new ErrorHandler("Application not found.", 404));
+  if (!application) {
+    return next(new ErrorHandler("Application not found.", 404));
+  }
+
+  if (application.applicantID.toString() !== req.user.id) {
+    return next(new ErrorHandler("Unauthorized to delete this application.", 403));
+  }
 
   await application.deleteOne();
   res.status(200).json({
