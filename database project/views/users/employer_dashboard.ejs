@@ -4,29 +4,29 @@
         margin: 0 auto;
         padding: 2rem;
     }
-  
+
     .dashboard-header {
         margin-bottom: 2rem;
     }
-  
+
     .dashboard-header h1 {
         font-size: 2.5rem;
         font-weight: 700;
         color: var(--primary-text);
         margin-bottom: 0.5rem;
     }
-  
+
     .dashboard-header p {
         font-size: 1.125rem;
         color: var(--secondary-text);
     }
-  
+
     .dashboard-grid {
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 1.5rem;
     }
-  
+
     .dashboard-card {
         background-color: white;
         border-radius: 1rem;
@@ -34,37 +34,37 @@
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
         transition: transform 0.2s ease, box-shadow 0.2s ease;
     }
-  
+
     .dashboard-card:hover {
         transform: translateY(-5px);
         box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
-  
+
     .dashboard-card h2 {
         font-size: 1.25rem;
         font-weight: 600;
         color: var(--primary-text);
         margin-bottom: 1rem;
     }
-  
+
     .dashboard-card p {
         color: var(--secondary-text);
         margin-bottom: 1rem;
     }
-  
+
     .dashboard-card a {
         color: var(--accent-color);
         text-decoration: none;
         font-weight: 500;
         transition: color 0.2s ease;
     }
-  
+
     .dashboard-card a:hover {
         color: var(--secondary-text);
     }
-  </style>
-  
-  <div class="dashboard">
+</style>
+
+<div class="dashboard">
     <div class="dashboard-header">
         <h1>Dashboard</h1>
         <p>Welcome back! Here's an overview of your employee search journey.</p>
@@ -90,5 +90,70 @@
             <p>Ready to find your next employee? Post a job here.</p>
             <a href="/jobPostForm">Post a job</a>
         </div>
+
+        <div class="dashboard-card">
+            <h2>Job Applications</h2>
+
+        </div>
     </div>
-  </div>
+    <!-- Chat Modal -->
+    <!--<div id="chatModal" class="modal">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <div id="chatMessages"></div>
+        <div id="typingIndicator"></div>
+        <input type="text" id="chatInput" placeholder="Type a message...">
+        <button id="sendMessage">Send</button>
+    </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/chat.js"></script>-->
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        const socket = io();
+
+        document.querySelectorAll('.chat-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                const userId = this.dataset.user || this.dataset.employer;
+
+                // Open chat window/modal
+                openChat(userId);
+
+                // Emit a "join chat" event (optional)
+                socket.emit('joinChat', { userId });
+            });
+        });
+
+        function openChat(userId) {
+            // Logic to open a chat modal or redirect to a chat page
+            const chatWindow = document.createElement('div');
+            chatWindow.className = 'chat-window';
+            chatWindow.innerHTML = `
+            <h2>Chat with User ${userId}</h2>
+            <div class="messages"></div>
+            <input type="text" class="message-input" placeholder="Type a message..." />
+            <button onclick="sendMessage(${userId})">Send</button>
+        `;
+            document.body.appendChild(chatWindow);
+        }
+
+        function sendMessage(userId) {
+            const messageInput = document.querySelector('.message-input');
+            const message = messageInput.value;
+            messageInput.value = '';
+
+            socket.emit('sendMessage', {
+                to: userId,
+                message
+            });
+        }
+
+        // Listen for incoming messages
+        socket.on('receiveMessage', (data) => {
+            const messagesDiv = document.querySelector('.chat-window .messages');
+            const newMessage = document.createElement('p');
+            newMessage.textContent = data.message;
+            messagesDiv.appendChild(newMessage);
+        });
+    </script>

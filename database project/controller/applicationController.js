@@ -1,5 +1,5 @@
 const Application = require("../models/Application");
-const Job  = require("../models/job");
+const Job = require("../models/job");
 const axios = require("../axiosConfig"); // Use CommonJS require syntax
 
 const ErrorHandler = require("../middleware/error");
@@ -51,7 +51,7 @@ const { authenticateAccessToken } = require("../middleware/auth");
 //     address,
 //     applicantID,
 //     employerID,
-    
+
 //   });
 
 //   res.status(200).json({
@@ -230,3 +230,5 @@ exports.jobseekerDeleteApplication = catchAsyncErrors(async (req, res, next) => 
     message: "Application deleted successfully!",
   });
 });
+
+

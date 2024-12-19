@@ -9,6 +9,8 @@ const {
   activateUser,
   requestUserReactivation,
 } = require("../controller/adminController");
+const { getDashboard } = require('../controller/dashboardController');
+const { authenticateAccessToken } = require('../middleware/auth');
 
 const router = express.Router();
 
@@ -63,5 +65,6 @@ router.post("/users/reactivate-request", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+router.get('/dashboard', authenticateAccessToken, getDashboard);
 
 module.exports = router;
