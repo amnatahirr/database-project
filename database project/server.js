@@ -22,7 +22,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use(express.static('public'));
-
+app.use(express.urlencoded({ extended: true }));
 app.use(session({ secret: "secret", resave: false, saveUninitialized: false }));
 app.use(flash());
 app.use((req, res, next) => {
@@ -129,6 +129,7 @@ app.get('/profile',isAuthenticated, (req, res) => {
   }
   res.render('users/profile', { layout: 'layouts/main', user: req.session.user });
 });
+
 app.get('/admin_dashboard', (req, res) => {
   const { token } = req.query;
   res.render('users/a_dashboard', { layout: 'layouts/main' });
