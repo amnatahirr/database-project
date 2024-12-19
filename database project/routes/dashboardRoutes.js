@@ -17,7 +17,7 @@ router.get("/getUsers", getUsers);
 router.get("/getJobs", getJobs);
 
 // Dashboard stats
-router.get('/stats', getDashboardStats);
+router.get('/stats',authenticateAccessToken, getDashboardStats);
 
 // Delete expired jobs
 router.delete("/jobs/delete-expired", async (req, res) => {

@@ -77,21 +77,6 @@ app.use('/job', jobRoutes);
 
 
 // Frontend Routes
-app.get('/dashboard', (req, res) => {
-  const { token } = req.query;
-  res.render('dashboard/user_dashboard', { title: 'Dashboard' });
-});
-
-app.get('/users', (req, res) => {
-  const { token } = req.query;
-  res.render('dashboard/user_management', { title: 'Dashboard' });
-});
-
-app.get('/jobs', (req, res) => {
-  const { token } = req.query;
-  res.render('dashboard/job_management', { title: 'Dashboard' });
-});
-
 app.get('/', (req, res) => {
   res.render('users/index', { layout: 'layouts/main' });
 });
@@ -118,28 +103,11 @@ app.get('/logout', (req, res) => {
   });
 });
 
-app.get('/admin', (req, res) => {
-  const { token } = req.query;
-  res.render('users/admin', { layout: 'layouts/main' });
-});
-
 app.get('/profile',isAuthenticated, (req, res) => {
   if (!req.session.user) {
       return res.redirect('/login'); 
   }
   res.render('users/profile', { layout: 'layouts/main', user: req.session.user });
-});
-app.get('/admin_dashboard', (req, res) => {
-  const { token } = req.query;
-  res.render('users/a_dashboard', { layout: 'layouts/main' });
-});
-
-app.get('/employer_dashboard', (req, res) => {
-  res.render('users/employer_dashboard', { layout: 'layouts/main' });
-});
-
-app.get('/jobSeeker_dashboard', (req, res) => {
-  res.render('users/jobSeeker_dashboard', { layout: 'layouts/main' });
 });
 
 app.get('/resetPassword', (req, res) => {
