@@ -455,15 +455,19 @@
                         alert(result.message || "Application submitted successfully!");
                         applicationForm.reset();
                         modal.style.display = 'none';
-                    } else {
-                        alert(result.message || "An error occurred while submitting the application.");
                     }
-                } catch (error) {
-                    console.error("Error submitting form:", error);
-                    alert("Failed to submit the application. Please try again.");
-                }
-            }
-        });
+                    //  else {
+                    //     alert(result.message || "An error occurred while submitting the application.");
+                    // }
+                    else {
+                        // Show specific alert for employers
+                        if (result.message === "Employers are not allowed to apply for jobs.") {
+                            alert("Employers are not allowed to apply for jobs.");
+                        } else {
+                            alert(result.message || "An error occurred while submitting the application.");
+                        }
+                    }
+                });
 
 
 
