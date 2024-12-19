@@ -13,7 +13,13 @@ const notificationRoutes = require("./routes/notificationRoutes");
 const { authenticateAccessToken } = require("./middleware/auth");
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5000", // Update this with your frontend's origin
+    methods: ["GET", "POST"]
+  }
+});
+app.use('/socket.io', express.static('node_modules/socket.io/client-dist'));
 
 app.use(cors({
   origin: "http://localhost:5000",
@@ -95,8 +101,8 @@ app.get('/', (req, res) => {
 });
 
 app.get('/login', (req, res) => {
-  const message = req.query.message || null; 
-  res.render('users/login', { layout: 'layouts/main' ,message});
+  const message = req.query.message || null;
+  res.render('users/login', { layout: 'layouts/main', message });
 });
 
 app.get('/register', (req, res) => {
@@ -121,8 +127,8 @@ app.get('/admin', (req, res) => {
   res.render('users/admin', { layout: 'layouts/main' });
 });
 
-app.get('/updateProfile',(req,res)=>{
-  res.render('users/updateProfile',{layout:'layout/mains'});
+app.get('/updateProfile', (req, res) => {
+  res.render('users/updateProfile', { layout: 'layout/mains' });
 })
 app.get('/admin_dashboard', (req, res) => {
   const { token } = req.query;
@@ -175,20 +181,20 @@ app.get('/GetApplications', (req, res) => {
 
 app.use("/", notificationRoutes);
 // Socket.IO
+// Handle Socket.IO connections
 io.on('connection', (socket) => {
-  console.log('A user connected');
+  console.log('A user connected:', socket.id);
 
-  // Listen for messages
-  socket.on('sendMessage', (data) => {
-    // Emit message to the intended recipient
-    io.to(data.to).emit('receiveMessage', data);
+  socket.on('chatMessage', (data) => {
+    console.log('Message received:', data);
+    socket.broadcast.emit('receiveMessage', data);
   });
 
-  // Handle disconnection
   socket.on('disconnect', () => {
-    console.log('A user disconnected');
+    console.log('User disconnected:', socket.id);
   });
 });
+
 connectDB();
 // Start the server
 const PORT = 5000;
