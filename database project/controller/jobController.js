@@ -2,7 +2,17 @@
 const ErrorHandler = require("../middleware/error");
 const catchAsyncErrors = require("../middleware/catchAsyncError");
 const Job = require("../models/job");
+const User = require('../models/user');
+const Notification = require('../models/notification');
+const nodemailer = require('nodemailer');
 
+const transporter = nodemailer.createTransport({
+  service: 'Gmail',
+  auth: {
+    user: process.env.MY_GMAIL,
+    pass: process.env.MY_PASSWORD,
+  },
+});
 //updatejob
 exports.updateJob = async (req, res) => {
   try {
@@ -43,9 +53,9 @@ exports.updateJob = async (req, res) => {
 // get my jobs
 exports.getMyJobs = catchAsyncErrors(async (req, res, next) => {
   const { id } = req.user; // Fetch the logged-in user's ID from the token
-  
+
   const myJobs = await Job.find({ postedBy: id }); // Fetch jobs where postedBy matches the user's ID
-  
+
   res.status(200).render('job/myJobs', {
     jobs: myJobs,
   });
@@ -69,7 +79,7 @@ exports.deleteJob = async (req, res) => {
 };
 
 exports.getSingleJob = catchAsyncErrors(async (req, res, next) => {
-  
+
   const { id } = req.params;
   try {
     const job = await Job.findById(id);
@@ -103,6 +113,7 @@ exports.postJob = catchAsyncErrors(async (req, res, next) => {
     jobDescription,
     responsibilities,
     requiredSkills,
+    keywords,
   } = req.body;
 
   if (
@@ -129,12 +140,48 @@ exports.postJob = catchAsyncErrors(async (req, res, next) => {
     jobDescription,
     responsibilities,
     requiredSkills,
+    keywords,
     postedBy: req.user.id,
   });
   if (!jobTitle || !companyName || !industry || !jobType || !location || !salaryRange || !jobDescription ||
     !responsibilities || !requiredSkills) {
     return next(new ErrorHandler("Please provide full job details.", 400));
   }
+
+  // Find users with matching keywords 
+  const users = await User.find({ keywords: { $in: keywords } });
+  console.log(users);
+  // Notify users 
+  users.forEach(async (user) => {
+    try {
+      const notification = await Notification.create({
+        user: user._id,
+        message: `New job posted: ${jobTitle}`,
+        job: job._id,
+      });
+      // Send email
+      const mailOptions = {
+        from: process.env.EMAIL_USER,
+        to: user.email,
+        subject: `New Job Posted: ${jobTitle}`,
+        text: ` Hi ${user.name}, 
+           A new job has been posted that matches your keywords: 
+           Job Title: ${jobTitle} Company: ${companyName} Location: ${location} Job Type: ${jobType} Industry: ${industry} Salary Range: ${salaryRange} Description: ${jobDescription} Responsibilities: ${responsibilities} Required Skills: ${requiredSkills} Apply now! Best, Job Portal Team `,
+      };
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          console.log(`Error sending email to ${user.email}:`, error);
+        } else {
+          console.log(`Email sent to ${user.email}:`, info.response);
+        }
+      });
+
+
+      console.log("Notification created:", notification);
+    } catch (err) {
+      console.error("Error creating notification for user:", user._id, err.message);
+    }
+  });
 
   res.status(201).json({
     success: true,
@@ -148,19 +195,19 @@ exports.postJob = catchAsyncErrors(async (req, res, next) => {
 
 exports.getSingleJob = async (req, res, next) => {
   try {
-      const job = await Job.findById(req.params.id); // Replace with your DB query logic
-      if (!job) {
-          return res.status(404).send("Job not found");
-      }
-      res.render("job/jobDetails", {
-          job: {
-              ...job._doc, // Spreads job document properties
-              responsibilities: job.responsibilities || [], // Default to an empty array if undefined
-              requiredSkills: job.requiredSkills || [], // Default to an empty array if undefined
-          },
-      });
+    const job = await Job.findById(req.params.id); // Replace with your DB query logic
+    if (!job) {
+      return res.status(404).send("Job not found");
+    }
+    res.render("job/jobDetails", {
+      job: {
+        ...job._doc, // Spreads job document properties
+        responsibilities: job.responsibilities || [], // Default to an empty array if undefined
+        requiredSkills: job.requiredSkills || [], // Default to an empty array if undefined
+      },
+    });
   } catch (error) {
-      next(error);
+    next(error);
   }
 }
 
@@ -169,14 +216,14 @@ exports.getAllJobs = catchAsyncErrors(async (req, res, next) => {
   const { searchQuery } = req.query;
   const searchOptions = searchQuery
     ? {
-        $or: [
-          { jobTitle: new RegExp(searchQuery, "i") },
-          { companyName: new RegExp(searchQuery, "i") },
-          { location: new RegExp(searchQuery, "i") },
-          { jobType: new RegExp(searchQuery, "i") },
-          { industry: new RegExp(searchQuery, "i") },
-        ],
-      }
+      $or: [
+        { jobTitle: new RegExp(searchQuery, "i") },
+        { companyName: new RegExp(searchQuery, "i") },
+        { location: new RegExp(searchQuery, "i") },
+        { jobType: new RegExp(searchQuery, "i") },
+        { industry: new RegExp(searchQuery, "i") },
+      ],
+    }
     : {};
 
   const jobs = await Job.find({ ...searchOptions, expired: false });

@@ -5,6 +5,8 @@ const {
   getDashboardStats,
   deleteExpiredJobs,
 } = require("../controller/adminController");
+const { getDashboard } = require('../controller/dashboardController');
+const { authenticateAccessToken } = require('../middleware/auth');
 
 const router = express.Router();
 

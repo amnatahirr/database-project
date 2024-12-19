@@ -1,4 +1,6 @@
 const express = require('express');
+const http = require('http');
+const { Server } = require("socket.io");
 const dotenv = require('dotenv');
 const path = require('path');
 const expressLayouts = require('express-ejs-layouts');
@@ -9,12 +11,17 @@ const session = require("express-session");
 const flash = require("express-flash");
 const {isAuthenticated }=require("./middleware/auth");
 
+const notificationRoutes = require("./routes/notificationRoutes");
+const { authenticateAccessToken } = require("./middleware/auth");
 const app = express();
+const server = http.createServer(app);
+const io = new Server(server);
 
 app.use(cors({
-  origin: "http://localhost:5000", 
-  credentials: true,             
+  origin: "http://localhost:5000",
+  credentials: true,
 }));
+app.use(express.static('public'));
 
 app.use(session({ secret: "secret", resave: false, saveUninitialized: false }));
 app.use(flash());
@@ -60,6 +67,7 @@ const jobRoutes = require('./routes/jobRoutes');
 
 // Use routes
 
+app.use("/notifications", notificationRoutes);
 app.use('/users', userRoutes);
 app.use('/dashboard', dashboardRoutes);
 app.use('/admin', adminRoutes);
@@ -77,7 +85,7 @@ app.get('/dashboard', (req, res) => {
 app.get('/users', (req, res) => {
   const { token } = req.query;
   res.render('dashboard/user_management', { title: 'Dashboard' });
-}); 
+});
 
 app.get('/jobs', (req, res) => {
   const { token } = req.query;
@@ -98,7 +106,7 @@ app.get('/register', (req, res) => {
 });
 
 app.get('/forgotPassword', (req, res) => {
-  res.render('users/forgotPassword', { layout: 'layouts/main' }); 
+  res.render('users/forgotPassword', { layout: 'layouts/main' });
 });
 
 app.get('/logout', (req, res) => {
@@ -134,42 +142,58 @@ app.get('/jobSeeker_dashboard', (req, res) => {
   res.render('users/jobSeeker_dashboard', { layout: 'layouts/main' });
 });
 
-app.get('/resetPassword',(req,res)=>{
+app.get('/resetPassword', (req, res) => {
   const { token } = req.query;
-  res.render('users/resetPassword',{layout:"layouts/main",token});
+  res.render('users/resetPassword', { layout: "layouts/main", token });
 });
 
 
-app.get('/jobPostForm',(req,res)=>{
+app.get('/jobPostForm', (req, res) => {
   const { token } = req.query;
-  res.render('job/jobPostForm',{layout:"layouts/main"},token);
+  res.render('job/jobPostForm', { layout: "layouts/main" }, token);
 });
 
-app.get('/viewJob',(req,res)=>{
-  res.render('job/viewJob',{layout:"layouts/main"});
+app.get('/viewJob', (req, res) => {
+  res.render('job/viewJob', { layout: "layouts/main" });
 });
 
 
-app.get('/JobApplicationForm',(req,res)=>{
+app.get('/JobApplicationForm', (req, res) => {
   const { token } = req.query;
-  res.render('JobApplication/applicationForm',{layout:"layouts/main",});
+  res.render('JobApplication/applicationForm', { layout: "layouts/main", });
 });
 
-app.get('/viewAllApplications',(req,res)=>{
+app.get('/viewAllApplications', (req, res) => {
   const { token } = req.query;
-  res.render('JobApplication/viewApplications',{layout:"layouts/main",});
+  res.render('JobApplication/viewApplications', { layout: "layouts/main", });
 });
 
-app.get('/deleteApplication',(req,res)=>{
+app.get('/deleteApplication', (req, res) => {
   const { token } = req.query;
-  res.render('JobApplication/deleteApplication',{layout:"layouts/main",});
+  res.render('JobApplication/deleteApplication', { layout: "layouts/main", });
 });
 
-app.get('/GetApplications',(req,res)=>{
+app.get('/GetApplications', (req, res) => {
   const { token } = req.query;
-  res.render('JobApplication/employerView',{layout:"layouts/main",});
+  res.render('JobApplication/employerView', { layout: "layouts/main", });
 });
 
+app.use("/", notificationRoutes);
+// Socket.IO
+io.on('connection', (socket) => {
+  console.log('A user connected');
+
+  // Listen for messages
+  socket.on('sendMessage', (data) => {
+    // Emit message to the intended recipient
+    io.to(data.to).emit('receiveMessage', data);
+  });
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
+  });
+});
 connectDB();
 // Start the server
 const PORT = 5000;
