@@ -185,13 +185,13 @@ exports.forgotPassword = async (req, res) => {
       },
     });
 
-    const resetLink = "${process.env.CLIENT_URL}/resetPassword?token=${token}";
+    const resetLink = `${process.env.CLIENT_URL}/resetPassword?token=${token}`;
 
     const mailOptions = {
       from: process.env.MY_GMAIL,
       to: email,
       subject: "Password Reset Request",
-      text: "Click on this link to reset your password: ${resetLink}"
+      text: `Click on this link to reset your password: ${resetLink}`
     };
 
     await transporter.sendMail(mailOptions);
@@ -216,7 +216,7 @@ exports.resetPassword = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     // Validate and hash new password
-    const passwordRequirements = /^(?=.[A-Z])(?=.\d)[A-Za-z\d]{8,}$/;
+    const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!passwordRequirements.test(newPassword)) {
       return res.status(400).json({
         message: "Password must be at least 8 characters long, include an uppercase letter, and a number.",
