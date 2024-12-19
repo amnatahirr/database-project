@@ -42,10 +42,20 @@
         </select>
       </div>
       <div class="form-group">
-        <label for="keywords">Keywords:</label>
-        <input type="text" id="keywords" name="keywords" value="<%= user.keywords ? user.keywords.join(', ') : '' %>">
-        <small style="color: black;">Enter keywords separated by commas</small>
-      </div>
+        <label>Keywords:</label>
+        <div class="checkbox-scroll-container">
+          <% const keywordsList = ["Web Developer", "Software Engineer", "Electrical Engineer", "Data Scientist", "UI/UX Designer", "Product Manager", "Marketing Specialist", "Data Analyst", "Network Administrator", "System Analyst", "DevOps Engineer", "Cybersecurity Analyst", "Database Administrator", "Graphic Designer", "Content Writer", "Sales Executive", "Web Designer", "Mobile App Developer", "Blockchain Developer"]; %>
+          <% keywordsList.forEach(keyword => { %>
+            <label>
+              <input type="checkbox" name="keywords" value="<%= keyword %>" <%= user.keywords && user.keywords.includes(keyword) ? 'checked' : '' %>>
+              <%= keyword %>
+            </label>
+          <% }) %>
+        </div>
+        <small style="color: black;">Select multiple keywords by checking the boxes.</small>
+    </div>
+    
+
       <button type="submit" class="btn">Update Profile</button>
     </form>
   <% } else { %>
@@ -54,6 +64,21 @@
 </div>
 
 <style>
+  .checkbox-scroll-container {
+    max-height: 150px; /* Set a maximum height for the container */
+    overflow-y: auto; /* Enable vertical scrolling */
+    border: 1px solid black; /* Optional: Add a border */
+    padding: 10px; /* Optional: Add some padding */
+    border-radius: 4px; /* Optional: Rounded corners */
+    background-color: white; /* Optional: Background color */
+}
+
+.checkbox-scroll-container label {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    color: black;
+}
    .profile-container {
     max-width: 600px;
     margin: 2rem auto;
