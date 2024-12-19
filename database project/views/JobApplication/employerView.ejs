@@ -106,7 +106,7 @@
           const row = document.createElement('tr');
           row.innerHTML = `
             <td>${job?.jobTitle || 'N/A'}</td>
-            <td>${application.applicantName || 'N/A'}</td>
+            <td>${application.name || 'N/A'}</td>
             <td>${application.status || 'Pending'}</td>
             <td>${new Date(application.createdAt).toLocaleDateString()}</td>
           `;

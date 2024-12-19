@@ -6,6 +6,7 @@ const ErrorHandler = require("../middleware/error");
 const catchAsyncErrors = require("../middleware/catchAsyncError");
 
 
+
 exports.postApplication = catchAsyncErrors(async (req, res, next) => {
   if (req.user.role === "Employer") {
     return next(new ErrorHandler("Employers are not allowed to apply for jobs.", 400));
@@ -39,6 +40,9 @@ exports.postApplication = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
+
+
+
 exports.employerGetAllApplications = catchAsyncErrors(async (req, res, next) => {
 
   const applications = await Application.find({ employerID: req.user.id })
@@ -61,6 +65,10 @@ exports.jobseekerGetAllApplications = catchAsyncErrors(async (req, res, next) =>
     applications,
   });
 });
+
+
+
+
 
 exports.jobseekerDeleteApplication = catchAsyncErrors(async (req, res, next) => {
   if (req.user.role === "Employer") {
