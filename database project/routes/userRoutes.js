@@ -15,6 +15,6 @@ router.get("/logout", logoutUser);
 router.get('/passwordResetSent', (req, res) => {
     res.render('users/passwordResetSent', { layout: 'layouts/main' });
 });
-router.put('/updateProfile/:id',updateProfile);
+router.post('/profile/:id',updateProfile);
 
 module.exports = router;

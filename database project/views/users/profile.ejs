@@ -1,16 +1,130 @@
-<% layout('layouts/main') %>
-<h1>Profile</h1>
+<div class="profile-container">
+  <% if (user) { %>
+    <div class="profile-info">
+      <h2>Profile Information</h2>
+      <div class="info-group">
+        <label>Name:</label>
+        <p><%= user.name %></p>
+      </div>
+      <div class="info-group">
+        <label>Email:</label>
+        <p><%= user.email %></p>
+      </div>
+      <div class="info-group">
+        <label>Role:</label>
+        <p><%= user.role %></p>
+      </div>
+      <% if (user.keywords && user.keywords.length > 0) { %>
+        <div class="info-group">
+          <label>Keywords:</label>
+          <p><%= user.keywords.join(', ') %></p>
+        </div>
+      <% } %>
+    </div>
 
-<% if (req.query.message) { %>
-  <div class="alert alert-success"><%= req.query.message %></div>
-<% } %>
+    <h3>Update Profile</h3>
+    <form action="/users/profile/<%= user._id %>" method="POST" class="update-form">
+      <div class="form-group">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" value="<%= user.name %>" required>
+      </div>
+      <div class="form-group">
+        <label for="email">Email:</label>
+        <input type="text" id="email" name="email" value="<%= user.email %>" required>
+      </div>
 
-<div>
-  <p>Name: <%= user.name %></p>
-  <p>Email: <%= user.email %></p>
-  <p>Role: <%= user.role %></p>
+      <div class="form-group">
+        <label for="role">Role:</label>
+        <select style="color: black; background-color: white;" name="role" id="role" onchange="toggleKeywords(this.value)" required>
+          <option value="job_seeker" <%= user.role === 'job_seeker' ? 'selected' : '' %>>Job Seeker</option>
+          <option value="employer" <%= user.role === 'employer' ? 'selected' : '' %>>Employer</option>
+          <option value="admin" <%= user.role === 'admin' ? 'selected' : '' %>>Admin</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label for="keywords">Keywords:</label>
+        <input type="text" id="keywords" name="keywords" value="<%= user.keywords ? user.keywords.join(', ') : '' %>">
+        <small style="color: black;">Enter keywords separated by commas</small>
+      </div>
+      <button type="submit" class="btn">Update Profile</button>
+    </form>
+  <% } else { %>
+    <p>User information is not available. Please <a href="/login">login</a> to view your profile.</p>
+  <% } %>
 </div>
-<form action="/users/profile/<%= user._id %>" method="POST">
-  <textarea name="updates" placeholder="Update your profile here..."></textarea>
-  <button type="submit">Update</button>
-</form>
+
+<style>
+   .profile-container {
+    max-width: 600px;
+    margin: 2rem auto;
+    padding: 2rem;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+
+  .profile-info {
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+  }
+
+  .profile-info h2 {
+    color: var(--accent-color);
+    margin-bottom: 1.5rem;
+  }
+
+  .info-group {
+    display: grid;
+    grid-template-columns: 120px 1fr;
+    gap: 1rem;
+    align-items: baseline;
+  }
+
+  .info-group label {
+    font-weight: 600;
+    color: black;
+  }
+
+  .info-group p {
+    margin: 0;
+    color: black;
+  }
+
+  .update-form {
+    margin-top: 2rem;
+  }
+
+  .form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+  }
+
+  .form-group label {
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: black;
+  }
+
+  .form-group input {
+    padding: 0.5rem;
+    border: 1px solid black;
+    border-radius: 4px;
+    background-color: white;
+    color: black;
+  }
+
+  .btn {
+    padding: 0.7rem 1.5rem;
+    background-color: var(--accent-color);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+
+  .btn:hover {
+    background-color: darken(var(--accent-color), 10%);
+  }
+</style>

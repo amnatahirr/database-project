@@ -76,6 +76,15 @@ exports.loginUser = async (req, res) => {
        });
      }
 
+     req.session.user = {
+      id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      keywords: user.keywords
+    };
+
+
     // Generate tokens
     const { accessToken, refreshToken } = generateTokens(user);
 
@@ -139,22 +148,20 @@ exports.logoutUser = (req, res) => {
 
 
 
-
 exports.updateProfile = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, keywords } = req.body;
 
-    // Construct updates object
-    const updates = {};
-    if (name) updates.name = name;  // Update name if provided
-    if (keywords) updates.keywords = keywords; // Update keywords if provided
+    // Split and trim keywords into an array
+    const keywordArray = keywords ? keywords.split(',').map(kw => kw.trim()) : [];
+
+    const updates = { name, keywords: keywordArray };
 
     // Update user in the database
     const user = await User.findByIdAndUpdate(id, updates, { new: true });
     if (!user) return res.status(404).json({ message: "User not found" });
 
-    // Redirect or render the profile page with a success message
     res.redirect('/users/profile/' + user._id + '?message=Profile updated successfully');
   } catch (err) {
     console.error("Profile update error:", err);

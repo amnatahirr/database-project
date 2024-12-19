@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 const session = require("express-session");
 const flash = require("express-flash");
+const {isAuthenticated }=require("./middleware/auth");
 
 const app = express();
 
@@ -114,9 +115,12 @@ app.get('/admin', (req, res) => {
   res.render('users/admin', { layout: 'layouts/main' });
 });
 
-app.get('/updateProfile',(req,res)=>{
-  res.render('users/updateProfile',{layout:'layout/mains'});
-})
+app.get('/profile',isAuthenticated, (req, res) => {
+  if (!req.session.user) {
+      return res.redirect('/login'); 
+  }
+  res.render('users/profile', { layout: 'layouts/main', user: req.session.user });
+});
 app.get('/admin_dashboard', (req, res) => {
   const { token } = req.query;
   res.render('users/a_dashboard', { layout: 'layouts/main' });
