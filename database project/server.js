@@ -114,6 +114,9 @@ app.get('/admin', (req, res) => {
   res.render('users/admin', { layout: 'layouts/main' });
 });
 
+app.get('/updateProfile',(req,res)=>{
+  res.render('users/updateProfile',{layout:'layout/mains'});
+})
 app.get('/admin_dashboard', (req, res) => {
   const { token } = req.query;
   res.render('users/a_dashboard', { layout: 'layouts/main' });

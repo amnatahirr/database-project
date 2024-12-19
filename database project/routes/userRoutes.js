@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const { registerUser, loginUser,forgotPassword,resetPassword,refreshToken, logoutUser } = require('../controller/userController');
+const { registerUser, loginUser,forgotPassword,resetPassword,refreshToken, logoutUser,updateProfile } = require('../controller/userController');
 const { authenticate } = require('../middleware/auth');
 
 const { verifyRefreshToken } = require("../middleware/auth");
@@ -15,6 +15,6 @@ router.get("/logout", logoutUser);
 router.get('/passwordResetSent', (req, res) => {
     res.render('users/passwordResetSent', { layout: 'layouts/main' });
 });
-
+router.put('/updateProfile/:id',updateProfile);
 
 module.exports = router;
