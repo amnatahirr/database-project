@@ -9,13 +9,19 @@ const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 const session = require("express-session");
 const flash = require("express-flash");
-const {isAuthenticated }=require("./middleware/auth");
+const { isAuthenticated } = require("./middleware/auth");
 
 const notificationRoutes = require("./routes/notificationRoutes");
 const { authenticateAccessToken } = require("./middleware/auth");
 const app = express();
 const server = http.createServer(app);
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "http://localhost:5000", // Update this with your frontend's origin
+    methods: ["GET", "POST"]
+  }
+});
+app.use('/socket.io', express.static('node_modules/socket.io/client-dist'));
 
 app.use(cors({
   origin: "http://localhost:5000",
@@ -77,28 +83,13 @@ app.use('/job', jobRoutes);
 
 
 // Frontend Routes
-app.get('/dashboard', (req, res) => {
-  const { token } = req.query;
-  res.render('dashboard/user_dashboard', { title: 'Dashboard' });
-});
-
-app.get('/users', (req, res) => {
-  const { token } = req.query;
-  res.render('dashboard/user_management', { title: 'Dashboard' });
-});
-
-app.get('/jobs', (req, res) => {
-  const { token } = req.query;
-  res.render('dashboard/job_management', { title: 'Dashboard' });
-});
-
 app.get('/', (req, res) => {
   res.render('users/index', { layout: 'layouts/main' });
 });
 
 app.get('/login', (req, res) => {
-  const message = req.query.message || null; 
-  res.render('users/login', { layout: 'layouts/main' ,message});
+  const message = req.query.message || null;
+  res.render('users/login', { layout: 'layouts/main', message });
 });
 
 app.get('/register', (req, res) => {
@@ -123,13 +114,9 @@ app.get('/admin', (req, res) => {
   res.render('users/admin', { layout: 'layouts/main' });
 });
 
-app.get('/profile',isAuthenticated, (req, res) => {
-  if (!req.session.user) {
-      return res.redirect('/login'); 
-  }
-  res.render('users/profile', { layout: 'layouts/main', user: req.session.user });
-});
-
+app.get('/updateProfile', (req, res) => {
+  res.render('users/updateProfile', { layout: 'layout/mains' });
+})
 app.get('/admin_dashboard', (req, res) => {
   const { token } = req.query;
   res.render('users/a_dashboard', { layout: 'layouts/main' });
@@ -141,64 +128,69 @@ app.get('/employer_dashboard', (req, res) => {
 
 app.get('/jobSeeker_dashboard', (req, res) => {
   res.render('users/jobSeeker_dashboard', { layout: 'layouts/main' });
-});
-
-app.get('/resetPassword', (req, res) => {
-  const { token } = req.query;
-  res.render('users/resetPassword', { layout: "layouts/main", token });
-});
-
-
-app.get('/jobPostForm', (req, res) => {
-  const { token } = req.query;
-  res.render('job/jobPostForm', { layout: "layouts/main" }, token);
-});
-
-app.get('/viewJob', (req, res) => {
-  res.render('job/viewJob', { layout: "layouts/main" });
-});
-
-
-app.get('/JobApplicationForm', (req, res) => {
-  const { token } = req.query;
-  res.render('JobApplication/applicationForm', { layout: "layouts/main", });
-});
-
-app.get('/viewAllApplications', (req, res) => {
-  const { token } = req.query;
-  res.render('JobApplication/viewApplications', { layout: "layouts/main", });
-});
-
-app.get('/deleteApplication', (req, res) => {
-  const { token } = req.query;
-  res.render('JobApplication/deleteApplication', { layout: "layouts/main", });
-});
-
-app.get('/GetApplications', (req, res) => {
-  const { token } = req.query;
-  res.render('JobApplication/employerView', { layout: "layouts/main", });
-});
-
-app.use("/", notificationRoutes);
-// Socket.IO
-io.on('connection', (socket) => {
-  console.log('A user connected');
-
-  // Listen for messages
-  socket.on('sendMessage', (data) => {
-    // Emit message to the intended recipient
-    io.to(data.to).emit('receiveMessage', data);
+  app.get('/profile', isAuthenticated, (req, res) => {
+    if (!req.session.user) {
+      return res.redirect('/login');
+    }
+    res.render('users/profile', { layout: 'layouts/main', user: req.session.user });
   });
 
-  // Handle disconnection
-  socket.on('disconnect', () => {
-    console.log('A user disconnected');
+  app.get('/resetPassword', (req, res) => {
+    const { token } = req.query;
+    res.render('users/resetPassword', { layout: "layouts/main", token });
   });
-});
-connectDB();
-// Start the server
-const PORT = 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+
+
+  app.get('/jobPostForm', (req, res) => {
+    const { token } = req.query;
+    res.render('job/jobPostForm', { layout: "layouts/main" }, token);
+  });
+
+  app.get('/viewJob', (req, res) => {
+    res.render('job/viewJob', { layout: "layouts/main" });
+  });
+
+
+  app.get('/JobApplicationForm', (req, res) => {
+    const { token } = req.query;
+    res.render('JobApplication/applicationForm', { layout: "layouts/main", });
+  });
+
+  app.get('/viewAllApplications', (req, res) => {
+    const { token } = req.query;
+    res.render('JobApplication/viewApplications', { layout: "layouts/main", });
+  });
+
+  app.get('/deleteApplication', (req, res) => {
+    const { token } = req.query;
+    res.render('JobApplication/deleteApplication', { layout: "layouts/main", });
+  });
+
+  app.get('/GetApplications', (req, res) => {
+    const { token } = req.query;
+    res.render('JobApplication/employerView', { layout: "layouts/main", });
+  });
+
+  app.use("/", notificationRoutes);
+  // Socket.IO
+  // Handle Socket.IO connections
+  io.on('connection', (socket) => {
+    console.log('A user connected:', socket.id);
+
+    socket.on('chatMessage', (data) => {
+      console.log('Message received:', data);
+      socket.broadcast.emit('receiveMessage', data);
+    });
+
+    socket.on('disconnect', () => {
+      console.log('User disconnected:', socket.id);
+    });
+  });
+
+  connectDB();
+  // Start the server
+  const PORT = 5000;
+  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
 
 
 

@@ -108,17 +108,18 @@
         .container {
             padding: 1rem;
         }
-        
+
         .page-title {
             font-size: 2rem;
         }
-        
+
         .jobs-grid {
             grid-template-columns: 1fr;
         }
     }
-/* Search form styles */
-.search-form {
+
+    /* Search form styles */
+    .search-form {
         display: flex;
         align-items: center;
         gap: 1rem;
@@ -163,30 +164,39 @@
 
     .search-form button:hover {
         background-color: #3b43f0;
-    }     
-    
+    }
+
     .search-form input {
-            width: 100%;
-     }
-   
+        width: 100%;
+    }
+
     .modal {
-        display: none; /* Hidden by default */
-        position: fixed; /* Stay in place */
-        z-index: 0; /* Sit on top */
+        display: none;
+        /* Hidden by default */
+        position: fixed;
+        /* Stay in place */
+        z-index: 0;
+        /* Sit on top */
         left: 0;
         top: 0;
-        width: 100%; /* Full width */
-        height: 100%; /* Full height */
-        overflow: auto; /* Enable scroll if needed */
-        background-color: rgba(0, 0, 0, 0.5); /* Black background with opacity */
+        width: 100%;
+        /* Full width */
+        height: 100%;
+        /* Full height */
+        overflow: auto;
+        /* Enable scroll if needed */
+        background-color: rgba(0, 0, 0, 0.5);
+        /* Black background with opacity */
     }
 
     .modal-content {
         background-color: var(--secondary-bg);
-        margin: 10% auto; /* 10% from top and centered */
+        margin: 10% auto;
+        /* 10% from top and centered */
         padding: 2rem;
         border-radius: 0.5rem;
-        width: 60%; /* Could be more or less, depending on screen size */
+        width: 60%;
+        /* Could be more or less, depending on screen size */
         height: 75%;
         max-width: 73%;
         overflow-y: scroll;
@@ -200,7 +210,7 @@
     }
 
     .modal-content label {
-        display:grid;
+        display: grid;
         margin-bottom: 0.5rem;
         color: var(--primary-text);
         font-weight: 600;
@@ -212,19 +222,23 @@
         width: 100%;
         padding: 0.75rem;
         margin-bottom: 1rem;
-        border: 1px solid #555; /* Dark border */
+        border: 1px solid #555;
+        /* Dark border */
         border-radius: 0.5rem;
         font-size: 1rem;
         font-family: inherit;
-        background: var(--secondary-bg); /* Input background */
-        color: var(--primary-text); /* Input text color */
+        background: var(--secondary-bg);
+        /* Input background */
+        color: var(--primary-text);
+        /* Input text color */
     }
 
     .modal-content input:focus,
     .modal-content textarea:focus {
         outline: none;
         border-color: var(--accent-color);
-        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.3);  }
+        box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.3);
+    }
 
     .modal-content button {
         display: block;
@@ -265,43 +279,86 @@
         border-color: red;
     }
 
+    .modal {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: #fff;
+        padding: 20px;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        z-index: 1000;
+    }
 
+    .modal-content {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .close {
+        align-self: flex-end;
+        cursor: pointer;
+    }
 </style>
 
 <div class="container">
     <h1 class="page-title">Explore All Jobs</h1>
-<!-- Search form -->
-<form action="/job/viewJob" method="GET" class="search-form">
-    <label for="SearchQuery">Search</label>
-    <input type="text" name="searchQuery" id="SearchQuery" value="<%= searchQuery || '' %>">
-    <button type="submit">Search</button>
-</form>
+    <!-- Search form -->
+    <form action="/job/viewJob" method="GET" class="search-form">
+        <label for="SearchQuery">Search</label>
+        <input type="text" name="searchQuery" id="SearchQuery" value="<%= searchQuery || '' %>">
+        <button type="submit">Search</button>
+    </form>
     <div class="jobs-grid">
-    <% if (jobs.length > 0) { %>
-       <% jobs.forEach(job => { %>
-          <div class="job-card">
-            <img src="/images/rocket-icon.svg" alt="Company Logo" class="company-logo">
-            <h2 class="job-title"><%= job.jobTitle %></h2>
-            <p class="company-name"><%= job.companyName %></p>
-            <div class="job-meta">
-                <p><%= job.location %></p>
-                <p>Type: <%= job.jobType %></p>
-                <p>Industry: <%= job.industry %></p>
-                <p>Salary: <%= job.salary || 'Negotiable' %></p>
-            </div>
-        
-            <a href="/job/<%= job._id %>" class="view-details " style="margin-bottom: 10px;">View Details</a>
-            <br>
-            <button class="btn btn-primary apply-now" data-job-id="<%= job._id %>">Apply Now</button>  
-          </div>
-        <% }); %>
-        <% } else { %>
-            <p>No jobs available at the moment. Please check back later!</p>
-          <% } %>
-      </div>
+        <% if (jobs.length> 0) { %>
+            <% jobs.forEach(job=> { %>
+                <div class="job-card">
+                    <img src="/images/rocket-icon.svg" alt="Company Logo" class="company-logo">
+                    <h2 class="job-title">
+                        <%= job.jobTitle %>
+                    </h2>
+                    <p class="company-name">
+                        <%= job.companyName %>
+                    </p>
+                    <div class="job-meta">
+                        <p>
+                            <%= job.location %>
+                        </p>
+                        <p>Type: <%= job.jobType %>
+                        </p>
+                        <p>Industry: <%= job.industry %>
+                        </p>
+                        <p>Salary: <%= job.salary || 'Negotiable' %>
+                        </p>
+                    </div>
+                    <a href="/job/<%= job._id %>" class="view-details" style="margin-bottom: 10px;">View Details</a>
+                    <br>
+                    <button class="btn btn-primary apply-now" data-job-id="<%= job._id %>">Apply Now</button>
+                    <!-- Add Chat Button -->
+                    <button class="btn btn-secondary chat-now" data-job-id="<%= job._id %>"
+                        data-employer-id="<%= job.employerId %>">
+                        Chat with Employer
+                    </button>
+                </div>
+                <% }); %>
+                    <% } else { %>
+                        <p>No jobs available at the moment. Please check back later!</p>
+                        <% } %>
+    </div>
+
 
 </div>
-
+<div id="chatModal" class="modal" style="display: none;">
+    <div class="modal-content">
+        <span class="close">&times;</span>
+        <h2>Chat</h2>
+        <div id="chatMessages"></div>
+        <div id="typingIndicator"></div>
+        <input type="text" id="chatInput" placeholder="Type a message...">
+        <button id="sendMessage">Send</button>
+    </div>
+</div>
 <!-- Application Modal Form -->
 <div id="applicationFormModal" class="modal">
     <div class="modal-content">
@@ -310,32 +367,33 @@
         <form id="applicationForm" action="/application/post" method="post">
             <!-- Hidden jobId field -->
             <input type="hidden" id="jobId" name="jobId">
-            
+
             <!-- Name -->
             <label for="name">Name</label>
             <input type="text" id="name" name="name" placeholder="Enter your name" required>
             <span id="name-error" class="error-message"></span>
-        
+
             <!-- Email -->
             <label for="email">Email</label>
             <input type="email" id="email" name="email" placeholder="Enter your email" required>
             <span id="email-error" class="error-message"></span>
-        
+
             <!-- Phone -->
             <label for="phone">Phone</label>
             <input type="tel" id="phone" name="phone" placeholder="Enter your phone number" required>
             <span id="phone-error" class="error-message"></span>
-        
+
             <!-- Address -->
             <label for="address">Address</label>
             <input type="text" id="address" name="address" placeholder="Enter your address" required>
             <span id="address-error" class="error-message"></span>
-        
+
             <!-- Cover Letter -->
             <label for="coverLetter">Cover Letter</label>
-            <textarea id="coverLetter" name="coverLetter" rows="5" placeholder="Write your cover letter here" required></textarea>
+            <textarea id="coverLetter" name="coverLetter" rows="5" placeholder="Write your cover letter here"
+                required></textarea>
             <span id="coverLetter-error" class="error-message"></span>
-        
+
             <!-- Submit Button -->
             <button type="submit">Submit Application</button>
         </form>
@@ -371,41 +429,45 @@
         });
 
         applicationForm.addEventListener('submit', async function (e) {
-    e.preventDefault();
+            e.preventDefault();
 
-    if (validateForm()) {
-        const formValues = {
-            name: document.getElementById('name').value.trim(),
-            email: document.getElementById('email').value.trim(),
-            phone: document.getElementById('phone').value.trim(),
-            address: document.getElementById('address').value.trim(),
-            coverLetter: document.getElementById('coverLetter').value.trim(),
-            jobId: jobIdField.value,
-        };
+            if (validateForm()) {
+                const formValues = {
+                    name: document.getElementById('name').value.trim(),
+                    email: document.getElementById('email').value.trim(),
+                    phone: document.getElementById('phone').value.trim(),
+                    address: document.getElementById('address').value.trim(),
+                    coverLetter: document.getElementById('coverLetter').value.trim(),
+                    jobId: jobIdField.value,
+                };
 
-        try {
-            const response = await fetch(applicationForm.action, {
-                method: 'POST',
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(formValues),
-            });
+                try {
+                    const response = await fetch(applicationForm.action, {
+                        method: 'POST',
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(formValues),
+                    });
 
-            const result = await response.json();
+                    const result = await response.json();
 
 
-            if (response.ok) {
-                alert(result.message || "Application submitted successfully!");
-                applicationForm.reset();
-                modal.style.display = 'none';
-            } else {
-                alert(result.message || "An error occurred while submitting the application.");
-            }
-        } catch (error) {
-            console.error("Error submitting form:", error);
-            alert("Failed to submit the application. Please try again.");
-        }
-    }
-});
+                    if (response.ok) {
+                        alert(result.message || "Application submitted successfully!");
+                        applicationForm.reset();
+                        modal.style.display = 'none';
+                    }
+                    //  else {
+                    //     alert(result.message || "An error occurred while submitting the application.");
+                    // }
+                    else {
+                        // Show specific alert for employers
+                        if (result.message === "Employers are not allowed to apply for jobs.") {
+                            alert("Employers are not allowed to apply for jobs.");
+                        } else {
+                            alert(result.message || "An error occurred while submitting the application.");
+                        }
+                    }
+                });
 
 
 
@@ -432,4 +494,70 @@
     });
 </script>
 
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    const socket = io();
+    let currentChatId = null;
+    const chatModal = document.getElementById('chatModal');
+    const chatMessages = document.getElementById('chatMessages');
+    const chatInput = document.getElementById('chatInput');
+    const sendMessageButton = document.getElementById('sendMessage');
 
+    // Open Chat Modal
+    document.querySelectorAll('.chat-now').forEach(button => {
+        button.addEventListener('click', function () {
+            currentChatId = this.dataset.employerId; // Employer ID
+            chatModal.style.display = 'block';
+            chatMessages.innerHTML = ''; // Clear previous messages
+            socket.emit('joinChat', { chatId: currentChatId });
+
+            // Load Chat History (optional)
+            loadChatHistory(currentChatId);
+        });
+    });
+
+    // Close Chat Modal
+    document.querySelector('.close').addEventListener('click', () => {
+        chatModal.style.display = 'none';
+        socket.emit('leaveChat', { chatId: currentChatId });
+        currentChatId = null;
+    });
+
+    // Send Message
+    sendMessageButton.addEventListener('click', sendMessage);
+    chatInput.addEventListener('keypress', (event) => {
+        if (event.key === 'Enter') {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+
+    function sendMessage() {
+        const message = chatInput.value.trim();
+        if (message && currentChatId) {
+            socket.emit('chatMessage', { chatId: currentChatId, message });
+            appendMessage(message, 'You');
+            chatInput.value = '';
+        }
+    }
+
+    function appendMessage(message, sender) {
+        const messageDiv = document.createElement('div');
+        messageDiv.textContent = `${sender}: ${message}`;
+        chatMessages.appendChild(messageDiv);
+        chatMessages.scrollTop = chatMessages.scrollHeight;
+    }
+
+    function loadChatHistory(chatId) {
+        // Simulate chat history loading
+        appendMessage('Loading chat history...', 'System');
+        setTimeout(() => {
+            appendMessage('Chat history loaded.', 'System');
+        }, 1000);
+    }
+
+    // Listen for Incoming Messages
+    socket.on('receiveMessage', (data) => {
+        appendMessage(data.message, data.sender);
+    });
+</script>

@@ -1,3 +1,40 @@
+<style>
+     .checkbox-grid {
+        color:white;
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 1rem;
+        padding: 1rem;
+        border: 1px solid #e2e8f0;
+        border-radius: 0.5rem;
+        max-height: 200px;
+        overflow-y: auto;
+        background-color: white;
+    }
+  
+    .checkbox-grid label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: normal;
+        font-size: 0.875rem;
+        padding: 0.25rem;
+        transition: background-color 0.3s;
+    }
+
+    .checkbox-grid input[type="checkbox"] {
+        width: 18px;
+        height: 18px;
+        margin: 0;
+        cursor: pointer;
+    }
+  
+    .checkbox-grid label:hover {
+        background-color: #1a1a1a;
+        color: wheat;
+        border-radius: 0.5rem;
+    }
+</style>
 <div class="profile-container">
   <% if (user) { %>
     <div class="profile-info">
@@ -43,7 +80,7 @@
       </div>
       <div class="form-group">
         <label>Keywords:</label>
-        <div class="checkbox-scroll-container">
+        <div class="checkbox-grid">
           <% const keywordsList = ["Web Developer", "Software Engineer", "Electrical Engineer", "Data Scientist", "UI/UX Designer", "Product Manager", "Marketing Specialist", "Data Analyst", "Network Administrator", "System Analyst", "DevOps Engineer", "Cybersecurity Analyst", "Database Administrator", "Graphic Designer", "Content Writer", "Sales Executive", "Web Designer", "Mobile App Developer", "Blockchain Developer"]; %>
           <% keywordsList.forEach(keyword => { %>
             <label>
