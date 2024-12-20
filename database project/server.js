@@ -128,12 +128,15 @@ app.get('/employer_dashboard', (req, res) => {
 
 app.get('/jobSeeker_dashboard', (req, res) => {
   res.render('users/jobSeeker_dashboard', { layout: 'layouts/main' });
+})
+
   app.get('/profile', isAuthenticated, (req, res) => {
     if (!req.session.user) {
       return res.redirect('/login');
     }
     res.render('users/profile', { layout: 'layouts/main', user: req.session.user });
   });
+
 
   app.get('/resetPassword', (req, res) => {
     const { token } = req.query;
