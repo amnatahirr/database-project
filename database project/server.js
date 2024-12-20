@@ -128,7 +128,7 @@ app.get('/employer_dashboard', (req, res) => {
 
 app.get('/jobSeeker_dashboard', (req, res) => {
   res.render('users/jobSeeker_dashboard', { layout: 'layouts/main' });
-})
+});
 
   app.get('/profile', isAuthenticated, (req, res) => {
     if (!req.session.user) {
@@ -142,7 +142,6 @@ app.get('/jobSeeker_dashboard', (req, res) => {
     const { token } = req.query;
     res.render('users/resetPassword', { layout: "layouts/main", token });
   });
-})
 
   app.get('/jobPostForm', (req, res) => {
     const { token } = req.query;
