@@ -139,7 +139,7 @@ app.get('/jobSeeker_dashboard', (req, res) => {
     const { token } = req.query;
     res.render('users/resetPassword', { layout: "layouts/main", token });
   });
-
+})
 
   app.get('/jobPostForm', (req, res) => {
     const { token } = req.query;
