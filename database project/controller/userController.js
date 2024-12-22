@@ -148,12 +148,12 @@ exports.logoutUser = (req, res) => {
 
 
 
+// userController.js
 exports.updateProfile = async (req, res) => {
   try {
     const { id } = req.params;
     const { name, keywords } = req.body;
 
-    // Split and trim keywords into an array
     const keywordArray = keywords ? keywords.split(',').map(kw => kw.trim()) : [];
 
     const updates = { name, keywords: keywordArray };
@@ -168,7 +168,6 @@ exports.updateProfile = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
-
 
 
 // Forgot Password

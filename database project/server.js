@@ -31,6 +31,7 @@ app.use(cors({
 app.use(express.static('public'));
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.use(express.urlencoded({ extended: true }));
 app.use(session({ secret: "secret", resave: false, saveUninitialized: false }));
 app.use(flash());
 app.use((req, res, next) => {
@@ -131,6 +132,7 @@ app.get('/employer_dashboard', (req, res) => {
 app.get('/jobSeeker_dashboard', (req, res) => {
   res.render('users/jobSeeker_dashboard', { layout: 'layouts/main' });
 });
+
 app.get('/profile', isAuthenticated, (req, res) => {
   if (!req.session.user) {
     return res.redirect('/login');
@@ -138,11 +140,11 @@ app.get('/profile', isAuthenticated, (req, res) => {
   res.render('users/profile', { layout: 'layouts/main', user: req.session.user });
 });
 
+
 app.get('/resetPassword', (req, res) => {
   const { token } = req.query;
   res.render('users/resetPassword', { layout: "layouts/main", token });
 });
-
 
 app.get('/jobPostForm', (req, res) => {
   const { token } = req.query;
@@ -150,7 +152,7 @@ app.get('/jobPostForm', (req, res) => {
 });
 
 app.get('/viewJob', (req, res) => {
-  res.render('job/viewJob', { layout: "layouts/main", user: req.user });
+  res.render('job/viewJob', { layout: "layouts/main" });
 });
 
 
@@ -175,175 +177,163 @@ app.get('/GetApplications', (req, res) => {
 });
 
 app.use("/", notificationRoutes);
-
-connectDB();
-
-// Socket.IO Events
-// Socket.IO Events
+// Socket.IO
+// Handle Socket.IO connections
 io.on('connection', (socket) => {
-  console.log('New client connected:', socket.id);
+  console.log('A user connected');
 
-  // Handle employer connection
   socket.on('employerConnected', ({ employerId }) => {
     console.log('Employer connected:', employerId);
-    socket.join(`employer_${employerId}`);
+    socket.join(`user_${employerId}`);
   });
 
-  io.on('connection', (socket) => {
-    console.log('A user connected');
+  socket.on('joinChat', async ({ chatId, userId, userType }) => {
+    try {
+      console.log('Joining chat room:', chatId, 'User:', userId, 'Type:', userType);
 
-    socket.on('employerConnected', ({ employerId }) => {
-      console.log('Employer connected:', employerId);
-      socket.join(`user_${employerId}`);
-    });
+      const userObjectId = new mongoose.Types.ObjectId(userId);
 
-    socket.on('joinChat', async ({ chatId, userId, userType }) => {
-      try {
-        console.log('Joining chat room:', chatId, 'User:', userId, 'Type:', userType);
+      socket.join(chatId);
 
-        const userObjectId = new mongoose.Types.ObjectId(userId);
+      await Message.updateMany(
+        { chatId, receiver: userObjectId, isRead: false },
+        { $set: { isRead: true } }
+      );
 
-        socket.join(chatId);
+      const messages = await Message.find({ chatId })
+        .sort('timestamp')
+        .populate('sender', 'name');
 
-        await Message.updateMany(
-          { chatId, receiver: userObjectId, isRead: false },
-          { $set: { isRead: true } }
-        );
+      console.log('Sending chat history:', messages);
+      socket.emit('chatHistory', messages);
 
-        const messages = await Message.find({ chatId })
-          .sort('timestamp')
-          .populate('sender', 'name');
+    } catch (error) {
+      console.error('Error in joinChat:', error);
+      socket.emit('error', { message: 'Failed to join chat: ' + error.message });
+    }
+  });
 
-        console.log('Sending chat history:', messages);
-        socket.emit('chatHistory', messages);
+  socket.on('chatMessage', async ({ chatId, sender, message }) => {
+    try {
+      console.log('Received message:', { chatId, sender, message });
 
-      } catch (error) {
-        console.error('Error in joinChat:', error);
-        socket.emit('error', { message: 'Failed to join chat: ' + error.message });
-      }
-    });
+      const senderObjectId = new mongoose.Types.ObjectId(sender);
+      const [jobId, employerId] = chatId.split('_');
 
-    socket.on('chatMessage', async ({ chatId, sender, message }) => {
-      try {
-        console.log('Received message:', { chatId, sender, message });
+      const job = await Job.findById(jobId).populate('postedBy');
+      if (!job) throw new Error('Job not found');
 
-        const senderObjectId = new mongoose.Types.ObjectId(sender);
-        const [jobId, employerId] = chatId.split('_');
+      const receiver = sender === employerId ?
+        job.postedBy._id :
+        new mongoose.Types.ObjectId(employerId);
 
-        const job = await Job.findById(jobId).populate('postedBy');
-        if (!job) throw new Error('Job not found');
+      const newMessage = new Message({
+        chatId,
+        sender: senderObjectId,
+        receiver,
+        message,
+        isRead: false,
+        timestamp: new Date()
+      });
 
-        const receiver = sender === employerId ?
-          job.postedBy._id :
-          new mongoose.Types.ObjectId(employerId);
+      await newMessage.save();
+      console.log('Message saved:', newMessage);
 
-        const newMessage = new Message({
-          chatId,
-          sender: senderObjectId,
-          receiver,
-          message,
-          isRead: false,
-          timestamp: new Date()
+      const senderUser = await User.findById(senderObjectId);
+      const messageToSend = {
+        sender: {
+          _id: senderObjectId,
+          name: senderUser.name
+        },
+        message,
+        timestamp: newMessage.timestamp
+      };
+
+      io.to(chatId).emit('receiveMessage', messageToSend);
+
+      const unreadCount = await Message.countDocuments({
+        chatId,
+        receiver,
+        isRead: false
+      });
+
+      io.to(`user_${receiver.toString()}`).emit('unreadCount', unreadCount);
+
+    } catch (error) {
+      console.error('Error in chatMessage:', error);
+      socket.emit('error', { message: 'Failed to send message: ' + error.message });
+    }
+  });
+
+  socket.on('getEmployerChats', async ({ employerId }) => {
+    try {
+      console.log('Fetching chats for employer:', employerId);
+      const employerObjectId = new mongoose.Types.ObjectId(employerId);
+      const chats = await Chat.find({ users: employerObjectId });
+
+      const chatData = await Promise.all(chats.map(async (chat) => {
+        const job = await Job.findById(chat.jobId);
+        const [lastMessage] = await Message.find({ chatId: chat.chatId })
+          .sort({ timestamp: -1 })
+          .limit(1);
+
+        const unreadCount = await Message.countDocuments({
+          chatId: chat.chatId,
+          receiver: employerObjectId,
+          isRead: false
         });
 
-        await newMessage.save();
-        console.log('Message saved:', newMessage);
+        const otherUserId = chat.users.find(uid => !uid.equals(employerObjectId));
+        const otherUser = await User.findById(otherUserId);
 
-        const senderUser = await User.findById(senderObjectId);
-        const messageToSend = {
-          sender: {
-            _id: senderObjectId,
-            name: senderUser.name
-          },
-          message,
-          timestamp: newMessage.timestamp
+        return {
+          chatId: chat.chatId,
+          jobTitle: job ? job.jobTitle : 'Unknown Job',
+          jobSeeker: otherUser ? {
+            name: otherUser.name,
+            id: otherUser._id
+          } : null,
+          lastMessage: lastMessage ? {
+            text: lastMessage.message,
+            timestamp: lastMessage.timestamp,
+            sender: lastMessage.sender.toString()
+          } : null,
+          unreadCount
         };
+      }));
 
-        io.to(chatId).emit('receiveMessage', messageToSend);
+      console.log('Sending employer chats:', chatData);
+      socket.emit('employerChats', chatData);
+    } catch (error) {
+      console.error('Error fetching employer chats:', error);
+      socket.emit('error', { message: 'Failed to fetch chats: ' + error.message });
+    }
+  });
 
-        const unreadCount = await Message.countDocuments({
-          chatId,
-          receiver,
-          isRead: false
-        });
+  socket.on('markMessagesAsRead', async ({ chatId, userId }) => {
+    try {
+      const userObjectId = new mongoose.Types.ObjectId(userId);
+      await Message.updateMany(
+        { chatId, receiver: userObjectId, isRead: false },
+        { $set: { isRead: true } }
+      );
 
-        io.to(`user_${receiver.toString()}`).emit('unreadCount', unreadCount);
+      const unreadCount = await Message.countDocuments({
+        receiver: userObjectId,
+        isRead: false
+      });
+      socket.emit('unreadCount', unreadCount);
+    } catch (error) {
+      console.error('Error marking messages as read:', error);
+      socket.emit('error', { message: 'Failed to mark messages as read' });
+    }
+  });
 
-      } catch (error) {
-        console.error('Error in chatMessage:', error);
-        socket.emit('error', { message: 'Failed to send message: ' + error.message });
-      }
-    });
-
-    socket.on('getEmployerChats', async ({ employerId }) => {
-      try {
-        console.log('Fetching chats for employer:', employerId);
-        const employerObjectId = new mongoose.Types.ObjectId(employerId);
-        const chats = await Chat.find({ users: employerObjectId });
-
-        const chatData = await Promise.all(chats.map(async (chat) => {
-          const job = await Job.findById(chat.jobId);
-          const [lastMessage] = await Message.find({ chatId: chat.chatId })
-            .sort({ timestamp: -1 })
-            .limit(1);
-
-          const unreadCount = await Message.countDocuments({
-            chatId: chat.chatId,
-            receiver: employerObjectId,
-            isRead: false
-          });
-
-          const otherUserId = chat.users.find(uid => !uid.equals(employerObjectId));
-          const otherUser = await User.findById(otherUserId);
-
-          return {
-            chatId: chat.chatId,
-            jobTitle: job ? job.jobTitle : 'Unknown Job',
-            jobSeeker: otherUser ? {
-              name: otherUser.name,
-              id: otherUser._id
-            } : null,
-            lastMessage: lastMessage ? {
-              text: lastMessage.message,
-              timestamp: lastMessage.timestamp,
-              sender: lastMessage.sender.toString()
-            } : null,
-            unreadCount
-          };
-        }));
-
-        console.log('Sending employer chats:', chatData);
-        socket.emit('employerChats', chatData);
-      } catch (error) {
-        console.error('Error fetching employer chats:', error);
-        socket.emit('error', { message: 'Failed to fetch chats: ' + error.message });
-      }
-    });
-
-    socket.on('markMessagesAsRead', async ({ chatId, userId }) => {
-      try {
-        const userObjectId = new mongoose.Types.ObjectId(userId);
-        await Message.updateMany(
-          { chatId, receiver: userObjectId, isRead: false },
-          { $set: { isRead: true } }
-        );
-
-        const unreadCount = await Message.countDocuments({
-          receiver: userObjectId,
-          isRead: false
-        });
-        socket.emit('unreadCount', unreadCount);
-      } catch (error) {
-        console.error('Error marking messages as read:', error);
-        socket.emit('error', { message: 'Failed to mark messages as read' });
-      }
-    });
-
-    socket.on('disconnect', () => {
-      console.log('A user disconnected');
-    });
+  socket.on('disconnect', () => {
+    console.log('A user disconnected');
   });
 });
+
 
 
 // Start the server
