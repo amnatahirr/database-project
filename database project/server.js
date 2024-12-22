@@ -177,6 +177,7 @@ app.get('/GetApplications', (req, res) => {
 });
 
 app.use("/", notificationRoutes);
+connectDB();
 // Socket.IO
 // Handle Socket.IO connections
 io.on('connection', (socket) => {
