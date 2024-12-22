@@ -1,3 +1,4 @@
+
 const Application = require("../models/Application");
 const Job  = require("../models/job");
 const axios = require("../axiosConfig"); // Use CommonJS require syntax
@@ -6,20 +7,10 @@ const ErrorHandler = require("../middleware/error");
 const catchAsyncErrors = require("../middleware/catchAsyncError");
 
 
-
-
 exports.postApplication = catchAsyncErrors(async (req, res, next) => {
-
-  // if (req.user.role === "employer") {
+  // if (req.user.role === "Employer") {
   //   return next(new ErrorHandler("Employers are not allowed to apply for jobs.", 400));
   // }
-
-  if (req.user.role === "employer") {
-    return res.status(400).json({
-        success: false,
-        message: "Employers are not allowed to apply for jobs.",
-    });
-}
 
   const { name, email, coverLetter, phone, address, jobId } = req.body;
 
@@ -49,9 +40,6 @@ exports.postApplication = catchAsyncErrors(async (req, res, next) => {
   });
 });
 
-
-
-
 exports.employerGetAllApplications = catchAsyncErrors(async (req, res, next) => {
 
   const applications = await Application.find({ employerID: req.user.id })
@@ -75,10 +63,6 @@ exports.jobseekerGetAllApplications = catchAsyncErrors(async (req, res, next) =>
   });
 });
 
-
-
-
-
 exports.jobseekerDeleteApplication = catchAsyncErrors(async (req, res, next) => {
   if (req.user.role === "Employer") {
     return next(new ErrorHandler("Employers are not allowed to access this resource.", 400));
@@ -101,6 +85,3 @@ exports.jobseekerDeleteApplication = catchAsyncErrors(async (req, res, next) => 
     message: "Application deleted successfully!",
   });
 });
-
-
-
