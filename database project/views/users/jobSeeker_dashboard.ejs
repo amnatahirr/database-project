@@ -47,6 +47,25 @@
         margin-bottom: 1rem;
     }
 
+    .modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 400px;
+        padding: 20px;
+        background: #fff;
+        border: 1px solid #ddd;
+    }
+
+    .badge {
+        background: red;
+        color: white;
+        border-radius: 50%;
+        padding: 5px 10px;
+    }
+
     .dashboard-card p {
         color: var(--secondary-text);
         margin-bottom: 1rem;
@@ -63,7 +82,7 @@
         color: var(--secondary-text);
     }
 </style>
-
+<!--views/users/jobSeeker_dashboard.ejs-->
 <div class="dashboard">
     <div class="dashboard-header">
         <h1>Dashboard</h1>
@@ -72,9 +91,8 @@
     <div class="dashboard-grid">
         <div class="dashboard-card">
             <h2>Notifications</h2>
-            <div>
-
-            </div> <a href="/notifications">View all notifications</a>
+            <p>Here are your notifications</p>
+            <a href="/notifications">View all notifications</a>
         </div>
         <div class="dashboard-card">
             <h2>Jobs Applied</h2>
@@ -86,73 +104,14 @@
                 <h2>Recommended Jobs</h2>
                 <p>Here are job recommendations for you.</p>
                 <a href="/job/viewJob">Explore recommendations</a>
-            </div>
-            <div class="dashboard-card">
-                <h2>Profile Status</h2>
-                <p>Complete your Profile to increase your chances of getting hired.</p>
-                <a href="/profile">Complete your profile</a>
-            </div>
+        </div>
+        <div class="dashboard-card">
+            <h2>Profile Status</h2>
+            <p>Complete your Profile to increase your chances of getting hired.</p>
+            <a href="/profile">Complete your profile</a>
         </div>
     </div>
 
-    <!-- Chat Modal -->
-    <!--<div id="chatModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <div id="chatMessages"></div>
-        <div id="typingIndicator"></div>
-        <input type="text" id="chatInput" placeholder="Type a message...">
-        <button id="sendMessage">Send</button>
-    </div>
+
 </div>
-
-<script src="/socket.io/socket.io.js"></script>
-<script src="/js/chat.js"></script>-->
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-
-        document.querySelectorAll('.chat-btn').forEach(button => {
-            button.addEventListener('click', function () {
-                const userId = this.dataset.user || this.dataset.employer;
-
-                // Open chat window/modal
-                openChat(userId);
-
-                // Emit a "join chat" event (optional)
-                socket.emit('joinChat', { userId });
-            });
-        });
-
-        function openChat(userId) {
-            // Logic to open a chat modal or redirect to a chat page
-            const chatWindow = document.createElement('div');
-            chatWindow.className = 'chat-window';
-            chatWindow.innerHTML = `
-            <h2>Chat with User ${userId}</h2>
-            <div class="messages"></div>
-            <input type="text" class="message-input" placeholder="Type a message..." />
-            <button onclick="sendMessage(${userId})">Send</button>
-        `;
-            document.body.appendChild(chatWindow);
-        }
-
-        function sendMessage(userId) {
-            const messageInput = document.querySelector('.message-input');
-            const message = messageInput.value;
-            messageInput.value = '';
-
-            socket.emit('sendMessage', {
-                to: userId,
-                message
-            });
-        }
-
-        // Listen for incoming messages
-        socket.on('receiveMessage', (data) => {
-            const messagesDiv = document.querySelector('.chat-window .messages');
-            const newMessage = document.createElement('p');
-            newMessage.textContent = data.message;
-            messagesDiv.appendChild(newMessage);
-        });
-    </script>
+<!--I want that each chat button placed on ech job card when clicked is opened and enbles the user to send message to the employer that posted that job  and on employer dashboard there is an icon on bottom right corner that shows the unread msgs  in the form of numbers on that icon and when click onthat icon a chat appears that shows the msgs and in response enable the employer to respond to that msgs by using ejs,node,express,socket.io-->

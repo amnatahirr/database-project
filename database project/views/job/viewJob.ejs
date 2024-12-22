@@ -1,3 +1,7 @@
+<script>
+    // Safely pass the user ID from EJS to JavaScript
+    const userId = '<%= user && user._id ? user._id : "" %>';
+</script>
 <style>
     :root {
         --primary-text: #ffffff;
@@ -95,9 +99,11 @@
         background-color: #ffd700;
         color: #1a1a1a;
         text-decoration: none;
+        text-align: center;
         border-radius: 0.5rem;
         font-weight: 500;
         transition: background-color 0.2s;
+        height: 50px;
     }
 
     .view-details:hover {
@@ -279,22 +285,6 @@
         border-color: red;
     }
 
-    .modal {
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        background-color: #fff;
-        padding: 20px;
-        border-radius: 8px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-        z-index: 1000;
-    }
-
-    .modal-content {
-        display: flex;
-        flex-direction: column;
-    }
 
     .close {
         align-self: flex-end;
@@ -332,14 +322,20 @@
                         <p>Salary: <%= job.salary || 'Negotiable' %>
                         </p>
                     </div>
-                    <a href="/job/<%= job._id %>" class="view-details" style="margin-bottom: 10px;">View Details</a>
+                    <div style="display: flex; justify-content: space-between; height: 50px;">
+                        <a href="/job/<%= job._id %>" class="view-details" style="margin-bottom: 10px; ">View
+                            Details</a>
+                        <button class="btn btn-secondary chat-now" data-job-id="<%= job._id %>"
+                            data-employer-id="<%= job.postedBy %>">
+                            Chat
+                        </button>
+
+                    </div>
+
                     <br>
                     <button class="btn btn-primary apply-now" data-job-id="<%= job._id %>">Apply Now</button>
                     <!-- Add Chat Button -->
-                    <button class="btn btn-secondary chat-now" data-job-id="<%= job._id %>"
-                        data-employer-id="<%= job.employerId %>">
-                        Chat with Employer
-                    </button>
+
                 </div>
                 <% }); %>
                     <% } else { %>
@@ -349,10 +345,11 @@
 
 
 </div>
+<!--view/job/viewJob-->
 <div id="chatModal" class="modal" style="display: none;">
     <div class="modal-content">
         <span class="close">&times;</span>
-        <h2>Chat</h2>
+        <h2>Chat with Employer</h2>
         <div id="chatMessages"></div>
         <div id="typingIndicator"></div>
         <input type="text" id="chatInput" placeholder="Type a message...">
@@ -440,34 +437,40 @@
                     coverLetter: document.getElementById('coverLetter').value.trim(),
                     jobId: jobIdField.value,
                 };
-
-                try {
-                    const response = await fetch(applicationForm.action, {
-                        method: 'POST',
-                        headers: { "Content-Type": "application/json" },
-                        body: JSON.stringify(formValues),
-                    });
-
-                    const result = await response.json();
-
-
-                    if (response.ok) {
-                        alert(result.message || "Application submitted successfully!");
-                        applicationForm.reset();
-                        modal.style.display = 'none';
-                    }
-                    //  else {
-                    //     alert(result.message || "An error occurred while submitting the application.");
-                    // }
-                    else {
-                        // Show specific alert for employers
-                        if (result.message === "Employers are not allowed to apply for jobs.") {
-                            alert("Employers are not allowed to apply for jobs.");
-                        } else {
-                            alert(result.message || "An error occurred while submitting the application.");
-                        }
-                    }
+            }
+            try {
+                const response = await fetch(applicationForm.action, {
+                    method: 'POST',
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(formValues),
                 });
+
+                const result = await response.json();
+
+
+                if (response.ok) {
+                    alert(result.message || "Application submitted successfully!");
+                    applicationForm.reset();
+                    modal.style.display = 'none';
+                }
+                //  else {
+                //     alert(result.message || "An error occurred while submitting the application.");
+                // }
+                else {
+                    // Show specific alert for employers
+                    if (result.message === "Employers are not allowed to apply for jobs.") {
+                        alert("Employers are not allowed to apply for jobs.");
+                    } else {
+                        alert(result.message || "An error occurred while submitting the application.");
+                    }
+                }
+
+            }
+            catch (err) {
+                console.log(err)
+
+            }
+        });
 
 
 
@@ -493,71 +496,6 @@
         }
     });
 </script>
-
+<!--view/job/viewjob-->
 <script src="/socket.io/socket.io.js"></script>
-<script>
-    const socket = io();
-    let currentChatId = null;
-    const chatModal = document.getElementById('chatModal');
-    const chatMessages = document.getElementById('chatMessages');
-    const chatInput = document.getElementById('chatInput');
-    const sendMessageButton = document.getElementById('sendMessage');
-
-    // Open Chat Modal
-    document.querySelectorAll('.chat-now').forEach(button => {
-        button.addEventListener('click', function () {
-            currentChatId = this.dataset.employerId; // Employer ID
-            chatModal.style.display = 'block';
-            chatMessages.innerHTML = ''; // Clear previous messages
-            socket.emit('joinChat', { chatId: currentChatId });
-
-            // Load Chat History (optional)
-            loadChatHistory(currentChatId);
-        });
-    });
-
-    // Close Chat Modal
-    document.querySelector('.close').addEventListener('click', () => {
-        chatModal.style.display = 'none';
-        socket.emit('leaveChat', { chatId: currentChatId });
-        currentChatId = null;
-    });
-
-    // Send Message
-    sendMessageButton.addEventListener('click', sendMessage);
-    chatInput.addEventListener('keypress', (event) => {
-        if (event.key === 'Enter') {
-            event.preventDefault();
-            sendMessage();
-        }
-    });
-
-    function sendMessage() {
-        const message = chatInput.value.trim();
-        if (message && currentChatId) {
-            socket.emit('chatMessage', { chatId: currentChatId, message });
-            appendMessage(message, 'You');
-            chatInput.value = '';
-        }
-    }
-
-    function appendMessage(message, sender) {
-        const messageDiv = document.createElement('div');
-        messageDiv.textContent = `${sender}: ${message}`;
-        chatMessages.appendChild(messageDiv);
-        chatMessages.scrollTop = chatMessages.scrollHeight;
-    }
-
-    function loadChatHistory(chatId) {
-        // Simulate chat history loading
-        appendMessage('Loading chat history...', 'System');
-        setTimeout(() => {
-            appendMessage('Chat history loaded.', 'System');
-        }, 1000);
-    }
-
-    // Listen for Incoming Messages
-    socket.on('receiveMessage', (data) => {
-        appendMessage(data.message, data.sender);
-    });
-</script>
+<script src="/scripts/chat.js"></script>

@@ -24,12 +24,10 @@ exports.authenticateAccessToken = (req, res, next) => {
 };
 
 exports.isAuthenticated = (req, res, next) => {
-  // Check if user exists in session
   if (req.session && req.session.user) {
+    req.user = req.session.user;
     return next();
   }
-  
-  // If no user in session, redirect to login
   res.redirect('/login');
 };
 
