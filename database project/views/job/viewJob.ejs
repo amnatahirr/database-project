@@ -294,7 +294,12 @@
 
 <div class="container">
     <h1 class="page-title">Explore All Jobs</h1>
-
+ <!-- Search form -->
+ <form action="/job/viewJob" method="GET" class="search-form">
+    <label for="SearchQuery">Search</label>
+    <input type="text" name="searchQuery" id="SearchQuery" value="<%= searchQuery || '' %>">
+    <button type="submit">Search</button>
+</form>
     <div class="jobs-grid">
     <% if (jobs.length > 0) { %>
        <% jobs.forEach(job => { %>
