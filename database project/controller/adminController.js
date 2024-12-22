@@ -112,13 +112,18 @@ exports.getTopTrendingJobs = async (req, res) => {
   }
 };
 
-
 // Dashboard Stats
 exports.getDashboardStats = async (req, res) => {
   try {
     const totalUsers = await User.countDocuments();
     const totalJobs = await Job.countDocuments();
     const totalApplications = await Application.countDocuments();
+
+    // Aggregate jobs by industry and count
+    const jobsByIndustry = await Job.aggregate([
+      { $group: { _id: "$industry", count: { $sum: 1 } } }, // Group by industry and count
+      { $sort: { count: -1 } } // Sort by job count in descending order
+    ]);
 
     const mostAppliedJob = await Application.aggregate([
       { $group: { _id: "$jobId", count: { $sum: 1 } } },
@@ -133,11 +138,11 @@ exports.getDashboardStats = async (req, res) => {
         },
       },
       { $unwind: "$jobDetails" }, // Unwind the jobDetails array to get a single document
-      { $project: { jobId: "$_id", title: "$jobDetails.jobTitle", count: 1 } },
+      { $project: { jobId: "$_id", title: "$jobDetails.jobTitle",companyName: "$jobDetails.companyName", count: 1 } },
     ]);
 
     const mostAppliedJobDetails = mostAppliedJob.length
-      ? { jobId: mostAppliedJob[0].jobId, title: mostAppliedJob[0].title, count: mostAppliedJob[0].count }
+      ? { jobId: mostAppliedJob[0].jobId, title: mostAppliedJob[0].title, companyName: mostAppliedJob[0].companyName, count: mostAppliedJob[0].count }
       : null;
 
     res.render('dashboard/user_dashboard', {
@@ -145,12 +150,15 @@ exports.getDashboardStats = async (req, res) => {
       totalJobs,
       totalApplications,
       mostAppliedJob: mostAppliedJobDetails,
+      jobsByIndustry, // Pass the jobs by industry
     });
   } catch (error) {
     console.error('Error fetching dashboard stats:', error);
     res.status(500).send('Error');
   }
 };
+
+
 
 // filter user on behalf of role
 exports.filterRole = async (req, res) => {

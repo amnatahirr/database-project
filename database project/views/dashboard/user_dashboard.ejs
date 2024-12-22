@@ -1,8 +1,13 @@
 <style>
   .container {
-padding: 10px;
+    padding: 10px;
+  }
+
+  .industry-container {
+    margin-top: 20px;
   }
 </style>
+
 <div class="container mt-6">
   <h1 class="text-center mb-4">Admin Dashboard Stats</h1>
 
@@ -37,14 +42,13 @@ padding: 10px;
       </div>
     </div>
 
-    <!-- Trending job -->
+    <!-- Trending Job -->
     <div class="col-md-4 mb-3">
       <div class="card text-white bg-danger">
         <div class="card-body text-center">
-          <h5 class="card-title">Most Applied Job</h5>
+          <h5 class="card-title">Trending Job</h5>
           <% if (mostAppliedJob) { %>
-            <h3>(<%= mostAppliedJob.jobId %>)</h3>
-            
+            <h3><%= mostAppliedJob.title %></h3>
           <% } else { %>
             <p>No applications yet.</p>
           <% } %>
@@ -52,19 +56,48 @@ padding: 10px;
       </div>
     </div>
 
-    <!-- its application count -->
+    <!-- Trending Job -->
+    <div class="col-md-4 mb-3">
+      <div class="card text-white bg-secondary">
+        <div class="card-body text-center">
+          <h5 class="card-title">Trending Job Company</h5>
+          <% if (mostAppliedJob) { %>
+            <h3><%= mostAppliedJob.companyName %></h3>
+          <% } else { %>
+            <p>No applications yet.</p>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Applications Count for Most Applied Job -->
     <div class="col-md-4 mb-3">
       <div class="card text-white bg-info">
         <div class="card-body text-center">
-          <h5 class="card-title">Applications Count of Most Applied Job</h5>
+          <h5 class="card-title">Trending Job Applications</h5>
           <% if (mostAppliedJob) { %>
-            <h2><p><%= mostAppliedJob.count %></p></h2>
+            <h2><%= mostAppliedJob.count %></h2>
           <% } else { %>
             <p>No applications yet.</p>
           <% } %>
         </div>
       </div>
     </div>
-
   </div>
+
+ <!-- Job Count by Industry -->
+<div class="row">
+  <% const colors = ['bg-success','bg-warning','bg-primary', 'bg-info','bg-danger', 'bg-secondary']; %>
+  <% jobsByIndustry.forEach((industry, index) => { %>
+    <div class="col-md-4 mb-3">
+      <div class="card text-white <%= colors[index % colors.length] %>">
+        <div class="card-body text-center">
+          <h5 class="card-title">Jobs in <%= industry._id %></h5>
+          <h2><%= industry.count %></h2>
+        </div>
+      </div>
+    </div>
+  <% }); %>
+</div>
+
 </div>
