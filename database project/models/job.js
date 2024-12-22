@@ -50,7 +50,7 @@ const jobSchema = new mongoose.Schema({
     trim: true
   },
 
- 
+
   postedBy: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
@@ -61,16 +61,16 @@ const jobSchema = new mongoose.Schema({
     type: Boolean,
     default: false,
   },
- 
+
   keywords: {
-     type: [String], // Array of keywords
-     required: true
-   },
+    type: [String], // Array of keywords
+    required: true
+  },
 }, { timestamps: true });
 
 // Create the Job model
 const Job = mongoose.model('Job', jobSchema);
 module.exports = Job;
 
-//job expired 
+//job expired
 // job posted by whom in job sheema

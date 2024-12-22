@@ -65,25 +65,25 @@ exports.loginUser = async (req, res) => {
       return res.status(401).json({ message: "Invalid email or password" });
     }
 
-     // Fetch user's active status from the UserStatus collection
-     const userStatus = await UserStatus.findOne({ userId: user._id });
+    // Fetch user's active status from the UserStatus collection
+    const userStatus = await UserStatus.findOne({ userId: user._id });
 
-     // Handle inactive users
-     if (userStatus?.isActive === false) {
-       await sendActivationEmail(email);
-       return res.status(403).json({
-         message: "User account is deactivated. An email has been sent with details to reactivate your account.",
-       });
-     }
+    // Handle inactive users
+    if (userStatus?.isActive === false) {
+      await sendActivationEmail(email);
+      return res.status(403).json({
+        message: "User account is deactivated. An email has been sent with details to reactivate your account.",
+      });
+    }
 
-     req.session.user = {
-      id: user._id,
+    req.session.user = {
+      _id: user._id,
       name: user.name,
       email: user.email,
       role: user.role,
       keywords: user.keywords
     };
-
+    console.log(req.session.user);
 
     // Generate tokens
     const { accessToken, refreshToken } = generateTokens(user);

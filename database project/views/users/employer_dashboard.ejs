@@ -1,3 +1,7 @@
+<script>
+    // Safely pass the user ID from EJS to JavaScript
+    const userId = '<%= user && user._id ? user._id : "" %>';
+</script>
 <style>
     .dashboard {
         max-width: 800px;
@@ -26,6 +30,26 @@
         grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
         gap: 1.5rem;
     }
+
+    .modal {
+        display: none;
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 400px;
+        padding: 20px;
+        background: #fff;
+        border: 1px solid #ddd;
+    }
+
+    .badge {
+        background: red;
+        color: white;
+        border-radius: 50%;
+        padding: 5px 10px;
+    }
+
 
     .dashboard-card {
         background-color: white;
@@ -62,8 +86,46 @@
     .dashboard-card a:hover {
         color: var(--secondary-text);
     }
-</style>
 
+    .chat-icon {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background-color: #007bff;
+        color: white;
+        padding: 10px;
+        border-radius: 50%;
+        cursor: pointer;
+    }
+
+    #unreadCount {
+        position: absolute;
+        top: -5px;
+        right: -5px;
+        background-color: red;
+        color: white;
+        border-radius: 50%;
+        padding: 2px 6px;
+        font-size: 12px;
+    }
+
+    #chatModal {
+        display: none;
+        position: fixed;
+        bottom: 80px;
+        right: 20px;
+        width: 518px;
+        height: 483px;
+        background-color: var(--primary-bg);
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    .close {
+        color: #fff;
+    }
+</style>
+<!--views/users/employer_dashboard-->
 <div class="dashboard">
     <div class="dashboard-header">
         <h1>Dashboard</h1>
@@ -95,65 +157,18 @@
             <h2>Job Applications</h2>
 
         </div>
-    </div>
-    <!-- Chat Modal -->
-    <!--<div id="chatModal" class="modal">
-    <div class="modal-content">
-        <span class="close">&times;</span>
-        <div id="chatMessages"></div>
-        <div id="typingIndicator"></div>
-        <input type="text" id="chatInput" placeholder="Type a message...">
-        <button id="sendMessage">Send</button>
-    </div>
-</div>
-
-<script src="/socket.io/socket.io.js"></script>
-<script src="/js/chat.js"></script>-->
-    <script src="/socket.io/socket.io.js"></script>
-    <script>
-        const socket = io();
-
-        document.querySelectorAll('.chat-btn').forEach(button => {
-            button.addEventListener('click', function () {
-                const userId = this.dataset.user || this.dataset.employer;
-
-                // Open chat window/modal
-                openChat(userId);
-
-                // Emit a "join chat" event (optional)
-                socket.emit('joinChat', { userId });
-            });
-        });
-
-        function openChat(userId) {
-            // Logic to open a chat modal or redirect to a chat page
-            const chatWindow = document.createElement('div');
-            chatWindow.className = 'chat-window';
-            chatWindow.innerHTML = `
-            <h2>Chat with User ${userId}</h2>
-            <div class="messages"></div>
-            <input type="text" class="message-input" placeholder="Type a message..." />
-            <button onclick="sendMessage(${userId})">Send</button>
-        `;
-            document.body.appendChild(chatWindow);
-        }
-
-        function sendMessage(userId) {
-            const messageInput = document.querySelector('.message-input');
-            const message = messageInput.value;
-            messageInput.value = '';
-
-            socket.emit('sendMessage', {
-                to: userId,
-                message
-            });
-        }
-
-        // Listen for incoming messages
-        socket.on('receiveMessage', (data) => {
-            const messagesDiv = document.querySelector('.chat-window .messages');
-            const newMessage = document.createElement('p');
-            newMessage.textContent = data.message;
-            messagesDiv.appendChild(newMessage);
-        });
-    </script>
+        <div class="chat-icon">
+            Chat
+            <span id="unreadCount">0</span>
+        </div>
+        <div id="chatModal" class="modal" style="display: none;">
+            <span class="close">&times;</span>
+            <div id="chatList"></div>
+            <div id="chatMessages"></div>
+            <div style="display: flex; justify-content: space-between;">
+                <input type="text" id="chatInput" placeholder="Type a message...">
+                <button id="sendMessage">Send</button>
+            </div>
+        </div>
+        <script src="/socket.io/socket.io.js"></script>
+        <script src="/scripts/employer.js"></script>
