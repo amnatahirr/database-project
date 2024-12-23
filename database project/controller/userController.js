@@ -13,26 +13,28 @@ exports.registerUser = async (req, res) => {
 
     // Validate role
     if (!["job_seeker", "employer", "admin"].includes(role)) {
-      return res.status(400).json({ message: "Invalid role specified" });
+      req.flash("error", "Invalid role specified.");
+      return res.redirect("/register");
     }
 
     // Validate keywords for job seekers/employers
     if (["job_seeker", "employer"].includes(role) && (!keywords || !keywords.length)) {
-      return res.status(400).json({ message: "Keywords are required for job seekers or employers" });
+      req.flash("error", "Keywords are required for job seekers or employers.");
+      return res.redirect("/register");
     }
 
     // Validate password strength
     const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!passwordRequirements.test(password)) {
-      return res.status(400).json({
-        message: "Password must be at least 8 characters long, include one uppercase letter, and one number.",
-      });
+      req.flash("error", "Password must be at least 8 characters long, include an uppercase letter, and a number.");
+      return res.redirect("/register");
     }
 
     // Check if email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) {
-      return res.status(400).json({ message: "Email is already registered." });
+      req.flash("error", "Email is already registered.");
+      return res.redirect("/register");
     }
 
     // Hash password and save user
@@ -44,10 +46,11 @@ exports.registerUser = async (req, res) => {
       role,
       keywords,
     });
-
+    req.flash("success", "Registration successful! Please log in.");
     return res.redirect('/login');
   } catch (error) {
-    res.status(500).json({ message: "Internal Server Error", error });
+    req.flash("error", "Internal Server Error.");
+    res.redirect("/register");
   }
 };
 
@@ -62,7 +65,8 @@ exports.loginUser = async (req, res) => {
 
     // If the user doesn't exist or the password is invalid
     if (!user || !(await bcrypt.compare(password, user.password))) {
-      return res.status(401).json({ message: "Invalid email or password" });
+      req.flash("error", "Invalid email or password.");
+      return res.redirect("/login");
     }
 
     // Fetch user's active status from the UserStatus collection
@@ -71,9 +75,8 @@ exports.loginUser = async (req, res) => {
     // Handle inactive users
     if (userStatus?.isActive === false) {
       await sendActivationEmail(email);
-      return res.status(403).json({
-        message: "User account is deactivated. An email has been sent with details to reactivate your account.",
-      });
+      req.flash("error", "Account is deactivated. Check your email to reactivate.");
+      return res.redirect("/login");
     }
 
     req.session.user = {
@@ -113,8 +116,8 @@ exports.loginUser = async (req, res) => {
     }
 
   } catch (error) {
-    console.error("Error during login:", error); // Debugging log
-    res.status(500).json({ message: "Internal Server Error", error });
+    req.flash("error", "Internal Server Error.");
+    res.redirect("/login");
   }
 };
 
@@ -142,7 +145,8 @@ exports.logoutUser = (req, res) => {
     sameSite: "strict",
   });
   req.session.user = null; // Clear the user session
-  res.redirect('/login?message=Successfully logged out'); // Redirect with a message
+  req.flash("success", "Successfully logged out.");
+  res.redirect("/login");
 };
 
 
@@ -152,22 +156,37 @@ exports.logoutUser = (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, keywords } = req.body;
+    const { name, email, role, keywords } = req.body;
 
-    const keywordArray = keywords ? keywords.split(',').map(kw => kw.trim()) : [];
+    const updates = { name, email, role };
+    if (keywords) {
+      updates.keywords = Array.isArray(keywords) ? keywords : [keywords];
+    }
 
-    const updates = { name, keywords: keywordArray };
-
-    // Update user in the database
     const user = await User.findByIdAndUpdate(id, updates, { new: true });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      req.flash('error', 'User not found');
+      return res.redirect('/profile');
+    }
 
-    res.redirect('/users/profile/' + user._id + '?message=Profile updated successfully');
+    req.session.user = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      keywords: user.keywords
+    };
+
+    req.flash('success', 'Profile updated successfully');
+    res.redirect('/profile');
   } catch (err) {
     console.error("Profile update error:", err);
-    res.status(500).json({ error: err.message });
+    req.flash('error', 'An error occurred while updating the profile');
+    res.redirect('/profile');
   }
 };
+
+
 
 
 // Forgot Password
@@ -177,7 +196,10 @@ exports.forgotPassword = async (req, res) => {
 
     // Check if user exists
     const user = await User.findOne({ email });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      req.flash("error", "User not found.");
+      return res.redirect("/forgotPassword");
+    }
 
     // Generate token
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: "1h" });
@@ -201,11 +223,12 @@ exports.forgotPassword = async (req, res) => {
     };
 
     await transporter.sendMail(mailOptions);
+    req.flash("success", "Password reset link sent to your email.");
     res.render('users/passwordResetSent')
     //return res.redirect('passwordResetSent')
   } catch (error) {
-    console.error("Error sending email:", error);
-    res.status(500).json({ message: "Internal server error" });
+    req.flash("error", "Internal Server Error.");
+    res.redirect("/forgotPassword");
   }
 };
 
@@ -219,14 +242,16 @@ exports.resetPassword = async (req, res) => {
     // Verify token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const user = await User.findById(decoded.id);
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      req.flash("error", "User not found.");
+      return res.redirect("/resetPassword");
+    }
 
     // Validate and hash new password
     const passwordRequirements = /^(?=.*[A-Z])(?=.*\d)[A-Za-z\d]{8,}$/;
     if (!passwordRequirements.test(newPassword)) {
-      return res.status(400).json({
-        message: "Password must be at least 8 characters long, include an uppercase letter, and a number.",
-      });
+      req.flash("error", "Password must meet the required criteria.");
+      return res.redirect(`/resetPassword?token=${token}`);
     }
     const hashedPassword = await bcrypt.hash(newPassword, 10);
 
@@ -235,7 +260,8 @@ exports.resetPassword = async (req, res) => {
     await user.save();
 
     // Send only one response
-    res.status(200).redirect("/login");
+    req.flash("success", "Password reset successfully. Please log in.");
+    res.redirect("/login");
 
   } catch (error) {
     console.error("Error resetting password:", error);
