@@ -60,7 +60,7 @@
     </div>
 
     <h3>Update Profile</h3>
-    <form action="/users/profile/<%= user._id %>" method="POST" class="update-form">
+    <form action="/users/profile/<%= user._id %>" method="POST" class="update-form" >
       <div class="form-group">
         <label for="name">Name:</label>
         <input type="text" id="name" name="name" value="<%= user.name %>" required>
@@ -93,7 +93,9 @@
     </div>
     
 
-      <button type="submit" class="btn">Update Profile</button>
+    <div class="form-group">
+      <button class="btn "  style="background-color: #0047b6; color: white;">Edit Record</button>
+  </div>
     </form>
   <% } else { %>
     <p>User information is not available. Please <a href="/login">login</a> to view your profile.</p>

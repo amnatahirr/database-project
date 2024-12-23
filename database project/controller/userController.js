@@ -152,22 +152,37 @@ exports.logoutUser = (req, res) => {
 exports.updateProfile = async (req, res) => {
   try {
     const { id } = req.params;
-    const { name, keywords } = req.body;
+    const { name, email, role, keywords } = req.body;
 
-    const keywordArray = keywords ? keywords.split(',').map(kw => kw.trim()) : [];
+    const updates = { name, email, role };
+    if (keywords) {
+      updates.keywords = Array.isArray(keywords) ? keywords : [keywords];
+    }
 
-    const updates = { name, keywords: keywordArray };
-
-    // Update user in the database
     const user = await User.findByIdAndUpdate(id, updates, { new: true });
-    if (!user) return res.status(404).json({ message: "User not found" });
+    if (!user) {
+      req.flash('error', 'User not found');
+      return res.redirect('/profile');
+    }
 
-    res.redirect('/users/profile/' + user._id + '?message=Profile updated successfully');
+    req.session.user = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      keywords: user.keywords
+    };
+
+    req.flash('success', 'Profile updated successfully');
+    res.redirect('/profile');
   } catch (err) {
     console.error("Profile update error:", err);
-    res.status(500).json({ error: err.message });
+    req.flash('error', 'An error occurred while updating the profile');
+    res.redirect('/profile');
   }
 };
+
+
 
 
 // Forgot Password
