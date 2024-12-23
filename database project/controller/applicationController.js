@@ -1,5 +1,6 @@
 
-const Application = require("../models/Application");
+const Application = require("../models/application");
+const mongoose = require("mongoose");
 const Job  = require("../models/job");
 const axios = require("../axiosConfig"); // Use CommonJS require syntax
 
@@ -85,3 +86,32 @@ exports.jobseekerDeleteApplication = catchAsyncErrors(async (req, res, next) => 
     message: "Application deleted successfully!",
   });
 });
+
+
+// Controller function for updating application status
+exports.updateApplicationStatus = async (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
+
+  // Validate the new status
+  if (!['Pending', 'Accepted', 'Rejected'].includes(status)) {
+    return res.status(400).json({ message: 'Invalid status' });
+  }
+
+  try {
+    // Find the application by ID
+    const application = await Application.findById(id);
+    if (!application) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+
+    // Update the status
+    application.status = status;
+    await application.save();
+
+    res.status(200).json({ message: 'Application status updated successfully' });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};

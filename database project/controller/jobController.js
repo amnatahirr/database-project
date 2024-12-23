@@ -146,6 +146,9 @@ exports.postJob = catchAsyncErrors(async (req, res, next) => {
   if (!jobTitle || !companyName || !industry || !jobType || !location || !salaryRange || !jobDescription ||
     !responsibilities || !requiredSkills) {
     return next(new ErrorHandler("Please provide full job details.", 400));
+  }else{
+    return res.redirect("/job/MyJobs");
+
   }
 
   // Find users with matching keywords 
@@ -183,11 +186,8 @@ exports.postJob = catchAsyncErrors(async (req, res, next) => {
     }
   });
 
-  res.status(201).json({
-    success: true,
-    message: "Job posted successfully.",
-    job,
-  });
+  
+
 });
 
 
