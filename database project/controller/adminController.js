@@ -274,13 +274,24 @@ exports.activateUser = async (req, res) => {
 };
 
 
-// Delete expired jobs
-exports.deleteExpiredJobs = async () => {
-  const expiryDate = new Date();
-  expiryDate.setMonth(expiryDate.getMonth() - 3); // Jobs older than 3 months
+// // Delete expired jobs
+// exports.deleteExpiredJobs = async () => {
+//   const expiryDate = new Date();
+//   expiryDate.setMonth(expiryDate.getMonth() - 3); // Jobs older than 3 months
 
-  const result = await Job.deleteMany({ createdAt: { $lt: expiryDate } });
-  console.log('Deleted expired jobs:', result);
+//   const result = await Job.deleteMany({ createdAt: { $lt: expiryDate } });
+//   console.log('Deleted expired jobs:', result);
+// };
+exports.markExpiredJobs = async () => {
+  const expiryDate = new Date(); 
+  expiryDate.setMonth(expiryDate.getMonth() - 3); // Jobs older than 3 months 
+
+  const result = await Job.updateMany(
+    { createdAt: { $lt: expiryDate } }, // Filter jobs older than 3 months
+    { $set: { expired: true } }          // Update the expired field to true
+  );
+
+  console.log('Marked expired jobs:', result);
 };
 
 // Deactivate users who have been inactive for a long period
