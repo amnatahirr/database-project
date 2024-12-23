@@ -314,7 +314,12 @@
                 <p>Salary: <%= job.salary || 'Negotiable' %></p>
             </div>
         
-            <a href="/job/<%= job._id %>" class="view-details " style="margin-bottom: 10px;">View Details</a>
+            
+                <a href="/job/<%= job._id %>" class="view-details" style="margin-bottom: 10px; ">View
+                    Details</a>
+                
+
+           
             <br>
             <button class="btn btn-primary apply-now" data-job-id="<%= job._id %>">Apply Now</button>  
           </div>

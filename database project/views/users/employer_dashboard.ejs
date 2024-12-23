@@ -203,6 +203,17 @@ body {
     }
 }
 </style>
+<% if (successMessage.length > 0) { %>
+    <div class="flash-message success">
+        <%= successMessage %>
+    </div>
+<% } %>
+<% if (errorMessage.length) { %>
+    <div class="flash-message error">
+        <%= errorMessage %>
+    </div>
+<% } %>
+  
 <!--views/users/employer_dashboard-->
 <div class="dashboard">
     <div class="dashboard-header">

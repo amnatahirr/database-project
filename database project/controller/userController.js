@@ -144,7 +144,7 @@ exports.logoutUser = (req, res) => {
     secure: process.env.NODE_ENV === "production",
     sameSite: "strict",
   });
-  req.session.user = null; // Clear the user session
+  req.session.user = null; 
   req.flash("success", "Successfully logged out.");
   res.redirect("/login");
 };

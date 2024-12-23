@@ -37,15 +37,15 @@ app.use(session(
 ));
 app.use(flash());
 app.use((req, res, next) => {
-  res.locals.error = req.flash("error");
-  res.locals.success = req.flash("success");
+  res.locals.successMessage = req.flash('success');   
+  res.locals.errorMessage = req.flash('error');
+  res.locals.user = req.session.user || null;
+  
+
   next();
 });
 
-app.use((req, res, next) => {
-  res.locals.user = req.session.user || null; // Store user info in res.locals
-  next();
-});
+
 const connectDB = require('./db');
 
 dotenv.config();
