@@ -236,13 +236,17 @@
             </div>
         </nav>
     </header>
-
-    <% if (success) { %>
-        <div class="alert alert-success"><%= success %></div>
-      <% } %>
-      <% if (error) { %>
-        <div class="alert alert-danger"><%= error %></div>
-      <% } %>
+    
+    <% if (successMessage.length > 0) { %>
+        <div class="flash-message success">
+            <%= successMessage %>
+        </div>
+    <% } %>
+    <% if (errorMessage.length) { %>
+        <div class="flash-message error">
+            <%= errorMessage %>
+        </div>
+    <% } %>
       
 
     <main>
