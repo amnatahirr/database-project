@@ -39,7 +39,73 @@
         text-decoration: none;
         font-weight: 500;
     }
-  
+/* ... (previous styles remain unchanged) ... */
+
+.job-card {
+    background-color: var(--card-bg);
+    border-radius: 1rem;
+    padding: 1.5rem;
+    transition: transform 0.2s;
+}
+
+.job-card:hover {
+    transform: translateY(-4px);
+}
+
+.job-title {
+    color: #1a1a1a;
+    font-size: 1.25rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+}
+
+.company-name {
+    color: #666;
+    font-size: 1rem;
+    margin-bottom: 1rem;
+}
+
+.job-actions {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: 1rem;
+    gap: 1rem;
+}
+
+.view-details, .delete-btn {
+    flex: 1;
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    text-decoration: none;
+    border-radius: 0.5rem;
+    font-weight: 500;
+    transition: background-color 0.2s;
+    text-align: center;
+}
+
+.view-details {
+    background-color: #ffd700;
+    color: #1a1a1a;
+}
+
+.view-details:hover {
+    background-color: #ffc700;
+}
+
+.delete-btn {
+    background-color: red;
+    color: white;
+    border: none;
+    cursor: pointer;
+}
+
+.delete-btn:hover {
+    background-color: darkred;
+}
+
+/* ... (rest of the styles remain unchanged) ... */
+
     .container {
         max-width: 1200px;
         margin: 0 auto;
@@ -129,30 +195,30 @@
   </style>
   
   <div class="container">
-      <h1 class="page-title">My Posted Jobs</h1>
-      <div class="jobs-grid">
-          <% if (jobs.length > 0) { %>
-              <% jobs.forEach(job => { %>
-                <div class="job-card">
-                  <h2 class="job-title"><%= job.jobTitle %></h2>
-                  <p class="company-name"><%= job.companyName %></p>
-                  <div class="job-meta">
+    <h1 class="page-title">My Posted Jobs</h1>
+    <div class="jobs-grid">
+        <% if (jobs.length > 0) { %>
+            <% jobs.forEach(job => { %>
+            <div class="job-card">
+                <h2 class="job-title"><%= job.jobTitle %></h2>
+                <p class="company-name"><%= job.companyName %></p>
+                <div class="job-meta">
                     <p>Location: <%= job.location %></p>
                     <p>Type: <%= job.jobType %></p>
                     <p>Industry: <%= job.industry %></p>
                     <p>Salary: <%= job.salaryRange || 'Negotiable' %></p>
-                  </div>
-                  <a href="/job/<%= job._id %>" class="view-details">View Details</a>
-                  <a href="/job/update/<%= job._id %>" class="view-details">Update</a>
-                  <br><br>
-                  <button class="delete-btn" data-id="<%= job._id %>">Delete</button>
                 </div>
-              <% }) %>
-          <% } else { %>
-              <p>You haven't posted any jobs yet. Post a job now!</p>
-          <% } %>
-      </div>
-  </div>
+                <div class="job-actions">
+                    <a href="/job/<%= job._id %>" class="view-details">View Details</a>
+                    <button class="delete-btn" data-id="<%= job._id %>">Delete</button>
+                </div>
+            </div>
+            <% }) %>
+        <% } else { %>
+            <p>You haven't posted any jobs yet. Post a job now!</p>
+        <% } %>
+    </div>
+</div>
   
   <script>
     document.addEventListener('DOMContentLoaded', () => {
