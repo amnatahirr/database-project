@@ -300,35 +300,47 @@
     <input type="text" name="searchQuery" id="SearchQuery" value="<%= searchQuery || '' %>">
     <button type="submit">Search</button>
 </form>
-    <div class="jobs-grid">
-    <% if (jobs.length > 0) { %>
-       <% jobs.forEach(job => { %>
-          <div class="job-card">
-            <img src="/images/rocket-icon.svg" alt="Company Logo" class="company-logo">
-            <h2 class="job-title"><%= job.jobTitle %></h2>
-            <p class="company-name"><%= job.companyName %></p>
-            <div class="job-meta">
-                <p><%= job.location %></p>
-                <p>Type: <%= job.jobType %></p>
-                <p>Industry: <%= job.industry %></p>
-                <p>Salary: <%= job.salary || 'Negotiable' %></p>
+<div class="jobs-grid">
+    <% if (jobs.length> 0) { %>
+        <% jobs.forEach(job=> { %>
+            <div class="job-card">
+                <img src="/images/rocket-icon.svg" alt="Company Logo" class="company-logo">
+                <h2 class="job-title">
+                    <%= job.jobTitle %>
+                </h2>
+                <p class="company-name">
+                    <%= job.companyName %>
+                </p>
+                <div class="job-meta">
+                    <p>
+                        <%= job.location %>
+                    </p>
+                    <p>Type: <%= job.jobType %>
+                    </p>
+                    <p>Industry: <%= job.industry %>
+                    </p>
+                    <p>Salary: <%= job.salary || 'Negotiable' %>
+                    </p>
+                </div>
+                <div style="display: flex; justify-content: space-between; height: 50px;">
+                    <a href="/job/<%= job._id %>" class="view-details" style="margin-bottom: 10px; ">View
+                        Details</a>
+                    <button class="btn btn-secondary chat-now" data-job-id="<%= job._id %>"
+                        data-employer-id="<%= job.postedBy %>">
+                        Chat
+                    </button>
+
+                </div>
+
+                <br>
+                <button class="btn btn-primary apply-now" data-job-id="<%= job._id %>">Apply Now</button>
+                <!-- Add Chat Button -->
+
             </div>
-        
-            
-                <a href="/job/<%= job._id %>" class="view-details" style="margin-bottom: 10px; ">View
-                    Details</a>
-                
-
-           
-            <br>
-            <button class="btn btn-primary apply-now" data-job-id="<%= job._id %>">Apply Now</button>  
-          </div>
-        <% }); %>
-        <% } else { %>
-            <p>No jobs available at the moment. Please check back later!</p>
-          <% } %>
-      </div>
-
+            <% }); %>
+                <% } else { %>
+                    <p>No jobs available at the moment. Please check back later!</p>
+                    <% } %>
 </div>
 <!--view/job/viewJob-->
 <div id="chatModal" class="modal" style="display: none;">
