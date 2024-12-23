@@ -63,6 +63,16 @@
   }
 </style>
 
+<% if (successMessage.length > 0) { %>
+    <div class="flash-message success">
+        <%= successMessage %>
+    </div>
+<% } %>
+<% if (errorMessage.length) { %>
+    <div class="flash-message error">
+        <%= errorMessage %>
+    </div>
+<% } %>
   
 <div class="admin-panel">
   <div class="admin-header">

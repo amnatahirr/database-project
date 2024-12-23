@@ -1,4 +1,14 @@
-
+<% if (successMessage.length > 0) { %>
+    <div class="flash-message success">
+        <%= successMessage %>
+    </div>
+<% } %>
+<% if (errorMessage.length) { %>
+    <div class="flash-message error">
+        <%= errorMessage %>
+    </div>
+<% } %>
+  
 <div class="dashboard">
   <div class="dashboard-header">
       <h1>Dashboard</h1>

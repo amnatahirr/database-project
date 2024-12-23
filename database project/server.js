@@ -40,7 +40,7 @@ app.use((req, res, next) => {
   res.locals.successMessage = req.flash('success');   
   res.locals.errorMessage = req.flash('error');
   res.locals.user = req.session.user || null;
-  console.log(req.flash('success'), req.flash('error'));
+  
 
   next();
 });

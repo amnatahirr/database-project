@@ -120,7 +120,17 @@
         }
     }
 </style>
-
+<% if (successMessage.length > 0) { %>
+    <div class="flash-message success">
+        <%= successMessage %>
+    </div>
+<% } %>
+<% if (errorMessage.length) { %>
+    <div class="flash-message error">
+        <%= errorMessage %>
+    </div>
+<% } %>
+  
 <div class="hero">
     <div class="hero-content">
         <p class="hero-subtitle">One Stop Solution to Find Jobs</p>
