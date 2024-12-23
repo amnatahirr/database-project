@@ -35,6 +35,13 @@
         border-radius: 0.5rem;
     }
 </style>
+<% if (success) { %>
+  <div class="alert alert-success"><%= success %></div>
+<% } %>
+<% if (error) { %>
+  <div class="alert alert-danger"><%= error %></div>
+<% } %>
+
 <div class="profile-container">
   <% if (user) { %>
     <div class="profile-info">

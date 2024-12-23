@@ -9,7 +9,7 @@ const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const fileUpload = require("express-fileupload");
 const session = require("express-session");
-const flash = require("express-flash");
+const flash = require("connect-flash");
 const Job = require('./models/job');
 const User = require('./models/user');
 const { isAuthenticated } = require("./middleware/auth");
@@ -32,8 +32,16 @@ app.use(express.static('public'));
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.use(express.urlencoded({ extended: true }));
-app.use(session({ secret: "secret", resave: false, saveUninitialized: false }));
+app.use(session(
+  { secret: "secret", resave: false, saveUninitialized: false }
+));
 app.use(flash());
+app.use((req, res, next) => {
+  res.locals.error = req.flash("error");
+  res.locals.success = req.flash("success");
+  next();
+});
+
 app.use((req, res, next) => {
   res.locals.user = req.session.user || null; // Store user info in res.locals
   next();
