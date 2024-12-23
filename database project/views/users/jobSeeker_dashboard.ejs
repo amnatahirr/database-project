@@ -1,86 +1,100 @@
 <style>
-    .dashboard {
-        max-width: 800px;
-        margin: 0 auto;
-        padding: 2rem;
-    }
+:root {
+    --primary-bg: #1a1a1a;
+    --secondary-bg: #2c2c2c;
+    --primary-text: #ffffff;
+    --secondary-text: #b0b0b0;
+    --accent-color: #e67e22; /* Vibrant orange */
+    --card-shadow: rgba(0, 0, 0, 0.3);
+    --card-shadow-hover: rgba(0, 0, 0, 0.5);
+    --border-radius: 0.5rem;
+}
 
-    .dashboard-header {
-        margin-bottom: 2rem;
-    }
+body {
+    background-color: var(--primary-bg);
+    color: var(--primary-text);
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+}
 
-    .dashboard-header h1 {
-        font-size: 2.5rem;
-        font-weight: 700;
-        color: var(--primary-text);
-        margin-bottom: 0.5rem;
-    }
+.dashboard {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 2rem;
+}
 
-    .dashboard-header p {
-        font-size: 1.125rem;
-        color: var(--secondary-text);
-    }
+.dashboard-header {
+    margin-bottom: 2rem;
+    text-align: center;
+}
 
-    .dashboard-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-        gap: 1.5rem;
-    }
+.dashboard-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--primary-text);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+}
 
-    .dashboard-card {
-        background-color: white;
-        border-radius: 1rem;
-        padding: 1.5rem;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        transition: transform 0.2s ease, box-shadow 0.2s ease;
-    }
+.dashboard-header p {
+    font-size: 1.25rem;
+    color: var(--secondary-text);
+    opacity: 0.9;
+}
 
-    .dashboard-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    }
+.dashboard-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    gap: 1.5rem;
+}
 
-    .dashboard-card h2 {
-        font-size: 1.25rem;
-        font-weight: 600;
-        color: var(--primary-text);
-        margin-bottom: 1rem;
-    }
+.dashboard-card {
+    background-color: var(--secondary-bg);
+    border-radius: var(--border-radius);
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px var(--card-shadow);
+    transition: all 0.3s ease;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
 
-    .modal {
-        display: none;
-        position: fixed;
-        top: 50%;
-        left: 50%;
-        transform: translate(-50%, -50%);
-        width: 400px;
-        padding: 20px;
-        background: #fff;
-        border: 1px solid #ddd;
-    }
+.dashboard-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 15px var(--card-shadow-hover);
+    border-color: var(--accent-color);
+}
 
-    .badge {
-        background: red;
-        color: white;
-        border-radius: 50%;
-        padding: 5px 10px;
-    }
+.dashboard-card h2 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: var(--accent-color);
+    margin-bottom: 1rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--accent-color);
+}
 
-    .dashboard-card p {
-        color: var(--secondary-text);
-        margin-bottom: 1rem;
-    }
+.dashboard-card p {
+    color: var(--secondary-text);
+    margin-bottom: 1rem;
+    opacity: 0.8;
+}
 
-    .dashboard-card a {
-        color: var(--accent-color);
-        text-decoration: none;
-        font-weight: 500;
-        transition: color 0.2s ease;
-    }
+.dashboard-card a {
+    color: var(--accent-color);
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--accent-color);
+    border-radius: 2rem;
+}
 
-    .dashboard-card a:hover {
-        color: var(--secondary-text);
-    }
+.dashboard-card a:hover {
+    background-color: var(--accent-color);
+    color: var(--primary-bg);
+}
 </style>
 <!--views/users/jobSeeker_dashboard.ejs-->
 <div class="dashboard">
@@ -97,7 +111,7 @@
         <div class="dashboard-card">
             <h2>Jobs Applied</h2>
             <p>You've applied to these jobs</p>
-            <a href="/viewAllApplications"">View your applications</a>
+            <a href="/viewAllApplications">View your applications</a>
         </div>
 
             <div class=" dashboard-card">
@@ -114,4 +128,3 @@
 
 
 </div>
-<!--I want that each chat button placed on ech job card when clicked is opened and enbles the user to send message to the employer that posted that job  and on employer dashboard there is an icon on bottom right corner that shows the unread msgs  in the form of numbers on that icon and when click onthat icon a chat appears that shows the msgs and in response enable the employer to respond to that msgs by using ejs,node,express,socket.io-->
